@@ -1,0 +1,64 @@
+﻿{
+
+  "version": 1,
+  "name": "TRexScript1",
+  "metaData": {
+    "issuer": "A Company",
+    "email": "info@acompany.com",
+    "phone": "+0123456789",
+    "vendor": "The Magic BIM Software",
+    "source": "The holodeck"
+  },
+  "inclusion": {
+    "component": [],
+    "pset": [],
+    "property": []
+  },
+  "exclusion": {
+    "component": [],
+    "pset": [],
+    "property": []
+  },
+  "propertySet": [
+    {
+      "name": "PSetA",
+      "component": [],
+      "property": [
+        {
+          "name": "PropA1",
+          "valueType": {
+            "type": "LABEL",
+            "value": [ "A value" ]
+          }
+        },
+        {
+          "name": "PropA2",
+          "valueType": {
+            "type": "REAL",
+            "value": [ "0" ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PSetB",
+      "component": "IFCCOLUMN",
+      "property": [
+        {
+          "name": "PropB1",
+          "mappingType": {
+            "pset": {
+              "name": "PSetA"
+            },
+            "property": {
+              "name": "PropA2"
+            },
+            "converter": {
+              "type": "COPY"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

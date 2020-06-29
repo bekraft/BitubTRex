@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Protoc>$(UserProfile)\.nuget\packages\google.protobuf.tools\3.8.0\tools\windows_x64\protoc.exe</Protoc>
+    
+    <Major>0</Major>
+    <Minor>1</Minor>
+    <Release>0</Release>
+    <Qualifier></Qualifier>
+    <Build>0</Build>    
+    <Configurations>Debug;Release;Beta</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Beta' ">
+    <Release>$([System.DateTime]::Now.ToString("yy"))$([System.String]::Format("{0:000}",$([System.DateTime]::Now.DayOfYear)))</Release>
+    <HourOfDay>$([MSBuild]::Multiply($([System.DateTime]::Now.Hour), 60))</HourOfDay>
+    <Build>$([System.Math]::Floor($([MSBuild]::Divide($([MSBuild]::Add($(HourOfDay), $([System.DateTime]::Now.Minute))), 2))))</Build>
+    <Qualifier>-Beta</Qualifier>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <IncludeSymbols>true</IncludeSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  
+    <Title>Bitub.Ifc</Title>
+    <Description>IFC transformation pipes</Description>
+
+    <TargetFrameworks>net47</TargetFrameworks>
+
+    <AssemblyFileVersionAttribute>[assembly:System.Reflection.AssemblyVersionAttribute("$(Major).$(Minor).$(Release).$(Build)")];</AssemblyFileVersionAttribute>
+    <AssemblyVersion>$(Major).$(Minor).$(Release).$(Build)</AssemblyVersion>
+    <FileVersion>$(Major).$(Minor).$(Release).$(Build)</FileVersion>
+    <Version>$(Major).$(Minor).$(Release)$(Qualifier).$(Build)</Version>
+    <Authors>Bernold Kraft</Authors>
+    <Company>Bitub</Company>
+    <Copyright>Bernold Kraft</Copyright>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://www.github.com/bekraft/BitubTRex</PackageProjectUrl>
+    <RootNamespace>Bitub</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Beta|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Beta|net47|AnyCPU'">
+    <DocumentationFile></DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Serilog" Version="2.9.0" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
+    <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
+    <PackageReference Include="Xbim.Common" Version="5.1.20048.17373" />
+    <PackageReference Include="Xbim.Geometry.Engine.Interop" Version="5.1.20049.18428" />
+    <PackageReference Include="Xbim.Ifc" Version="5.1.20048.17371" />
+    <PackageReference Include="Xbim.Ifc2x3" Version="5.1.20048.17371" />
+    <PackageReference Include="Xbim.Ifc4" Version="5.1.20048.17371" />
+    <PackageReference Include="Xbim.IO.Esent" Version="5.1.20048.17371" />
+    <PackageReference Include="Xbim.IO.MemoryModel" Version="5.1.20048.17371" />
+    <PackageReference Include="Xbim.ModelGeometry.Scene" Version="5.1.20049.18428" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Bitub.Transfer\Bitub.Transfer.csproj" />
+  </ItemGroup>
+</Project>

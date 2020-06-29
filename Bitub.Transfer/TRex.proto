@@ -1,0 +1,125 @@
+﻿syntax = "proto3";
+package Bitub.Transfer.TRex;
+
+import "Common.proto";
+
+// Version 1.0
+option csharp_namespace = "Bitub.Transfer.TRex";
+option java_package = "bitub.transfer.trex";
+
+// A Job request
+message JobRequest {
+    Qualifier name = 1;
+    repeated Job jobs = 2;
+    // TODO Fail on first failure
+}
+
+// A Job response
+message JobStateResponse {
+    Qualifier name = 1;
+    uint32 percentage = 3;
+    // TODO Done jobs? Messages?
+}
+
+enum JobState {
+    SCHEDULED = 0;
+    NOT_APPLICABLE = 1;
+    FAILED = 2;
+    SUCCEEDED = 3;
+}
+
+message JobStateMessage {
+    JobState state = 1;
+    string message = 2;
+}
+
+// A Job switch
+message Job {
+    oneof jobSwitch {
+        PropertyPipe propertyPipe = 1;
+        PropertyDef propertyAddon = 2;
+        Property propertyRemoval = 3;
+        Classifier propertySetRemoval = 4;
+        Classifier elementRemoval = 5;
+    }
+}
+
+// A selector scope "selects" the transformation target
+message PropertyScope {
+    repeated Classifier elements = 1;
+}
+
+// A property pipe declaration
+message PropertyPipe {
+    enum CollectorType {
+        LATEST = 0;
+        FIRST = 1;
+        ALL = 2;
+    }
+    CollectorType type = 1;
+
+    Property source = 2;
+    Property target = 3;
+}
+
+// A property of model by classifier name
+message Property {
+    Qualifier name = 1;
+    PropertyScope scope = 2;
+    PropertyUnitType unitType = 3;
+}
+
+// Property declaration
+message PropertyDef {
+    Property property = 1;
+    repeated PropertyValue values = 2;
+}
+
+// Property value switch
+message PropertyValue {
+    oneof valueSwitch {
+        double digit = 5;
+        string serial = 6;
+        GlobalUniqueId id = 7;
+    }
+}
+
+// Property unit type bound by type and unit
+message PropertyUnitType {
+    PropertyType type = 1;
+    UnitSI unit = 2;
+    UnitPrefix prefix = 3;
+    uint32 dim = 4;
+}
+
+// Available Property types
+enum PropertyType {
+    UNDEFINED = 0;
+    LABEL = 1;
+    GUID = 2;
+    ID = 3;
+    DIGIT = 4;
+    INTEGER = 5;
+    TEXT = 6;
+    ENUM = 7;
+    BOOLEAN = 8;
+}
+
+// SI Unit
+enum UnitSI {
+    NONE = 0;
+    METER = 1;
+}
+
+// Unit's prefix
+enum UnitPrefix {
+    UNIT = 0;
+    DECI = 2;
+    CENTI = 3;
+    KILO = 4;
+    MEGA = 5;
+    GIGA = 6;
+    MILLI = 7;
+    MICRO = 8;
+    NANO = 9;
+}

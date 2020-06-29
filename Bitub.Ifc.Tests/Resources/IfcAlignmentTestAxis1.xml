@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Alignment xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://github.com/bekraft/BitubTRex/Bitub.Ifc.Transform">
+  <Source>
+    <Start>
+      <X>-13.219503641350862</X>
+      <Y>9.1674747929646063</Y>
+      <Z>0.10000000000000009</Z>
+    </Start>
+    <End>
+      <X>-12.512396829827425</X>
+      <Y>9.8745816044880446</Y>
+      <Z>0.10000000000000009</Z>
+    </End>
+  </Source>
+  <Target>
+    <Start>
+      <X>0</X>
+      <Y>0</Y>
+      <Z>0.1</Z>
+    </Start>
+    <End>
+      <X>1</X>
+      <Y>0</Y>
+      <Z>0.1</Z>
+    </End>
+  </Target>
+</Alignment>

@@ -1,0 +1,76 @@
+﻿syntax = "proto3";
+package Bitub.Transfer.Classify;
+
+import "Common.proto";
+
+// Version 1.0
+option csharp_namespace = "Bitub.Transfer.Classify";
+option java_package = "bitub.transfer.classify";
+
+message Ontology {
+	repeated Classifier classifiers = 1;
+}
+
+message Concept {
+	Qualifier name = 1;
+	oneof conceptKind {
+		Conjunction conjuncted = 2;
+		FeatureConcept concept = 3;
+	}
+	repeated Qualifier subsumes = 4;
+}
+
+// A concept template as conjunction of concepts
+message Conjunction {
+	repeated Qualifier concepts = 2;
+}
+
+// A concept template based on features
+message FeatureConcept {
+	string label = 1;
+	RoleOp op = 2;
+	repeated FeatureRole features = 3;
+}
+
+// A data or role feature
+message FeatureRole {
+	Qualifier name = 1;
+	oneof conceptOrDataFeature {
+		DataConcept data = 3;
+		Qualifier filler = 4;
+	}
+}
+
+// A feature data concept
+message DataConcept {
+	DataType type = 1;
+	DataOp op = 2;
+	oneof numberOrString {
+		double digit = 3;
+		string serialized = 4;
+	}
+}
+
+// The feature data type
+enum DataType {
+	STRING = 0;
+	INTEGER = 1;
+	DECIMAL = 2;	
+	BOOLEAN = 3;
+	TIMESTAMP = 4;
+}
+
+// The feature role operator
+enum RoleOp {
+	AllOf = 0;
+	OneOf = 1;
+}
+
+// The feature data operator
+enum DataOp {
+	Equals = 0;
+	Less = 1;
+	LessThanEquals = 2;
+	Greater = 3;
+	GreaterThanEquals = 4;
+}
