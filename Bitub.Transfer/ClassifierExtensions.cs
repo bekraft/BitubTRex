@@ -25,7 +25,7 @@ namespace Bitub.Transfer
         /// <returns>True if empty</returns>
         public static bool IsNothing(this Classifier classifier)
         {
-            return classifier.Path.Count == 0;
+            return null == classifier || classifier.Path.Count == 0;
         }
 
         /// <summary>
@@ -35,8 +35,8 @@ namespace Bitub.Transfer
         /// <returns>True, if each path qualifier is unique (no cycles)</returns>
         public static bool IsValid(this Classifier classifier)
         {
-            var set = new HashSet<Qualifier>(classifier.Path);
-            return set.Count == classifier.Path.Count;
+            var set = new HashSet<Qualifier>(classifier?.Path);
+            return set.Count == classifier?.Path.Count;
         }
 
         /// <summary>
@@ -53,12 +53,38 @@ namespace Bitub.Transfer
         /// <summary>
         /// True, if the given qualifier is a super qualifier of at least on path fragment.
         /// </summary>
+        /// <param name="classifier">The classifier which is a sub set of the qualifier</param>
+        /// <param name="qualifier">The qualifier</param>
+        /// <param name="comparison">The string comparision method</param>
+        /// <returns>True, if the given qualifier is (paritally) a super qualifier of the classifier</returns>
+        public static bool IsSubMatching(this Classifier classifier, Qualifier qualifier, StringComparison comparison = StringComparison.Ordinal)
+        {
+            switch(qualifier.GuidOrNameCase)
+            {
+                case Qualifier.GuidOrNameOneofCase.Anonymous:
+                    // Same as matching if using GUIDs
+                    return classifier.IsMatching(qualifier);
+                default:
+                    return classifier.Path.Any(q => qualifier.IsSuperQualifierOf(q, comparison));
+            }            
+        }
+
+        /// <summary>
+        /// Extracts a filtered enumeration sub qualifiers which hava a common root with given qualifier.
+        /// </summary>
         /// <param name="classifier">The classifier</param>
         /// <param name="qualifier">The qualifier</param>
-        /// <returns>True, if the given qualifier is (paritally) a super qualifier</returns>
-        public static bool IsSuperMatching(this Classifier classifier, Qualifier qualifier, bool caseInvariant = false)
+        /// <param name="comparison">The string comparision method</param>
+        /// <returns></returns>
+        public static IEnumerable<Qualifier> ToFilteredSubQualifiers(this Classifier classifier, Qualifier qualifier, StringComparison comparison = StringComparison.Ordinal)
         {
-            return classifier.Path.Any(q => qualifier.IsSuperQualifierOf(q, caseInvariant));
+            switch (qualifier.GuidOrNameCase)
+            {
+                case Qualifier.GuidOrNameOneofCase.Anonymous:
+                    return classifier.Path.Where(q => q.Equals(qualifier));
+                default:
+                    return classifier.Path.Select(q => q.ToSubQualifierOf(qualifier, comparison)).Where(q => !q.IsEmpty());
+            }
         }
 
         /// <summary>
@@ -67,7 +93,7 @@ namespace Bitub.Transfer
         /// <param name="classifier">The classifier</param>
         /// <param name="qualifier">The qualifier</param>
         /// <returns>A new super classifier trace or a classifier with <see cref="IsNothing(Classifier)"/> returning true.</returns>
-        public static Classifier SuperClassifierOf(this Classifier classifier, Qualifier qualifier)
+        public static Classifier ToSuperClassifierOf(this Classifier classifier, Qualifier qualifier)
         {
             var superClassifier = new Classifier();
             for (int i=0; i < classifier.Path.IndexOf(qualifier); i++)
@@ -83,7 +109,7 @@ namespace Bitub.Transfer
         /// <param name="classifier">The classifier</param>
         /// <param name="qualifier">The qualifier</param>
         /// <returns>A new subset classifier trace or a classifier with <see cref="IsNothing(Classifier)"/> returning true.</returns>
-        public static Classifier SubClassifierOf(this Classifier classifier, Qualifier qualifier)
+        public static Classifier ToSubClassifierOf(this Classifier classifier, Qualifier qualifier)
         {
             var subClassifier = new Classifier();
             for (int i = classifier.Path.IndexOf(qualifier); i > 0 && i < classifier.Path.Count; i++)

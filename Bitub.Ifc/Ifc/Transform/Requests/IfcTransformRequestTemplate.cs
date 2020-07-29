@@ -10,7 +10,8 @@ using Xbim.Common;
 using Xbim.Common.Metadata;
 using Xbim.Ifc;
 using Xbim.IO;
-using Xbim.IO.Step21;
+
+using Microsoft.Extensions.Logging;
 
 namespace Bitub.Ifc.Transform.Requests
 {
@@ -48,6 +49,8 @@ namespace Bitub.Ifc.Transform.Requests
         /// </summary>
         public XbimEditorCredentials EditorCredentials { get; set; }
 
+        public abstract ILogger Log { get; protected set; }
+
         /// <summary>
         /// Transformation action type.
         /// </summary>
@@ -81,7 +84,7 @@ namespace Bitub.Ifc.Transform.Requests
         /// <returns></returns>
         protected virtual object PropertyTransform(ExpressMetaProperty property, object hostObject, T package)
         {
-            return property.PropertyInfo.GetValue(hostObject, null);
+            return property?.PropertyInfo.GetValue(hostObject, null);
         }
 
         /// <summary>
@@ -111,7 +114,15 @@ namespace Bitub.Ifc.Transform.Requests
         protected IPersistEntity Copy(IPersistEntity instance, T package, bool withInverse)
         {
             package.Log?.Add(new TransformLogEntry(new XbimInstanceHandle(instance), TransformAction.Transferred));
-            return package.Target.InsertCopy(instance, package.Map, (p, o) => PropertyTransform(p, o, package), withInverse, false);
+            try
+            {
+                return package.Target.InsertCopy(instance, package.Map, (p, o) => PropertyTransform(p, o, package), withInverse, false);
+            }
+            catch(Exception e)
+            {
+                Log?.LogError("At #{2}{3}: Caught '{0}' saying '{1}'.", e.GetType().Name, e.Message, instance.EntityLabel, instance.ExpressType.Name);
+                throw e;
+            }
         }
 
         protected virtual IPersistEntity DelegateCopy(IPersistEntity instance, T package)

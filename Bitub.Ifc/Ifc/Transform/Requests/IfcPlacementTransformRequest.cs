@@ -158,12 +158,16 @@ namespace Bitub.Ifc.Transform.Requests
     {
         #region Internals
 
-        private readonly ILogger Log;
         private readonly object _monitor = new object();
         private IfcPlacementStrategy _placementStrategy = IfcPlacementStrategy.ChangeRootPlacements;
         private IfcAxisAlignment _axisAlignment = new IfcAxisAlignment();
 
         #endregion
+
+        /// <summary>
+        /// The logger.
+        /// </summary>
+        public override ILogger Log { get; protected set; }
 
         public override string Name { get => "IFC Model Placement Transform"; }
 

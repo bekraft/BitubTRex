@@ -44,7 +44,10 @@ namespace Bitub.Ifc.Transform.Requests
     /// </summary>
     public class IfcPropertyRemovalRequest : IfcTransformRequestTemplate<IfcPropertyRemovalPackage>
     {
-        private readonly ILogger Log;
+        /// <summary>
+        /// The logger.
+        /// </summary>
+        public override ILogger Log { get; protected set; }
 
         public override string Name { get => "Property Removal"; }
 

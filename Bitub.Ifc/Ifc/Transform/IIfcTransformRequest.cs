@@ -7,6 +7,8 @@ using Xbim.Common;
 
 using Bitub.Transfer;
 
+using Microsoft.Extensions.Logging;
+
 namespace Bitub.Ifc.Transform
 {
     public enum TransformAction
@@ -96,6 +98,8 @@ namespace Bitub.Ifc.Transform
     /// </summary>
     public interface IIfcTransformRequest
     {
+        ILogger Log { get; }
+
         /// <summary>
         /// A (unique) name.
         /// </summary>

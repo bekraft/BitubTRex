@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 
 using Xbim.Common;
 
-using Bitub.Transfer;
-using Bitub.Ifc.Transform;
 using Xbim.Ifc4.Interfaces;
-using Xbim.Ifc2x3.Kernel;
-using System.Configuration;
+
+using Microsoft.Extensions.Logging;
 
 namespace Bitub.Ifc.Transform.Requests
 {
@@ -61,6 +59,11 @@ namespace Bitub.Ifc.Transform.Requests
     /// </summary>
     public class IfcProjectMetaDataChangeRequest : IfcTransformRequestTemplate<IfcMetadataTransformPackage>
     {
+        /// <summary>
+        /// The logger.
+        /// </summary>
+        public override ILogger Log { get; protected set; }
+
         public override string Name => "Project Meta Data Change";
 
         public override bool IsInplaceTransform => throw new NotImplementedException();

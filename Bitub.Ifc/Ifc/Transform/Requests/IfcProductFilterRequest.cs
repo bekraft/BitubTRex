@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 using Bitub.Ifc.Transform;
 using Xbim.Common;
-using Xbim.Ifc4.Interfaces;
+
+using Microsoft.Extensions.Logging;
 
 using IfcProductPredicate = System.Func<Xbim.Ifc4.Interfaces.IIfcProduct, bool>;
 
@@ -50,6 +50,11 @@ namespace Bitub.Ifc.Transform.Requests
     /// </summary>
     public class IfcProductFilterRequest : IfcTransformRequestTemplate<IfcProductFilterPackage>
     {
+        /// <summary>
+        /// The logger.
+        /// </summary>
+        public override ILogger Log { get; protected set; }
+
         public override string Name => "IFC Product Filter";
 
         public ICollection<IfcProductPredicate> IncludeProducts { get; } = new List<IfcProductPredicate>();

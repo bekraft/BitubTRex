@@ -64,7 +64,10 @@ namespace Bitub.Ifc.Transform.Requests
     /// </summary>
     public class IfcPropertySetRemovalRequest : IfcTransformRequestTemplate<IfcPropertySetRemovalPackage>
     {
-        private readonly ILogger Log;
+        /// <summary>
+        /// The logger.
+        /// </summary>
+        public override ILogger Log { get; protected set; }
 
         /// <summary>
         /// Name is "Property Set Removal"
@@ -156,10 +159,15 @@ namespace Bitub.Ifc.Transform.Requests
             else if (hostObject is IIfcRelDefinesByProperties rDefProps)
             {
                 // Filter relations which only reference non-black listed property sets
-                if (rDefProps.RelatingPropertyDefinition.PropertySetDefinitions.All(package.HitsNameFilter))
+                if (property.PropertyInfo.Name == nameof(IIfcRelDefinesByProperties.RelatingPropertyDefinition))
                 {
-                    Log?.LogWarning($"Entity IfcRelDefinesByProperties (#{rDefProps.EntityLabel}) became invalid on transfer.");
-                    throw new NotSupportedException($"Invaild IfcRelDefinesByProperties #{rDefProps.EntityLabel}");
+                    var propDefinition = EmptyToNull(rDefProps.RelatingPropertyDefinition.PropertySetDefinitions.Where(package.PassesNameFilter));
+                    if (null == propDefinition)
+                        Log?.LogWarning($"Entity IfcRelDefinesByProperties (from #{rDefProps.EntityLabel}) became invalid on transfer.");
+                    else
+                        Log?.LogInformation($"Entity IfcRelDefinesByProperties (from #{rDefProps.EntityLabel}) changed since some property sets were dropped.");
+
+                    return propDefinition;
                 }
             }
             else if (hostObject is IIfcProperty prop && property.PropertyInfo.Name == nameof(IIfcProperty.PartOfPset))

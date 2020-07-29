@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-
+using System.Runtime.CompilerServices;
 using Xbim.Common;
 using Xbim.Common.Enumerations;
 using Xbim.Common.ExpressValidation;
@@ -17,6 +17,19 @@ namespace Bitub.Ifc.Validation
     public class IfcSchemaValidationStamp : IEquatable<IfcSchemaValidationStamp>
     {
         public DateTime Timestamp { get; private set; }
+
+        private class ValidationResultEqualityComparer : IEqualityComparer<ValidationResult>
+        {
+            public bool Equals(ValidationResult x, ValidationResult y)
+            {
+                return IsSameResult(x, y);
+            }
+
+            public int GetHashCode(ValidationResult obj)
+            {
+                return obj.GetHashCode();
+            }
+        }
 
         /// <summary>
         /// According schema.
@@ -87,15 +100,23 @@ namespace Bitub.Ifc.Validation
         }
 
         /// <summary>
-        /// 
+        /// Does a set difference operation by comparing results A and B. 
         /// </summary>
-        /// <param name="a"></param>
-        /// <param name="b"></param>
-        /// <returns></returns>
-        public static IEnumerable<ValidationResult> Diff(IEnumerable<ValidationResult> a, IEnumerable<ValidationResult> b)
+        /// <param name="aResults">Result A</param>
+        /// <param name="bResults">Result B</param>
+        /// <returns>Returns A without B</returns>
+        public static IEnumerable<ValidationResult> Diff(IEnumerable<ValidationResult> aResults, IEnumerable<ValidationResult> bResults)
         {
-            //var rootsOfA = a.Where(r => r.Context == null).ToArray();
-            throw new NotImplementedException();
+            var left = new HashSet<ValidationResult>(aResults, new ValidationResultEqualityComparer());
+            foreach (var bResult in bResults)
+                left.Remove(bResult);
+
+            return left.ToArray();
+        }
+
+        public IEnumerable<ValidationResult> Diff(IfcSchemaValidationStamp other)
+        {
+            return Diff(Results, other.Results);
         }
 
         /// <summary>
@@ -106,7 +127,9 @@ namespace Bitub.Ifc.Validation
         /// <returns>True, if both have the same issues, same issue types and messages</returns>
         public bool Equals(IfcSchemaValidationStamp other)
         {
-            throw new NotImplementedException();
+            var diffA = Diff(Results, other.Results);
+            var diffB = Diff(other.Results, Results);
+            return !diffA.Any() && !diffB.Any();
         }
 
         // A schema mandatory proposition failure

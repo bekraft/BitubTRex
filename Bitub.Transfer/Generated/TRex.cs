@@ -1323,6 +1323,9 @@ namespace Bitub.Transfer.TRex {
     /// <summary>Field number for the "name" field.</summary>
     public const int NameFieldNumber = 1;
     private global::Bitub.Transfer.Qualifier name_;
+    /// <summary>
+    /// PSet.Name or .Name if any pset
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Bitub.Transfer.Qualifier Name {
       get { return name_; }
@@ -1334,6 +1337,9 @@ namespace Bitub.Transfer.TRex {
     /// <summary>Field number for the "scope" field.</summary>
     public const int ScopeFieldNumber = 2;
     private global::Bitub.Transfer.TRex.PropertyScope scope_;
+    /// <summary>
+    /// Classification matches
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Bitub.Transfer.TRex.PropertyScope Scope {
       get { return scope_; }
@@ -1345,6 +1351,9 @@ namespace Bitub.Transfer.TRex {
     /// <summary>Field number for the "unitType" field.</summary>
     public const int UnitTypeFieldNumber = 3;
     private global::Bitub.Transfer.TRex.PropertyUnitType unitType_;
+    /// <summary>
+    /// Property definition
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Bitub.Transfer.TRex.PropertyUnitType UnitType {
       get { return unitType_; }

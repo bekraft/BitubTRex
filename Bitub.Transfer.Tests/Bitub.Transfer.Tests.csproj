@@ -76,31 +76,31 @@
       <Version>2.1.1</Version>
     </PackageReference>
     <PackageReference Include="MSTest.TestAdapter">
-      <Version>1.4.0</Version>
+      <Version>2.1.2</Version>
     </PackageReference>
     <PackageReference Include="MSTest.TestFramework">
-      <Version>1.4.0</Version>
+      <Version>2.1.2</Version>
     </PackageReference>
     <PackageReference Include="Xbim.Common">
-      <Version>5.1.20048.17373</Version>
+      <Version>5.1.20209.27462</Version>
     </PackageReference>
     <PackageReference Include="Xbim.Geometry.Engine.Interop">
       <Version>5.1.20049.18428</Version>
     </PackageReference>
     <PackageReference Include="Xbim.Ifc">
-      <Version>5.1.20048.17371</Version>
+      <Version>5.1.20209.27462</Version>
     </PackageReference>
     <PackageReference Include="Xbim.Ifc2x3">
-      <Version>5.1.20048.17371</Version>
+      <Version>5.1.20209.27462</Version>
     </PackageReference>
     <PackageReference Include="Xbim.Ifc4">
-      <Version>5.1.20048.17371</Version>
+      <Version>5.1.20209.27462</Version>
     </PackageReference>
     <PackageReference Include="Xbim.IO.Esent">
-      <Version>5.1.20048.17371</Version>
+      <Version>5.1.20209.27462</Version>
     </PackageReference>
     <PackageReference Include="Xbim.IO.MemoryModel">
-      <Version>5.1.20048.17371</Version>
+      <Version>5.1.20209.27462</Version>
     </PackageReference>
     <PackageReference Include="Xbim.ModelGeometry.Scene">
       <Version>5.1.20049.18428</Version>
