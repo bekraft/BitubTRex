@@ -186,7 +186,7 @@ namespace Bitub.Ifc.Transform.Requests
             return base.PropertyTransform(property, hostObject, package);
         }
 
-        protected override TransformResult.Code DoPostTransform(IfcPropertySetRemovalPackage package, CancelableProgress progress)
+        protected override TransformResult.Code DoPostTransform(IfcPropertySetRemovalPackage package, CancelableProgressing progress)
         {
             foreach(var r in package.RelDefinesByProperties)
             {

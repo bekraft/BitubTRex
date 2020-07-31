@@ -98,6 +98,9 @@ namespace Bitub.Ifc.Transform
     /// </summary>
     public interface IIfcTransformRequest
     {
+        /// <summary>
+        /// The associated logger instance.
+        /// </summary>
         ILogger Log { get; }
 
         /// <summary>

@@ -57,7 +57,7 @@ namespace Bitub.Ifc.Transform.Requests
             AppliedAxisAlignment = new IfcAxisAlignment(axisAlignment);
         }
 
-        internal void Prepare(CancelableProgress cancelableProgress)
+        internal void Prepare(CancelableProgressing cancelableProgress)
         {
             PlacementTree = new XbimPlacementTree(Source, false);
             SourceRootPlacementsLabels = Source.Instances
@@ -222,7 +222,7 @@ namespace Bitub.Ifc.Transform.Requests
                 return new IfcPlacementTransformPackage(aSource, aTarget, _placementStrategy, _axisAlignment);
         }
 
-        protected override TransformResult.Code DoPreprocessTransform(IfcPlacementTransformPackage package, CancelableProgress progress)
+        protected override TransformResult.Code DoPreprocessTransform(IfcPlacementTransformPackage package, CancelableProgressing progress)
         {
             Log?.LogInformation("({0}) Applying '{1}' strategy to model.", Name, PlacementStrategy);
             package.Prepare(progress);

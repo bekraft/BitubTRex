@@ -19,10 +19,8 @@ namespace Bitub.Ifc.Scene
         }
     }
 
-    public interface IIfcTesselationContext
+    public interface IIfcTesselationContext : ICancelableProgressing<ICancelableProgressState>
     {
-        event OnProgressChangeDelegate OnProgressChange;
-
         IEnumerable<IfcProductSceneRepresentation> Tesselate(IModel m, IfcSceneExportSummary summary, CancelableProgressStateToken progressState);
     }
 }

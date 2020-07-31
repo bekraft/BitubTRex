@@ -98,7 +98,7 @@ namespace Bitub.Ifc.Transform.Requests
 
         protected abstract T CreateTransformPackage(IModel aSource, IModel aTarget);
 
-        protected virtual TransformResult.Code DoPreprocessTransform(T package, CancelableProgress progress)
+        protected virtual TransformResult.Code DoPreprocessTransform(T package, CancelableProgressing progress)
         {
             return TransformResult.Code.Finished;
         }
@@ -130,7 +130,7 @@ namespace Bitub.Ifc.Transform.Requests
             return Copy(instance, package, true);
         }
 
-        protected TransformResult.Code DoTransform(T package, CancelableProgress progress)
+        protected TransformResult.Code DoTransform(T package, CancelableProgressing progress)
         {
             foreach (var instance in package.Source.Instances)
             {
@@ -158,7 +158,7 @@ namespace Bitub.Ifc.Transform.Requests
             return TransformResult.Code.Finished;
         }
 
-        protected virtual TransformResult.Code DoPostTransform(T package, CancelableProgress progress)
+        protected virtual TransformResult.Code DoPostTransform(T package, CancelableProgressing progress)
         {
             return TransformResult.Code.Finished;
         }
@@ -175,7 +175,7 @@ namespace Bitub.Ifc.Transform.Requests
                 throw new NotSupportedException($"Unsupported / unknown type {model.GetType()}");
         }
 
-        protected IfcStore CreateTargetModel(IModel sourcePattern, CancelableProgress progress)
+        protected IfcStore CreateTargetModel(IModel sourcePattern, CancelableProgressing progress)
         {
             var storeType = TargetStoreType ?? DetectStorageType(sourcePattern);
 
@@ -195,7 +195,7 @@ namespace Bitub.Ifc.Transform.Requests
             return target;
         }
 
-        protected Func<TransformResult> FastForward(IModel source, CancelableProgress progress)
+        protected Func<TransformResult> FastForward(IModel source, CancelableProgressing progress)
         {
             return () =>
             {
@@ -204,7 +204,7 @@ namespace Bitub.Ifc.Transform.Requests
             };
         }
 
-        protected Func<TransformResult> PrepareInternally(IModel aSource, CancelableProgress progress)
+        protected Func<TransformResult> PrepareInternally(IModel aSource, CancelableProgressing progress)
         {
             Func<TransformResult> candidateResult = () =>
             {
@@ -255,14 +255,13 @@ namespace Bitub.Ifc.Transform.Requests
         /// <param name="aSource">The source model</param>
         /// <param name="progressing">The porgressing token</param>
         /// <returns></returns>
-        public Task<TransformResult> Prepare(IModel aSource, out ICancelableProgressing progressing)
+        public Task<TransformResult> Prepare(IModel aSource, out CancelableProgressing progressing)
         {
-            var progress = new CancelableProgress(null, aSource.Instances.Count);
-            progressing = progress;
+            progressing = new CancelableProgressing(null, true, aSource.Instances.Count);
             if (IsNoopTransform)
-                return new Task<TransformResult>(FastForward(aSource, progress));
+                return new Task<TransformResult>(FastForward(aSource, progressing));
             else
-                return new Task<TransformResult>(PrepareInternally(aSource, progress));
+                return new Task<TransformResult>(PrepareInternally(aSource, progressing));
         }
 
         /// <summary>
@@ -273,7 +272,7 @@ namespace Bitub.Ifc.Transform.Requests
         /// <returns></returns>
         public Task<TransformResult> Run(IModel aSource, IProgress<ICancelableProgressState> progressReceiver)
         {
-            var progress = new CancelableProgress(progressReceiver, aSource.Instances.Count);
+            var progress = new CancelableProgressing(progressReceiver, true, aSource.Instances.Count);
             if (IsNoopTransform)
                 return Task.Run(FastForward(aSource, progress));
             else

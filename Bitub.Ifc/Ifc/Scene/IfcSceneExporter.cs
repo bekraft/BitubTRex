@@ -26,12 +26,19 @@ using System.Threading.Tasks;
 namespace Bitub.Ifc.Scene
 {
     /// <summary>
-    /// Exports a SceneModel 
+    /// Transfer scene model data exporter. Internally uses an abstract tesselation provider. In case of Xbim tesselation use
+    /// <code>
+    /// var exporter = new IfcSceneExporter(new XbimTesselationContext(loggerFactory), loggerFactory);
+    /// var result = await exporter.Run(myModel);
+    /// </code>
     /// </summary>
-    public class IfcSceneExporter
+    public class IfcSceneExporter : ICancelableProgressing<ICancelableProgressState>
     {
+        #region Internals
         private readonly ILogger Logger;
         private readonly IIfcTesselationContext TesselatorInstance;
+        private EventHandler<ICancelableProgressState> _progressEventDelegate;
+        #endregion
 
         /// <summary>
         /// Initial experter settings.
@@ -51,13 +58,35 @@ namespace Bitub.Ifc.Scene
         {
             Logger = loggerFactory?.CreateLogger<IfcSceneExporter>();
             TesselatorInstance = tesselatorInstance;
-            TesselatorInstance.OnProgressChange += (state) => OnProgressChange?.Invoke(state);
+            // Forward progress notification
+            TesselatorInstance.OnProgressChange += (sender, state) => NotifyProgressChange(sender, state);
+        }
+
+        protected void NotifyProgressChange(object sender, ICancelableProgressState state)
+        {
+            EventHandler<ICancelableProgressState> handlers;
+            lock (this)
+                handlers = _progressEventDelegate;
+            handlers?.Invoke(sender, state);
         }
 
         /// <summary>
         /// Progress change event.
         /// </summary>
-        public event OnProgressChangeDelegate OnProgressChange;
+        public event EventHandler<ICancelableProgressState> OnProgressChange
+        {
+            add {
+                lock (this)
+                    _progressEventDelegate += value;
+            }
+            remove {
+                lock (this)
+                    _progressEventDelegate -= value;
+            }
+        }
+
+        public event EventHandler<ICancelableProgressState> OnCanceledProgress;
+        public event EventHandler<ICancelableProgressState> OnProgressFinished;
 
         /// <summary>
         /// Runs the model transformation.
@@ -197,6 +226,11 @@ namespace Bitub.Ifc.Scene
             component.Children.AddRange(product.Children<IIfcProduct>().Select(p => p.GlobalId.ToGlobalUniqueId()));
             optParentLabel = parent?.EntityLabel;
             return component;
+        }
+
+        public void Cancel()
+        {
+            throw new NotImplementedException();
         }
     }
 }

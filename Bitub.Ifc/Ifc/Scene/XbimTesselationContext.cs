@@ -29,7 +29,26 @@ namespace Bitub.Ifc.Scene
     /// </summary>
     public sealed class XbimTesselationContext : IIfcTesselationContext
     {
-        public event OnProgressChangeDelegate OnProgressChange;
+        #region Internals
+        private EventHandler<ICancelableProgressState> _progressEventDelegate;
+        private EventHandler<ICancelableProgressState> _finishedEventDelegate;
+        private EventHandler<ICancelableProgressState> _canceledEventDelegate;
+        #endregion
+
+        public event EventHandler<ICancelableProgressState> OnProgressChange
+        {
+            add {
+                lock (this)
+                    _progressEventDelegate += value;
+            }
+            remove {
+                lock (this)
+                    _progressEventDelegate -= value;
+            }
+        }
+
+        public event EventHandler<ICancelableProgressState> OnCanceledProgress;
+        public event EventHandler<ICancelableProgressState> OnProgressFinished;
 
         /// <summary>
         /// Internal tesselation package aggregator.
@@ -89,19 +108,38 @@ namespace Bitub.Ifc.Scene
             Logger = loggerFactory?.CreateLogger<XbimTesselationContext>();
         }
 
-        // Compute contexts and related transformation
-        private void ComputeContextTransforms(IGeometryStoreReader gReader, IfcSceneExportSummary s)
+        private IDictionary<int, SceneContext> ContextsCreateFromModel(IModel model, IGeometryStoreReader gReader)
+        {
+            return gReader.ContextIds
+                   .Select(label => model.Instances[label])
+                   .OfType<IIfcRepresentationContext>()
+                   .ToDictionary(c => c.EntityLabel, c => new SceneContext { Name = c.ContextIdentifier });
+        }
+
+        private IDictionary<int, SceneContext> ContextsCreateFrom(IModel model, IGeometryStoreReader gReader, string[] contextIdentifiers)
+        {
+            return gReader.ContextIds
+                   .Select(label => model.Instances[label])
+                   .OfType<IIfcRepresentationContext>()
+                   .Select(c => (c.EntityLabel, contextIdentifiers.FirstOrDefault(id => id == c.ContextIdentifier)))
+                   .Where(t => t.Item2 != null)
+                   .ToDictionary(t => t.EntityLabel, t => new SceneContext { Name = t.Item2 } );
+        }
+
+        private IDictionary<int, SceneContext> ContextsCreateFromSettings(IGeometryStoreReader gReader, IfcSceneExportSummary s)
         {
             // Retrieve all context with geometry and match those to pregiven in settings
-            var contextTable = gReader.ContextIds
+            return gReader.ContextIds
                    .Select(label => s.Model.Instances[label])
                    .OfType<IIfcRepresentationContext>()
-                   .Select(c =>
-                      (c.EntityLabel,
-                        s.AppliedSettings.UserRepresentationContext.FirstOrDefault(tf => tf.Name == c.ContextIdentifier)))
+                   .Select(c => (c.EntityLabel, s.AppliedSettings.UserRepresentationContext.FirstOrDefault(sc => sc.Name == c.ContextIdentifier)))
                    .Where(t => t.Item2 != null)
                    .ToDictionary(t => t.EntityLabel, t => t.Item2);
+        }
 
+        // Compute contexts and related transformation
+        private void ComputeContextTransforms(IGeometryStoreReader gReader, IfcSceneExportSummary s, IDictionary<int, SceneContext> contextTable)
+        {
             foreach (var cr in gReader.ContextRegions)
             {
                 SceneContext sc;
@@ -218,6 +256,33 @@ namespace Bitub.Ifc.Scene
         }
 
         /// <summary>
+        /// Reads the geometry from model if empty.
+        /// </summary>
+        /// <param name="model">The model</param>
+        /// <param name="progressState">Any given state or <c>null</c></param>
+        /// <returns>The given udpated state or a new state</returns>
+        public CancelableProgressStateToken ReadGeometryStore(IModel model, CancelableProgressStateToken progressState = null)
+        {
+            if (null == progressState)
+                progressState = new CancelableProgressStateToken(true, 100);
+
+            // Use Xbim Model Context for geometry creation            
+            if (model.GeometryStore.IsEmpty)
+            {
+                ReportProgressDelegate progressDelegate = (percent, userState) =>
+                {
+                    _progressEventDelegate?.Invoke(this, progressState.Update(percent, userState.ToString()));
+                    Logger?.LogDebug("... running internal tesselation at ${0}% (${1})", percent, userState ?? "no state info");
+                };
+
+                var context = new Xbim3DModelContext(model);
+                context.CreateContext(progressDelegate, false);
+            }
+
+            return progressState;
+        }
+
+        /// <summary>
         /// Runs tessselation with Xbim scene context
         /// </summary>
         /// <param name="model"></param>
@@ -226,24 +291,10 @@ namespace Bitub.Ifc.Scene
         /// <returns></returns>
         public IEnumerable<IfcProductSceneRepresentation> Tesselate(IModel model, IfcSceneExportSummary summary, CancelableProgressStateToken progressState = null)
         {
-            if (null == progressState)
-                progressState = new CancelableProgressStateToken(true, 100);
+            progressState = ReadGeometryStore(model, new CancelableProgressStateToken(true, 100));
 
             short[] excludeTypeId = ExcludeExpressType.Select(t => model.Metadata.ExpressTypeId(t.ExpressName)).ToArray();
             Array.Sort(excludeTypeId);
-
-            ReportProgressDelegate progressDelegate = (percent, userState) =>
-            {
-                OnProgressChange(progressState.Update(percent, userState.ToString()));
-                Logger?.LogInformation($"Geometry tesselation rate at ${percent}% (${userState ?? "no state info"})");
-            };
-
-            // Use Xbim Model Context for geometry creation            
-            if (model.GeometryStore.IsEmpty)
-            {
-                var context = new Xbim3DModelContext(model);
-                context.CreateContext(progressDelegate, true);
-            }
 
             // Start reading the geometry store built before
             using (var gReader = model.GeometryStore.BeginRead())
@@ -253,12 +304,13 @@ namespace Bitub.Ifc.Scene
                 // Product label vs. Component and candidate shape labels
                 var packageCache = new SortedDictionary<int, TesselationPackage>();
                 // Compute contexts
-                ComputeContextTransforms(gReader, summary);
+                ComputeContextTransforms(gReader, summary, ContextsCreateFromSettings(gReader, summary));
 
                 foreach (var geometry in gReader.ShapeGeometries)
                 {
                     currentCount++;
-                    progressDelegate?.Invoke((int)Math.Round(100.0 * currentCount / totalCount), "Transferring mesh");
+
+                    _progressEventDelegate?.Invoke(this, progressState.Update((int)Math.Round(100.0 * currentCount / totalCount), "Transferring mesh"));
 
                     if (geometry.ShapeData.Length <= 0)
                         // No geometry
@@ -390,6 +442,11 @@ namespace Bitub.Ifc.Scene
                     }
                 }
             }
+        }
+
+        public void Cancel()
+        {
+            throw new NotImplementedException();
         }
     }
 }

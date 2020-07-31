@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
+
+using System;
 using System.Collections.Generic;
 
 namespace Bitub.Transfer
 {
-    public delegate void OnLogDelegate(LogLevel logLevel, object sender, string message, params object[] args);
-
     /// <summary>
     /// Logging event.
     /// </summary>
@@ -48,6 +48,6 @@ namespace Bitub.Transfer
     /// </summary>
     public interface ILogSource
     {        
-        event OnLogDelegate OnLog;        
+        event EventHandler<LogEventArgs> OnLog;        
     }    
 }

@@ -13,24 +13,6 @@ namespace Bitub.Transfer
     }
 
     /// <summary>
-    /// Informs on progress changes.
-    /// </summary>
-    /// <param name="changedState">The current state</param>
-    public delegate void OnProgressChangeDelegate(ICancelableProgressState changedState);
-
-    /// <summary>
-    /// Informs on progress cancelation.
-    /// </summary>
-    /// <param name="canceledState">The most recent state</param>
-    public delegate void OnProgressCanceledDelegate(IProgressState canceledState);
-
-    /// <summary>
-    /// Informs on progress finishing.
-    /// </summary>
-    /// <param name="finalState">The last state before finishing</param>
-    public delegate void OnProgressFinishedDelegate(IProgressState finalState);
-
-    /// <summary>
     /// A cancelable progress state
     /// </summary>
     public interface ICancelableProgressState : IProgressState
@@ -54,22 +36,22 @@ namespace Bitub.Transfer
     /// <summary>
     /// A progressing process
     /// </summary>
-    public interface IProgressing
+    public interface IProgressing<T> where T : IProgressState
     {
-        event OnProgressChangeDelegate OnProgressChange;
-        event OnProgressFinishedDelegate OnProgressFinished;
+        event EventHandler<T> OnProgressChange;
+        event EventHandler<T> OnProgressFinished;
     }
 
     /// <summary>
     /// A cancelable progress announcer.
     /// </summary>
-    public interface ICancelable
+    public interface ICancelable<T> where T : IProgressState
     {
-        event OnProgressCanceledDelegate OnCanceledProgress;        
+        event EventHandler<T> OnCanceledProgress;
         void Cancel();
     }
 
-    public interface ICancelableProgressing : ICancelable, IProgressing
+    public interface ICancelableProgressing<T> : ICancelable<T>, IProgressing<T> where T : IProgressState
     {
     }
 }
