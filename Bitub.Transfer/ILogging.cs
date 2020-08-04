@@ -5,10 +5,7 @@ using System.Collections.Generic;
 
 namespace Bitub.Transfer
 {
-    /// <summary>
-    /// Logging event.
-    /// </summary>
-    public class LogEventArgs : System.EventArgs
+    public sealed class LogEventArgs : System.EventArgs
     {
         public LogLevel Level { get; private set; }
         public object Sender { get; private set; }
@@ -43,10 +40,7 @@ namespace Bitub.Transfer
         }
     }
 
-    /// <summary>
-    /// Logging source implementing an event emitter.
-    /// </summary>
-    public interface ILogSource
+    public interface ILogging
     {        
         event EventHandler<LogEventArgs> OnLog;        
     }    

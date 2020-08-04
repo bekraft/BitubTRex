@@ -134,7 +134,7 @@ namespace Bitub.Ifc.Transform.Requests
         {
             foreach (var instance in package.Source.Instances)
             {
-                if (progress.State.IsCanceled)
+                if (progress?.State.IsCanceled ?? false)
                     return TransformResult.Code.Canceled;
 
                 switch(PassInstance(instance, package))
@@ -153,7 +153,7 @@ namespace Bitub.Ifc.Transform.Requests
                         break;
                 }
 
-                progress.NotifyProgress(1);
+                progress?.NotifyOnProgressChange(1);
             }
             return TransformResult.Code.Finished;
         }
@@ -179,7 +179,7 @@ namespace Bitub.Ifc.Transform.Requests
         {
             var storeType = TargetStoreType ?? DetectStorageType(sourcePattern);
 
-            progress.NotifyProgress($"Starting '{Name}' with '{storeType}' model implementation ...");
+            progress?.NotifyOnProgressChange($"Starting '{Name}' with '{storeType}' model implementation ...");
             IfcStore target;
             if (null == EditorCredentials)
                 target = IfcStore.Create(sourcePattern.SchemaVersion, storeType);
@@ -199,7 +199,7 @@ namespace Bitub.Ifc.Transform.Requests
         {
             return () =>
             {
-                progress.NotifyFinish($"Running fast forward '{Name}' model copy ...");
+                progress.NotifyOnProgressEnd($"Running fast forward '{Name}' model copy ...");
                 return new TransformResult(TransformResult.Code.Finished, CreateTransformPackage(source, source));
             };
         }
@@ -220,15 +220,15 @@ namespace Bitub.Ifc.Transform.Requests
                             package.Log = null;
 
                         TransformResult.Code code;
-                        progress.NotifyProgress($"Preparing '{Name}' ...");
+                        progress?.NotifyOnProgressChange($"Preparing '{Name}' ...");
                         if (TransformResult.Code.Finished != (code = DoPreprocessTransform(package, progress)))
                             return new TransformResult(code);
 
-                        progress.NotifyProgress($"Running '{Name}' ...");
+                        progress?.NotifyOnProgressChange($"Running '{Name}' ...");
                         if (TransformResult.Code.Finished != (code = DoTransform(package, progress)))
                             return new TransformResult(code);
 
-                        progress.NotifyProgress($"Post processing '{Name}' ...");
+                        progress?.NotifyOnProgressChange($"Post processing '{Name}' ...");
                         if (TransformResult.Code.Finished != (code = DoPostTransform(package, progress)))
                             return new TransformResult(code);
 
@@ -242,7 +242,7 @@ namespace Bitub.Ifc.Transform.Requests
                     }
                     finally
                     {
-                        progress.NotifyFinish($"Transform '{Name}' has been finalized.");
+                        progress?.NotifyOnProgressEnd($"Transform '{Name}' has been finalized.");
                     }
                 }
             };
@@ -257,7 +257,8 @@ namespace Bitub.Ifc.Transform.Requests
         /// <returns></returns>
         public Task<TransformResult> Prepare(IModel aSource, out CancelableProgressing progressing)
         {
-            progressing = new CancelableProgressing(null, true, aSource.Instances.Count);
+            progressing = new CancelableProgressing(true);
+            progressing.NotifyProgressEstimateChange(aSource.Instances.Count);
             if (IsNoopTransform)
                 return new Task<TransformResult>(FastForward(aSource, progressing));
             else
@@ -270,13 +271,13 @@ namespace Bitub.Ifc.Transform.Requests
         /// <param name="aSource">The source model</param>
         /// <param name="progressReceiver">The progress receiver</param>
         /// <returns></returns>
-        public Task<TransformResult> Run(IModel aSource, IProgress<ICancelableProgressState> progressReceiver)
+        public Task<TransformResult> Run(IModel aSource, CancelableProgressing cancelableProgressing)
         {
-            var progress = new CancelableProgressing(progressReceiver, true, aSource.Instances.Count);
+            cancelableProgressing?.NotifyProgressEstimateChange(aSource.Instances.Count);
             if (IsNoopTransform)
-                return Task.Run(FastForward(aSource, progress));
+                return Task.Run(FastForward(aSource, cancelableProgressing));
             else
-                return Task.Run(PrepareInternally(aSource, progress));
+                return Task.Run(PrepareInternally(aSource, cancelableProgressing));
         }
     }
 }

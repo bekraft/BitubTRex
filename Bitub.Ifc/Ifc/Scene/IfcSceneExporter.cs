@@ -1,24 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.ComponentModel;
 
 using Microsoft.Extensions.Logging;
 
 using Xbim.Common;
-using Xbim.Common.Geometry;
-using Xbim.Common.XbimExtensions;
 
 using Xbim.Ifc;
 using Xbim.Ifc4.Interfaces;
-using Xbim.ModelGeometry.Scene;
 
 using Bitub.Transfer;
 using Bitub.Transfer.Scene;
-
-using Bitub.Ifc;
-using Bitub.Ifc.Transform;
 
 using Component = Bitub.Transfer.Scene.Component;
 using System.Threading.Tasks;
@@ -32,12 +24,11 @@ namespace Bitub.Ifc.Scene
     /// var result = await exporter.Run(myModel);
     /// </code>
     /// </summary>
-    public class IfcSceneExporter : ICancelableProgressing<ICancelableProgressState>
+    public class IfcSceneExporter
     {
         #region Internals
         private readonly ILogger Logger;
         private readonly IIfcTesselationContext TesselatorInstance;
-        private EventHandler<ICancelableProgressState> _progressEventDelegate;
         #endregion
 
         /// <summary>
@@ -58,51 +49,21 @@ namespace Bitub.Ifc.Scene
         {
             Logger = loggerFactory?.CreateLogger<IfcSceneExporter>();
             TesselatorInstance = tesselatorInstance;
-            // Forward progress notification
-            TesselatorInstance.OnProgressChange += (sender, state) => NotifyProgressChange(sender, state);
         }
-
-        protected void NotifyProgressChange(object sender, ICancelableProgressState state)
-        {
-            EventHandler<ICancelableProgressState> handlers;
-            lock (this)
-                handlers = _progressEventDelegate;
-            handlers?.Invoke(sender, state);
-        }
-
-        /// <summary>
-        /// Progress change event.
-        /// </summary>
-        public event EventHandler<ICancelableProgressState> OnProgressChange
-        {
-            add {
-                lock (this)
-                    _progressEventDelegate += value;
-            }
-            remove {
-                lock (this)
-                    _progressEventDelegate -= value;
-            }
-        }
-
-        public event EventHandler<ICancelableProgressState> OnCanceledProgress;
-        public event EventHandler<ICancelableProgressState> OnProgressFinished;
 
         /// <summary>
         /// Runs the model transformation.
         /// </summary>
         /// <param name="model">The IFC model</param>
         /// <returns>A scene</returns>
-        public Task<IfcSceneExportSummary> Run(IModel model)
+        public Task<IfcSceneExportSummary> Run(IModel model, CancelableProgressing cancelableProgressing)
         {
-            return Task.Run<IfcSceneExportSummary>(() => DoSceneModelTransfer(model, new IfcSceneExportSettings(Settings)));
+            return Task.Run(() => DoSceneModelTransfer(model, new IfcSceneExportSettings(Settings), cancelableProgressing));
         }
 
         // Runs the scene model export
-        private IfcSceneExportSummary DoSceneModelTransfer(IModel model, IfcSceneExportSettings settings)
+        private IfcSceneExportSummary DoSceneModelTransfer(IModel model, IfcSceneExportSettings settings, CancelableProgressing progressing)
         {
-            CancelableProgressStateToken progressState = new CancelableProgressStateToken(true, 100);
-
             // Generate new summary
             var summary = new IfcSceneExportSummary(model, settings);
 
@@ -110,16 +71,22 @@ namespace Bitub.Ifc.Scene
             var materials = StylesToMaterial(model).ToDictionary(m => m.Id.Nid);
             summary.Scene.Materials.AddRange(materials.Values);
 
+            Logger?.LogInformation("Starting model tesselation of '{0}'", model.Header.FileName);
             // Retrieve enumeration of components having a geomety within given contexts
-            var sceneRepresentations = TesselatorInstance.Tesselate(model, summary, progressState);
+            var sceneRepresentations = TesselatorInstance.Tesselate(model, summary, progressing);
 
+            Logger?.LogInformation("Starting model export of '{0}'", model.Header.FileName);
             // Run transfer and log parents
             var parents = new HashSet<int>();
             foreach (var sr in sceneRepresentations)
             {
                 var p = model.Instances[sr.EntityLabel] as IIfcProduct;
-                if (progressState.IsCanceled)
+                if (progressing?.State.IsAboutCancelling ?? false)
+                {
+                    Logger?.LogInformation("Canceled model export of '{0}'", model.Header.FileName);
+                    progressing.State.MarkCanceled();
                     break;
+                }
 
                 Component c;
                 if (!summary.ComponentCache.TryGetValue(p.EntityLabel, out c))
@@ -141,6 +108,16 @@ namespace Bitub.Ifc.Scene
             Queue<int> missingInstance = new Queue<int>(parents);
             while (missingInstance.Count > 0)
             {
+                if (progressing?.State.IsAboutCancelling ?? false)
+                {
+                    if (!progressing.State.IsCanceled)
+                    {
+                        Logger?.LogInformation("Canceled model export of '{0}'", model.Header.FileName);
+                        progressing.State.MarkCanceled();
+                    }
+                    break;
+                }
+
                 if (model.Instances[missingInstance.Dequeue()] is IIfcProduct product)
                 {
                     Component c;
@@ -226,11 +203,6 @@ namespace Bitub.Ifc.Scene
             component.Children.AddRange(product.Children<IIfcProduct>().Select(p => p.GlobalId.ToGlobalUniqueId()));
             optParentLabel = parent?.EntityLabel;
             return component;
-        }
-
-        public void Cancel()
-        {
-            throw new NotImplementedException();
         }
     }
 }

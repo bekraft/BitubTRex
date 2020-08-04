@@ -8,8 +8,13 @@ namespace Bitub.Transfer
 {
     public static class MessageExtensions
     {
-        private static MD5 Md5Hashing = MD5.Create();
+        private static MD5 HashingMD5 = MD5.Create();
 
+        /// <summary>
+        /// Converts an array of bytes into a protobuf byte string.
+        /// </summary>
+        /// <param name="bytes">The array</param>
+        /// <returns>The protobuf byte string</returns>
         public static ByteString ToByteString(this byte[] bytes)
         {
             return ByteString.CopyFrom(bytes);
@@ -22,7 +27,7 @@ namespace Bitub.Transfer
         /// <returns>A string using hex alphabet</returns>
         public static string ToMd5Hex(this IMessage message)
         {
-            var hash = Md5Hashing.ComputeHash(message.ToByteArray());
+            var hash = HashingMD5.ComputeHash(message.ToByteArray());
             var sb = new StringBuilder();
 
             for (int i = 0; i < hash.Length; i++)
@@ -39,13 +44,19 @@ namespace Bitub.Transfer
         /// <returns>A string using base64 alphabet</returns>
         public static string ToMd5Base64(this IMessage message)
         {
-            var hash = Md5Hashing.ComputeHash(message.ToByteArray());
+            var hash = HashingMD5.ComputeHash(message.ToByteArray());
             return Convert.ToBase64String(hash);
         }
 
-        public static bool IsDifferentToBase64(this IMessage message, string base64)
+        /// <summary>
+        /// Compares the MD5 Base64 representations.
+        /// </summary>
+        /// <param name="message">A protobuf message</param>
+        /// <param name="base64">A Base64 MD5 stamp</param>
+        /// <returns>True, if equal</returns>
+        public static bool IsEqualMd5Base64(this IMessage message, string base64)
         {
-            return StringComparer.Ordinal.Compare(message, message.ToMd5Base64()) == 0;
+            return StringComparer.Ordinal.Compare(message.ToMd5Base64(), base64) == 0;
         }
 
         public static int AsMask<T>(params T[] someCases) where T : Enum

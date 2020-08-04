@@ -1,37 +1,44 @@
 ﻿using System;
-using System.Threading;
-
-using Bitub.Transfer;
 
 namespace Bitub.Transfer
 {
-    public sealed class CancelableProgressing : ICancelableProgressing<ICancelableProgressState>
+    /// <summary>
+    /// Cancelable progressing emitter. Will raise event asyncronously to receivers.
+    /// <para>Provides two separate ways of propagating events. It uses a single <see cref="IProgress{T}"/> callback and 
+    /// addtionally three additional event sources defined by <see cref="ICancelableProgressing{T}"/></para>
+    /// </summary>
+    public sealed class CancelableProgressing : ICancelableProgressing, IDisposable
     {
         #region Internals
-        private IProgress<ICancelableProgressState> _progressObserver;
-        private readonly CancelableProgressStateToken _state;
+        private IProgress<ProgressStateToken> _progressObserver;
+        private readonly ProgressStateToken _state;
 
-        private EventHandler<ICancelableProgressState> _progressEventDelegate;
-        private EventHandler<ICancelableProgressState> _finishedEventDelegate;
-        private EventHandler<ICancelableProgressState> _canceledEventDelegate;
+        private EventHandler<ProgressStateToken> _progressEventDelegate;
+        private EventHandler<ProgressStateToken> _onProgressEndDelegates;
+        private EventHandler<ProgressStateToken> _cancellingEventDelegate;
         #endregion
+
+        /// <summary>
+        /// The sender of emitted events.
+        /// </summary>
+        public readonly object Sender;
 
         /// <summary>
         /// The associated progress state token.
         /// </summary>
-        public ICancelableProgressState State { get => _state; }
+        public ProgressStateToken State { get => _state; }
 
         /// <summary>
         /// The wrapped progress reporter.
         /// </summary>
-        public IProgress<ICancelableProgressState> ProgressObserver
+        public IProgress<ProgressStateToken> ProgressObserver
         {
             get {
-                lock (State)
+                lock (_state)
                     return _progressObserver;
             }
             set {
-                lock (State)
+                lock (_state)
                     _progressObserver = value;
             }
         }
@@ -39,14 +46,14 @@ namespace Bitub.Transfer
         /// <summary>
         /// Send whenever a progress has been changed.
         /// </summary>
-        public event EventHandler<ICancelableProgressState> OnProgressChange
+        public event EventHandler<ProgressStateToken> OnProgressChange
         {
             add {
-                lock (State)
+                lock (_state)
                     _progressEventDelegate += value;
             }
             remove {
-                lock (State)
+                lock (_state)
                     _progressEventDelegate -= value;
             }
         }
@@ -54,96 +61,117 @@ namespace Bitub.Transfer
         /// <summary>
         /// Send whenever a progress has been finished.
         /// </summary>
-        public event EventHandler<ICancelableProgressState> OnProgressFinished
+        public event EventHandler<ProgressStateToken> OnProgressEnd
         {
             add {
-                lock (State)
-                    _finishedEventDelegate += value;
+                lock (_state)
+                    _onProgressEndDelegates += value;
             }
             remove {
-                lock (State)
-                    _finishedEventDelegate -= value;
+                lock (_state)
+                    _onProgressEndDelegates -= value;
             }
         }
 
         /// <summary>
         /// Send whenever a progress has been canceled.
         /// </summary>
-        public event EventHandler<ICancelableProgressState> OnCanceledProgress
+        public event EventHandler<ProgressStateToken> OnCancellingProgress
         {
             add {
-                lock (State)
-                    _canceledEventDelegate += value;
+                lock (_state)
+                    _cancellingEventDelegate += value;
             }
             remove {
-                lock (State)
-                    _canceledEventDelegate -= value;
+                lock (_state)
+                    _cancellingEventDelegate -= value;
             }
         }
 
         /// <summary>
-        /// A new cancelable progress.
+        /// A new cancelable progress event emitter.
         /// </summary>
-        /// <param name="receiver">A report receiver</param>
-        /// <param name="totalEffort">The total effert to be done</param>
         /// <param name="isCancelable">True, if cancelable progress</param>
-        public CancelableProgressing(IProgress<ICancelableProgressState> receiver, bool isCancelable, long totalEffort = 100 )
+        public CancelableProgressing(bool isCancelable) : this(null, isCancelable)
         {
-            ProgressObserver = receiver;
-            _state = new CancelableProgressStateToken(isCancelable, totalEffort);
         }
 
-        public void NotifyProgress(string message)
+        /// <summary>
+        /// A new cancelable progress initially attached to a progress callback.
+        /// </summary>
+        /// <param name="sender">The sender of emitted events</param>
+        /// <param name="isCancelable">True, if cancelable progress</param>
+        public CancelableProgressing(object sender, bool isCancelable)
         {
-            _state.Update(_state.Done, message);
-            EventHandler<ICancelableProgressState> delegates;
-            lock (State)
-            {
-                ProgressObserver?.Report(State);
-                delegates = _progressEventDelegate;
-            }
-            // Raise async event
-            delegates.RaiseAsync(this, _state);
+            Sender = sender ?? this;
+            _state = new ProgressStateToken(isCancelable, 1);
         }
 
-        public void NotifyFinish(string message = null)
+        public void NotifyOnProgressChange()
         {
-            EventHandler<ICancelableProgressState> progressDelegates, finishedDelegates;
-            lock (State)
+            lock (_state) // sync on handler changes
             {
-                progressDelegates = _progressEventDelegate;
-                finishedDelegates = _finishedEventDelegate;
+                if (null != ProgressObserver)
+                {
+                    Action<ProgressStateToken> observer = (state) => ProgressObserver.Report(state);
+                    observer.RaiseAsync(_state);
+                }
+                _progressEventDelegate.RaiseAsync(this, _state);
             }
-            // Update and raise async event
-            _state.Update(_state.Total, message);
-            progressDelegates.RaiseAsync(this, _state);
-            finishedDelegates.RaiseAsync(this, _state);
         }
 
-        public void NotifyProgress(long incrementDone = 1)
+        public void NotifyOnProgressChange(object stateObject)
         {
-            _state.Increment(incrementDone);
-            EventHandler<ICancelableProgressState> delegates;
-            lock (State)
-            {
-                ProgressObserver?.Report(State);
-                delegates = _progressEventDelegate;
-            }
-            // Raise async event
-            delegates.RaiseAsync(this, _state);
+            _state.UpdateDone(_state.Done, stateObject);
+            NotifyOnProgressChange();
+        }
+
+        public void NotifyOnProgressChange(long incrementDone, object stateObject)
+        {
+            _state.IncreaseDone(incrementDone, stateObject);
+            NotifyOnProgressChange();
+        }
+
+        public void NotifyOnProgressEnd(object stateObject = null)
+        {
+            _state.UpdateDoneComplete(stateObject);
+            NotifyOnProgressChange();
+            
+            lock (_state)
+                _onProgressEndDelegates.RaiseAsync(this, _state);
         }
 
         public void Cancel()
         {
-            _state.MarkCanceled();
-            EventHandler<ICancelableProgressState> delegates;
-            lock (State)
-            {
-                ProgressObserver?.Report(State);
-                delegates = _canceledEventDelegate;
-            }
-            // Raise async event
-            delegates.RaiseAsync(this, _state);
+            _state.MarkCancelling();
+            NotifyOnProgressChange();
+
+            lock (_state)
+                _cancellingEventDelegate.RaiseAsync(this, _state);
+        }
+
+        public long NotifyProgressEstimateChange(long deltaEstimate)
+        {
+            var increasedEstimate = _state.IncreaseEstimate(deltaEstimate);
+            NotifyOnProgressChange();
+
+            return increasedEstimate;
+        }
+
+        public long NotifyProgressEstimateUpdate(long newEstimate)
+        {
+            var total = _state.UpdateEstimate(newEstimate);
+            NotifyOnProgressChange();
+
+            return newEstimate;
+        }
+
+        public void Dispose()
+        {
+            _progressEventDelegate = null;
+            _cancellingEventDelegate = null;
+            _onProgressEndDelegates = null;
+            _progressObserver = null;
         }
     }
 }
