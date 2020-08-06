@@ -145,7 +145,7 @@ namespace Bitub.Ifc.Transform.Requests
                 }
             }
 
-            return Copy(instance, package, true);
+            return Copy(instance, package, !(instance is IIfcProperty));
         }
 
         protected override object PropertyTransform(ExpressMetaProperty property, object hostObject, IfcPropertySetRemovalPackage package)
@@ -163,16 +163,24 @@ namespace Bitub.Ifc.Transform.Requests
                 {
                     var propDefinition = EmptyToNull(rDefProps.RelatingPropertyDefinition.PropertySetDefinitions.Where(package.PassesNameFilter));
                     if (null == propDefinition)
-                        Log?.LogWarning($"Entity IfcRelDefinesByProperties (from #{rDefProps.EntityLabel}) became invalid on transfer.");
+                    {   // If no one left, dump a warning since relation is now an orphan
+                        Log?.LogWarning($"Entity IfcRelDefinesByProperties (#{rDefProps.EntityLabel}) became invalid on transfer.");
+                        return propDefinition;
+                    }
                     else
-                        Log?.LogInformation($"Entity IfcRelDefinesByProperties (from #{rDefProps.EntityLabel}) changed since some property sets were dropped.");
-
-                    return propDefinition;
+                    {
+                        if (propDefinition.Count() > 1)
+                            // Only IFC4+, if more than one use a set
+                            return new IfcPropertySetDefinitionSet(propDefinition.Cast<IfcPropertySetDefinition>().ToList());
+                        else
+                            // Otherwise, return first
+                            return propDefinition.First();
+                    }
                 }
             }
             else if (hostObject is IIfcProperty prop && property.PropertyInfo.Name == nameof(IIfcProperty.PartOfPset))
             {   // Filter inverse relation of property
-                return EmptyToNull(prop.PartOfPset.Where(package.PassesNameFilter));
+                return null; // FIXED: TREXDYNAMO-1 EmptyToNull(prop.PartOfPset.Where(package.PassesNameFilter));
             } 
             else if (hostObject is IIfcTypeObject tObject && property.PropertyInfo.Name == nameof(IIfcTypeObject.HasPropertySets))
             {   // Filter inverse relation of type object

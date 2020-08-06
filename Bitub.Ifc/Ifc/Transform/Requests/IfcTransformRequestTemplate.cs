@@ -84,7 +84,7 @@ namespace Bitub.Ifc.Transform.Requests
         /// <returns></returns>
         protected virtual object PropertyTransform(ExpressMetaProperty property, object hostObject, T package)
         {
-            return property?.PropertyInfo.GetValue(hostObject, null);
+            return property?.PropertyInfo.GetValue(hostObject);
         }
 
         /// <summary>
