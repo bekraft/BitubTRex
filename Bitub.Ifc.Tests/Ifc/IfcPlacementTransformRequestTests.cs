@@ -19,7 +19,7 @@ using Bitub.Transfer.Spatial;
 namespace Bitub.Ifc.Tests
 {
     [TestClass]
-    public class IfcPlacementTransformRequestTests : BaseTest<IfcPlacementTransformRequestTests>, IProgress<ICancelableProgressState>
+    public class IfcPlacementTransformRequestTests : BaseTest<IfcPlacementTransformRequestTests>
     {
         [TestInitialize]
         public void StartUp()
@@ -74,17 +74,24 @@ namespace Bitub.Ifc.Tests
                     EditorCredentials = EditorCredentials
                 };
 
-                var result = await request.Run(source, this);
-                if (null != result.Cause)
-                    TestLogger?.LogError("Exception: {0}, {1}, {2}", result.Cause, result.Cause.Message, result.Cause.StackTrace);
+                using (var cp = new CancelableProgressing(true))
+                {
+                    cp.OnProgressChange += (s, o) => TestLogger.LogDebug($"State {o.State}: Percentage = {o.Percentage}; State object = {o.StateObject}");
 
-                //Assert.AreEqual(TransformResult.Code.Finished, result.ResultCode);
-                // TODO Specific tests
+                    using (var result = await request.Run(source, cp))
+                    {
+                        if (null != result.Cause)
+                            TestLogger?.LogError("Exception: {0}, {1}, {2}", result.Cause, result.Cause.Message, result.Cause.StackTrace);
 
-                var stampAfter = IfcSchemaValidationStamp.OfModel(result.Target);
-                //Assert.AreEqual(stampBefore, stampAfter);
+                        //Assert.AreEqual(TransformResult.Code.Finished, result.ResultCode);
+                        // TODO Specific tests
 
-                result.Target.SaveAsIfc(new FileStream("Ifc4-Rotated-1st-floor-Transformed.ifc", FileMode.Create));
+                        var stampAfter = IfcSchemaValidationStamp.OfModel(result.Target);
+                        //Assert.AreEqual(stampBefore, stampAfter);
+
+                        result.Target.SaveAsIfc(new FileStream("Ifc4-Rotated-1st-floor-Transformed.ifc", FileMode.Create));
+                    }
+                }
             }
         }
 
@@ -113,21 +120,28 @@ namespace Bitub.Ifc.Tests
                     EditorCredentials = EditorCredentials
                 };
 
-                var result = await request.Run(source, this);
-                if (null != result.Cause)
-                    TestLogger?.LogError("Exception: {0}, {1}, {2}", result.Cause, result.Cause.Message, result.Cause.StackTrace);
+                using (var cp = new CancelableProgressing(true))
+                {
+                    cp.OnProgressChange += (s, o) => TestLogger.LogDebug($"State {o.State}: Percentage = {o.Percentage}; State object = {o.StateObject}");
 
-                var rootPlacement = result.Target.Instances.OfType<IIfcLocalPlacement>().Where(i => i.PlacementRelTo == null).FirstOrDefault();
-                Assert.IsNotNull(rootPlacement.PlacesObject);
-                Assert.IsTrue(rootPlacement.PlacesObject.Any(), "Root has objects");
-                
-                //Assert.AreEqual(TransformResult.Code.Finished, result.ResultCode);
-                // TODO Specific tests
+                    using (var result = await request.Run(source, cp))
+                    {
+                        if (null != result.Cause)
+                            TestLogger?.LogError("Exception: {0}, {1}, {2}", result.Cause, result.Cause.Message, result.Cause.StackTrace);
 
-                var stampAfter = IfcSchemaValidationStamp.OfModel(result.Target);
-                //Assert.AreEqual(stampBefore, stampAfter);
+                        var rootPlacement = result.Target.Instances.OfType<IIfcLocalPlacement>().Where(i => i.PlacementRelTo == null).FirstOrDefault();
+                        Assert.IsNotNull(rootPlacement.PlacesObject);
+                        Assert.IsTrue(rootPlacement.PlacesObject.Any(), "Root has objects");
 
-                result.Target.SaveAsIfc(new FileStream("Ifc4-SampleHouse-Transformed.ifc", FileMode.Create));
+                        //Assert.AreEqual(TransformResult.Code.Finished, result.ResultCode);
+                        // TODO Specific tests
+
+                        var stampAfter = IfcSchemaValidationStamp.OfModel(result.Target);
+                        //Assert.AreEqual(stampBefore, stampAfter);
+
+                        result.Target.SaveAsIfc(new FileStream("Ifc4-SampleHouse-Transformed.ifc", FileMode.Create));
+                    }
+                }
             }
         }
 
@@ -156,25 +170,32 @@ namespace Bitub.Ifc.Tests
                     EditorCredentials = EditorCredentials
                 };
 
-                var result = await request.Run(source, this);
-                if (null != result.Cause)
-                    TestLogger?.LogError("Exception: {0}, {1}, {2}", result.Cause, result.Cause.Message, result.Cause.StackTrace);
+                using (var cp = new CancelableProgressing(true))
+                {
+                    cp.OnProgressChange += (s, o) => TestLogger.LogDebug($"State {o.State}: Percentage = {o.Percentage}; State object = {o.StateObject}");
 
-                var rootPlacement = result.Target.Instances.OfType<IIfcLocalPlacement>().Where(i => i.PlacementRelTo == null).FirstOrDefault();
-                Assert.IsNotNull(rootPlacement.PlacesObject);
-                Assert.IsFalse(rootPlacement.PlacesObject.Any(), "Root has no objects");
+                    using (var result = await request.Run(source, cp))
+                    {
+                        if (null != result.Cause)
+                            TestLogger?.LogError("Exception: {0}, {1}, {2}", result.Cause, result.Cause.Message, result.Cause.StackTrace);
 
-                //Assert.AreEqual(TransformResult.Code.Finished, result.ResultCode);
-                // TODO Specific tests
+                        var rootPlacement = result.Target.Instances.OfType<IIfcLocalPlacement>().Where(i => i.PlacementRelTo == null).FirstOrDefault();
+                        Assert.IsNotNull(rootPlacement.PlacesObject);
+                        Assert.IsFalse(rootPlacement.PlacesObject.Any(), "Root has no objects");
 
-                var stampAfter = IfcSchemaValidationStamp.OfModel(result.Target);
-                //Assert.AreEqual(stampBefore, stampAfter);
+                        //Assert.AreEqual(TransformResult.Code.Finished, result.ResultCode);
+                        // TODO Specific tests
 
-                result.Target.SaveAsIfc(new FileStream("Ifc4-SampleHouse-Transformed.ifc", FileMode.Create));
+                        var stampAfter = IfcSchemaValidationStamp.OfModel(result.Target);
+                        //Assert.AreEqual(stampBefore, stampAfter);
+
+                        result.Target.SaveAsIfc(new FileStream("Ifc4-SampleHouse-Transformed.ifc", FileMode.Create));
+                    }
+                }
             }
         }
 
-        public void Report(ICancelableProgressState value)
+        public void Report(ProgressStateToken value)
         {
             TestLogger.LogDebug($"State {value.State}: Percentage = {value.Percentage}; State object = {value.StateObject}");
         }
