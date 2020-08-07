@@ -19,7 +19,7 @@ using Bitub.Transfer.Spatial;
 namespace Bitub.Ifc.Tests
 {
     [TestClass]
-    public class IfcPropertySetRemovalTransformRequestTests : BaseTest<IfcPropertySetRemovalTransformRequestTests>, IProgress<ICancelableProgressState>
+    public class IfcPropertySetRemovalTransformRequestTests : BaseTest<IfcPropertySetRemovalTransformRequestTests>
     {
         [TestInitialize]
         public void StartUp()
@@ -29,12 +29,13 @@ namespace Bitub.Ifc.Tests
 
         [TestMethod]
         [DeploymentItem(@"Resources\Ifc4-Storey-With-4Walls.ifc")]
-        public async Task RemovePropertySetTest()
+        public async Task RemoveByName()
         {
             IfcStore.ModelProviderFactory.UseMemoryModelProvider();
             using (var source = IfcStore.Open(@"Resources\Ifc4-Storey-With-4Walls.ifc"))
             {
                 var stampBefore = IfcSchemaValidationStamp.OfModel(source);
+                Assert.IsTrue(stampBefore.IsCompliantToSchema);
 
                 Assert.AreEqual(4, source.Instances
                     .OfType<IIfcPropertySet>()
@@ -43,7 +44,7 @@ namespace Bitub.Ifc.Tests
 
                 var request = new IfcPropertySetRemovalRequest(this.TestLoggingFactory)
                 {
-                    BlackListNames = new string[] { "AllplanAttributes" },
+                    RemovePropertySet = new string[] { "AllplanAttributes" },
                     IsNameMatchingCaseSensitive = false,
                     // Common config
                     IsLogEnabled = true,
@@ -51,24 +52,120 @@ namespace Bitub.Ifc.Tests
                     EditorCredentials = EditorCredentials
                 };
 
-                var result = await request.Run(source, this);
-                if (null != result.Cause)
-                    TestLogger?.LogError("Exception: {0}, {1}, {2}", result.Cause, result.Cause.Message, result.Cause.StackTrace);
+                var cp = new CancelableProgressing(true);
+                cp.OnProgressChange += (sender, e) => TestLogger.LogDebug($"State {e.State}: Percentage = {e.Percentage}; State object = {e.StateObject}");
 
-                Assert.AreEqual(TransformResult.Code.Finished, result.ResultCode);
-                Assert.AreEqual(0, result.Target.Instances
-                    .OfType<IIfcPropertySet>()
-                    .Where(s => s.Name == "AllplanAttributes")
-                    .Count());
+                using (var result = await request.Run(source, cp))
+                {
+                    if (null != result.Cause)
+                        TestLogger?.LogError("Exception: {0}, {1}, {2}", result.Cause, result.Cause.Message, result.Cause.StackTrace);
 
-                var stampAfter = IfcSchemaValidationStamp.OfModel(result.Target);
-                Assert.AreEqual(stampBefore, stampAfter);
+                    Assert.AreEqual(TransformResult.Code.Finished, result.ResultCode);
+                    Assert.AreEqual(0, result.Target.Instances
+                        .OfType<IIfcPropertySet>()
+                        .Where(s => s.Name == "AllplanAttributes")
+                        .Count());
+
+                    var stampAfter = IfcSchemaValidationStamp.OfModel(result.Target);
+                    Assert.IsTrue(stampAfter.IsCompliantToSchema);
+
+                    Assert.IsTrue(cp.State.State.HasFlag(ProgressTokenState.IsTerminated));
+                }
             }
         }
 
-        public void Report(ICancelableProgressState value)
+        [TestMethod]
+        [DeploymentItem(@"Resources\Ifc4-Storey-With-4Walls.ifc")]
+        public async Task KeepAndRemoveByNameBoth()
         {
-            TestLogger.LogDebug($"State {value.State}: Percentage = {value.Percentage}; State object = {value.StateObject}");
+            IfcStore.ModelProviderFactory.UseMemoryModelProvider();
+            using (var source = IfcStore.Open(@"Resources\Ifc4-Storey-With-4Walls.ifc"))
+            {
+                var stampBefore = IfcSchemaValidationStamp.OfModel(source);
+                Assert.IsTrue(stampBefore.IsCompliantToSchema);
+
+                var request = new IfcPropertySetRemovalRequest(this.TestLoggingFactory)
+                {
+                    RemovePropertySet = new string[] { "AllplanAttributes" },
+                    KeepPropertySet = new string[] { "AllplanAttributes" },
+                    IsNameMatchingCaseSensitive = false,
+                    IsRemovingPSetOnConflict = true,
+                    // Common config
+                    IsLogEnabled = true,
+                    TargetStoreType = Xbim.IO.XbimStoreType.InMemoryModel,
+                    EditorCredentials = EditorCredentials
+                };
+
+                var cp = new CancelableProgressing(true);
+                cp.OnProgressChange += (sender, e) => TestLogger.LogDebug($"State {e.State}: Percentage = {e.Percentage}; State object = {e.StateObject}");
+
+                using (var result = await request.Run(source, cp))
+                {
+                    if (null != result.Cause)
+                        TestLogger?.LogError("Exception: {0}, {1}, {2}", result.Cause, result.Cause.Message, result.Cause.StackTrace);
+
+                    var psetsRemaining = result.Target.Instances
+                        .OfType<IIfcPropertySet>()
+                        .Where(s => string.Equals("AllplanAttributes", s.Name, StringComparison.OrdinalIgnoreCase))
+                        .ToArray();
+
+                    Assert.AreEqual(TransformResult.Code.Finished, result.ResultCode);
+                    Assert.AreEqual(0, psetsRemaining.Length);
+
+                    var stampAfter = IfcSchemaValidationStamp.OfModel(result.Target);
+
+                    Assert.IsTrue(stampAfter.IsCompliantToSchema);
+                    Assert.IsTrue(cp.State.State.HasFlag(ProgressTokenState.IsTerminated));
+                }
+            }
+        }
+
+        [TestMethod]
+        [DeploymentItem(@"Resources\Ifc4-SampleHouse.ifc")]
+        public async Task KeepOrRemoveByName()
+        {
+            IfcStore.ModelProviderFactory.UseMemoryModelProvider();
+            using (var source = IfcStore.Open(@"Resources\Ifc4-SampleHouse.ifc"))
+            {
+                var stampBefore = IfcSchemaValidationStamp.OfModel(source);
+                Assert.IsTrue(stampBefore.IsCompliantToSchema);
+
+                var request = new IfcPropertySetRemovalRequest(this.TestLoggingFactory)
+                {
+                    RemovePropertySet = new string[] { "Other" },
+                    KeepPropertySet = new string[] { "Pset_SpaceCommon", "Other" },
+                    IsNameMatchingCaseSensitive = false,
+                    IsRemovingPSetOnConflict = true,
+                    // Common config
+                    IsLogEnabled = true,
+                    TargetStoreType = Xbim.IO.XbimStoreType.InMemoryModel,
+                    EditorCredentials = EditorCredentials
+                };
+
+                var cp = new CancelableProgressing(true);
+                cp.OnProgressChange += (sender, e) => TestLogger.LogDebug($"State {e.State}: Percentage = {e.Percentage}; State object = {e.StateObject}");
+
+                using (var result = await request.Run(source, cp))
+                {
+                    if (null != result.Cause)
+                        TestLogger?.LogError("Exception: {0}, {1}, {2}", result.Cause, result.Cause.Message, result.Cause.StackTrace);
+
+                    var psetsRemaining = result.Target.Instances
+                        .OfType<IIfcPropertySet>()
+                        .Select(s => s.Name.ToString())
+                        .Distinct()
+                        .ToArray();
+
+                    Assert.AreEqual(TransformResult.Code.Finished, result.ResultCode);
+                    Assert.AreEqual(1, psetsRemaining.Length);
+                    Assert.IsTrue(string.Equals("Pset_SpaceCommon", psetsRemaining[0], StringComparison.OrdinalIgnoreCase));
+
+                    var stampAfter = IfcSchemaValidationStamp.OfModel(result.Target);
+
+                    Assert.IsTrue(stampAfter.IsCompliantToSchema);
+                    Assert.IsTrue(cp.State.State.HasFlag(ProgressTokenState.IsTerminated));
+                }
+            }
         }
     }
 }

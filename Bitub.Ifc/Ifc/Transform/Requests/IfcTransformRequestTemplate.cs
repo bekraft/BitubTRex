@@ -120,7 +120,7 @@ namespace Bitub.Ifc.Transform.Requests
             }
             catch(Exception e)
             {
-                Log?.LogError("At #{2}{3}: Caught '{0}' saying '{1}'.", e.GetType().Name, e.Message, instance.EntityLabel, instance.ExpressType.Name);
+                Log?.LogError("Exception at #{2}{3}: '{0}' with '{1}'.", e.GetType().Name, e.Message, instance.EntityLabel, instance.ExpressType.Name);
                 throw e;
             }
         }
@@ -197,15 +197,22 @@ namespace Bitub.Ifc.Transform.Requests
 
         protected Func<TransformResult> FastForward(IModel source, CancelableProgressing progress)
         {
+            if (!progress?.State.IsAlive ?? false)
+                throw new NotSupportedException($"Progress monitor already terminated.");
+
             return () =>
             {
-                progress.NotifyOnProgressEnd($"Running fast forward '{Name}' model copy ...");
+                progress?.State.MarkTerminated();
+                progress?.NotifyOnProgressEnd($"Running fast forward '{Name}' model copy ...");
                 return new TransformResult(TransformResult.Code.Finished, CreateTransformPackage(source, source));
             };
         }
 
         protected Func<TransformResult> PrepareInternally(IModel aSource, CancelableProgressing progress)
         {
+            if (!progress?.State.IsAlive ?? false)
+                throw new NotSupportedException($"Progress monitor already terminated.");
+
             Func<TransformResult> candidateResult = () =>
             {
                 List<TransformLogEntry> logEntries = new List<TransformLogEntry>();
@@ -237,11 +244,13 @@ namespace Bitub.Ifc.Transform.Requests
                     }
                     catch (Exception e)
                     {
+                        progress?.State.MarkBroken();
                         txStore.RollBack();
                         return new TransformResult(TransformResult.Code.ExitWithError, e);
                     }
                     finally
                     {
+                        progress?.State.MarkTerminated();
                         progress?.NotifyOnProgressEnd($"Transform '{Name}' has been finalized.");
                     }
                 }

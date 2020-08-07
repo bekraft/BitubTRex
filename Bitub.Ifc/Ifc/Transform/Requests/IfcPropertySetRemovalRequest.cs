@@ -18,43 +18,102 @@ namespace Bitub.Ifc.Transform.Requests
     /// </summary>
     public class IfcPropertySetRemovalPackage : TransformPackage
     {
-        private ISet<string> BlackList = new HashSet<string>();
+        #region Internals
+
+        private readonly ISet<string> RemovePropertySet = new HashSet<string>();
+        private readonly ISet<string> KeepPropertySet = new HashSet<string>();
+
+        #endregion
+
         internal readonly bool IgnoreCase;
+
+        internal readonly bool RemovePSetOnConflict;
 
         internal List<IIfcRelDefinesByProperties> RelDefinesByProperties = new List<IIfcRelDefinesByProperties>();
 
-        internal IfcPropertySetRemovalPackage(IModel source, IModel target, bool ignoreCase) : base(source, target)
+        internal IfcPropertySetRemovalPackage(IModel source, IModel target, bool ignoreCase, bool removePSetOnConflict) : base(source, target)
         {
             IgnoreCase = ignoreCase;
+            RemovePSetOnConflict = removePSetOnConflict;
         }
 
         /// <summary>
         /// The property set names to be removed from model.
         /// </summary>
-        /// <param name="blackList">The property set names which shall be removed</param>
-        internal void FillBlackListWith(IEnumerable<string> blackList)
+        /// <param name="pSetNames">The property set names which shall be removed</param>
+        internal void AddToRemovePropertySet(IEnumerable<string> pSetNames)
         {
-            foreach (var name in blackList)
+            foreach (var name in pSetNames)
             {
                 if (IgnoreCase)
-                    BlackList.Add(name.ToLower().Trim());
+                    RemovePropertySet.Add(name.ToLower().Trim());
                 else
-                    BlackList.Add(name.Trim());
+                    RemovePropertySet.Add(name.Trim());
             }
         }
 
+        /// <summary>
+        /// The property set names to be removed from model.
+        /// </summary>
+        /// <param name="pSetNames">The property set names which shall be removed</param>
+        internal void AddToKeepPropertySet(IEnumerable<string> pSetNames)
+        {
+            foreach (var name in pSetNames)
+            {
+                if (IgnoreCase)
+                    KeepPropertySet.Add(name.ToLower().Trim());
+                else
+                    KeepPropertySet.Add(name.Trim());
+            }
+        }
+
+        internal bool HasConflicts(ILogger logger = null)
+        {
+            bool hasConflicts = false;
+            foreach (string name in RemovePropertySet)
+            {
+                if (KeepPropertySet.Contains(name))
+                {
+                    hasConflicts = true;
+                    if (null != logger)
+                        logger.LogWarning("Property set '{0}' is marked both for removal and to be kept. RemovePSetOnConflict = {1}", name, RemovePSetOnConflict);
+                    else
+                        return hasConflicts;
+                }
+            }
+            return hasConflicts;
+        }
+
+        // Keep property set
         internal bool PassesNameFilter(IIfcPropertySetDefinition p)
         {
             return !HitsNameFilter(p);
         }
 
+        // Dropped by name filter
         internal bool HitsNameFilter(IIfcPropertySetDefinition p)
         {
-            string name = p.Name;
-            if (IgnoreCase)
-                return BlackList.Contains(name.ToLower().Trim());
+            string name = IgnoreCase ? p.Name.ToString().ToLower().Trim() : p.Name.ToString();
+
+            if (KeepPropertySet.Count == 0)
+            {
+                // No white list, maybe only black list or nothing (noop tranform)
+                return RemovePropertySet.Contains(name);
+            } 
+            else if (RemovePropertySet.Count == 0)
+            {
+                // Only to be kept names defined
+                return !KeepPropertySet.Contains(name);
+            }
             else
-                return BlackList.Contains(name.Trim());
+            {   // Both lists are populated
+                if (RemovePropertySet.Contains(name) && KeepPropertySet.Contains(name))
+                    // Use priority flag
+                    return RemovePSetOnConflict;
+                else
+                    // Otherwise hit if removal list is hit or keep list doesn't hit
+                    return RemovePropertySet.Contains(name) || !KeepPropertySet.Contains(name);
+            }
         }
 
     }
@@ -80,12 +139,24 @@ namespace Bitub.Ifc.Transform.Requests
         public bool IsNameMatchingCaseSensitive { get; set; } = false;
 
         /// <summary>
-        /// Black list of property set names. If <c>IsNameMatchingCaseSensitive</c> set to <c>true</c>, case sensitive
-        /// matches are applied.
+        /// Whether to remove property sets marked for keeping if they mentioned also for removal.
+        /// Will keep property set by default.
         /// </summary>
-        public string[] BlackListNames { get; set; } = new string[] { };
+        public bool IsRemovingPSetOnConflict { get; set; } = false;
 
-        protected override bool IsNoopTransform { get => BlackListNames.Length == 0; }
+        /// <summary>
+        /// Black list of property set names. 
+        /// If <see cref="IsNameMatchingCaseSensitive"/> set to <c>true</c>, case sensitive matches are applied.
+        /// </summary>
+        public string[] RemovePropertySet { get; set; } = new string[] { };
+
+        /// <summary>
+        /// White list of property set names.
+        /// If <see cref="IsNameMatchingCaseSensitive"/> set to <c>true</c>, case sensitive matches are applied.
+        /// </summary>
+        public string[] KeepPropertySet { get; set; } = new string[] { };
+
+        protected override bool IsNoopTransform { get => RemovePropertySet.Length == 0; }
 
         public override bool IsInplaceTransform { get => IsNoopTransform; }
 
@@ -113,7 +184,7 @@ namespace Bitub.Ifc.Transform.Requests
                 return TransformActionType.Delegate;
             }
 
-            return TransformActionType.CopyWithInverse;
+            return TransformActionType.Copy;
         }
 
         protected override IPersistEntity DelegateCopy(IPersistEntity instance, IfcPropertySetRemovalPackage package)
@@ -145,16 +216,15 @@ namespace Bitub.Ifc.Transform.Requests
                 }
             }
 
-            return Copy(instance, package, !(instance is IIfcProperty));
+            return Copy(instance, package, false);
         }
 
         protected override object PropertyTransform(ExpressMetaProperty property, object hostObject, IfcPropertySetRemovalPackage package)
         {
-            if(hostObject is IIfcProduct prod && property.PropertyInfo.Name == nameof(IIfcProduct.IsDefinedBy))
+            if(hostObject is IIfcProduct prod && property.PropertyInfo.Name == nameof(IIfcProduct.IsDefinedBy)) // Inverse
             {
                 // Filter relations which only reference non-black listed property sets
-                return EmptyToNull(prod.IsDefinedBy
-                    .Where(r => r.PropertySet<IIfcPropertySetDefinition>().All(package.PassesNameFilter)));
+                return null; // FIXED: TREXDYNAMO-1 EmptyToNull(prod.IsDefinedBy.Where(r => r.PropertySet<IIfcPropertySetDefinition>().All(package.PassesNameFilter)));
             }
             else if (hostObject is IIfcRelDefinesByProperties rDefProps)
             {
@@ -164,7 +234,8 @@ namespace Bitub.Ifc.Transform.Requests
                     var propDefinition = EmptyToNull(rDefProps.RelatingPropertyDefinition.PropertySetDefinitions.Where(package.PassesNameFilter));
                     if (null == propDefinition)
                     {   // If no one left, dump a warning since relation is now an orphan
-                        Log?.LogWarning($"Entity IfcRelDefinesByProperties (#{rDefProps.EntityLabel}) became invalid on transfer.");
+                        var targetObject = package.Map[new XbimInstanceHandle(rDefProps)];
+                        Log?.LogWarning($"Entity IfcRelDefinesByProperties (#{rDefProps.EntityLabel} => #{targetObject.EntityLabel}) became invalid on transfer.");
                         return propDefinition;
                     }
                     else
@@ -178,7 +249,7 @@ namespace Bitub.Ifc.Transform.Requests
                     }
                 }
             }
-            else if (hostObject is IIfcProperty prop && property.PropertyInfo.Name == nameof(IIfcProperty.PartOfPset))
+            else if (hostObject is IIfcProperty prop && property.PropertyInfo.Name == nameof(IIfcProperty.PartOfPset)) // Inverse
             {   // Filter inverse relation of property
                 return null; // FIXED: TREXDYNAMO-1 EmptyToNull(prop.PartOfPset.Where(package.PassesNameFilter));
             } 
@@ -186,7 +257,7 @@ namespace Bitub.Ifc.Transform.Requests
             {   // Filter inverse relation of type object
                 return EmptyToNull(tObject.HasPropertySets.Where(package.PassesNameFilter));
             } 
-            else if (hostObject is IIfcRelDefinesByTemplate rDefTemplate && property.PropertyInfo.Name == nameof(IIfcRelDefinesByTemplate.ReferenceEquals))
+            else if (hostObject is IIfcRelDefinesByTemplate rDefTemplate && property.PropertyInfo.Name == nameof(IIfcRelDefinesByTemplate.RelatedPropertySets))
             {   // Filter inverse relation of template relationship
                 return EmptyToNull(rDefTemplate.RelatedPropertySets.Where(package.PassesNameFilter));
             }
@@ -223,8 +294,9 @@ namespace Bitub.Ifc.Transform.Requests
 
         protected override IfcPropertySetRemovalPackage CreateTransformPackage(IModel aSource, IModel aTarget)
         {
-            var package = new IfcPropertySetRemovalPackage(aSource, aTarget, !IsNameMatchingCaseSensitive);
-            package.FillBlackListWith(BlackListNames);
+            var package = new IfcPropertySetRemovalPackage(aSource, aTarget, !IsNameMatchingCaseSensitive, IsRemovingPSetOnConflict);
+            package.AddToRemovePropertySet(RemovePropertySet);
+            package.AddToKeepPropertySet(KeepPropertySet);
             return package;
         }        
     }
