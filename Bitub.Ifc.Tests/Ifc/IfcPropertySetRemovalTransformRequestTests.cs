@@ -10,11 +10,12 @@ using Xbim.Ifc;
 using Xbim.Ifc4.Interfaces;
 
 using Bitub.Transfer;
+using Bitub.Transfer.Spatial;
 
+using Bitub.Ifc;
 using Bitub.Ifc.Transform;
 using Bitub.Ifc.Validation;
 using Bitub.Ifc.Transform.Requests;
-using Bitub.Transfer.Spatial;
 
 namespace Bitub.Ifc.Tests
 {
@@ -66,10 +67,20 @@ namespace Bitub.Ifc.Tests
                         .Where(s => s.Name == "AllplanAttributes")
                         .Count());
 
+                    var pset = result.Target.Instances
+                        .OfType<IIfcPropertySet>()
+                        .Where(s => s.Name == "AllplanAttributes Copy")
+                        .ToArray();
+
+                    Assert.AreEqual(4, pset.Length);
+                    Assert.IsTrue(pset.All(p => p.Properties<IIfcProperty>().Count() == 3));
+
                     var stampAfter = IfcSchemaValidationStamp.OfModel(result.Target);
                     Assert.IsTrue(stampAfter.IsCompliantToSchema);
 
                     Assert.IsTrue(cp.State.State.HasFlag(ProgressTokenState.IsTerminated));
+
+                    result.Target.SaveAsIfc(new FileStream("Ifc4-Storey-With-4Walls-AllplanAttributes-Copy-1.ifc", FileMode.Create));
                 }
             }
         }
@@ -87,7 +98,7 @@ namespace Bitub.Ifc.Tests
                 var request = new IfcPropertySetRemovalRequest(this.TestLoggingFactory)
                 {
                     RemovePropertySet = new string[] { "AllplanAttributes" },
-                    KeepPropertySet = new string[] { "AllplanAttributes" },
+                    KeepPropertySet = new string[] { "AllplanAttributes", "AllplanAttributes Copy" },
                     IsNameMatchingCaseSensitive = false,
                     IsRemovingPSetOnConflict = true,
                     // Common config
@@ -104,18 +115,27 @@ namespace Bitub.Ifc.Tests
                     if (null != result.Cause)
                         TestLogger?.LogError("Exception: {0}, {1}, {2}", result.Cause, result.Cause.Message, result.Cause.StackTrace);
 
-                    var psetsRemaining = result.Target.Instances
+                    Assert.AreEqual(TransformResult.Code.Finished, result.ResultCode);
+
+                    Assert.AreEqual(0, result.Target.Instances
                         .OfType<IIfcPropertySet>()
-                        .Where(s => string.Equals("AllplanAttributes", s.Name, StringComparison.OrdinalIgnoreCase))
+                        .Where(s => s.Name == "AllplanAttributes")
+                        .Count());
+
+                    var pset = result.Target.Instances
+                        .OfType<IIfcPropertySet>()
+                        .Where(s => s.Name == "AllplanAttributes Copy")
                         .ToArray();
 
-                    Assert.AreEqual(TransformResult.Code.Finished, result.ResultCode);
-                    Assert.AreEqual(0, psetsRemaining.Length);
+                    Assert.AreEqual(4, pset.Length);
+                    Assert.IsTrue(pset.All(p => p.Properties<IIfcProperty>().Count() == 3));                    
 
                     var stampAfter = IfcSchemaValidationStamp.OfModel(result.Target);
 
                     Assert.IsTrue(stampAfter.IsCompliantToSchema);
                     Assert.IsTrue(cp.State.State.HasFlag(ProgressTokenState.IsTerminated));
+
+                    result.Target.SaveAsIfc(new FileStream("Ifc4-Storey-With-4Walls-AllplanAttributes-Copy-2.ifc", FileMode.Create));
                 }
             }
         }
@@ -164,6 +184,8 @@ namespace Bitub.Ifc.Tests
 
                     Assert.IsTrue(stampAfter.IsCompliantToSchema);
                     Assert.IsTrue(cp.State.State.HasFlag(ProgressTokenState.IsTerminated));
+
+                    result.Target.SaveAsIfc(new FileStream("Ifc4-SampleHouse-Pset_SpaceCommon-Other.ifc", FileMode.Create));
                 }
             }
         }
