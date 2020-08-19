@@ -71,11 +71,11 @@ namespace Bitub.Ifc.Scene
             var materials = StylesToMaterial(model).ToDictionary(m => m.Id.Nid);
             summary.Scene.Materials.AddRange(materials.Values);
 
-            Logger?.LogInformation("Starting model tesselation of '{0}'", model.Header.FileName);
-            // Retrieve enumeration of components having a geomety within given contexts
+            Logger?.LogInformation("Starting model tesselation of {0}", model.Header.Name);
+            // Retrieve enumeration of components having a geomety within given contexts            
             var sceneRepresentations = TesselatorInstance.Tesselate(model, summary, progressing);
 
-            Logger?.LogInformation("Starting model export of '{0}'", model.Header.FileName);
+            Logger?.LogInformation("Starting model export of {0}", model.Header.Name);
             // Run transfer and log parents
             var parents = new HashSet<int>();
             foreach (var sr in sceneRepresentations)

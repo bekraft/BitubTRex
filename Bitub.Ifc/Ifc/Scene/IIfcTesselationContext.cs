@@ -26,7 +26,7 @@ namespace Bitub.Ifc.Scene
     /// A tesselation context provider contract.
     /// </summary>
     public interface IIfcTesselationContext 
-    {
+    {        
         IEnumerable<IfcProductSceneRepresentation> Tesselate(IModel m, IfcSceneExportSummary summary, CancelableProgressing progressing);
     }
 }

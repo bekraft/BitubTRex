@@ -105,6 +105,15 @@ namespace Bitub.Ifc.Scene
                    .ToDictionary(t => t.EntityLabel, t => new SceneContext { Name = t.Item2 } );
         }
 
+        private IDictionary<int, SceneContext> SceneContextsOf(IEnumerable<IIfcRepresentationContext> modelContexts, string[] identifiers, bool ignoreCase = false)
+        {
+            var comparisionMethod = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+            return modelContexts
+                    .Select(c => (c.EntityLabel, identifiers.FirstOrDefault(id => string.Equals(id, c.ContextIdentifier, comparisionMethod))))
+                    .Where(t => t.Item2 != null)
+                    .ToDictionary(t => t.EntityLabel, t => new SceneContext { Name = t.Item2 });
+        }
+
         private IDictionary<int, SceneContext> ContextsCreateFromSettings(IGeometryStoreReader gReader, IfcSceneExportSummary s)
         {
             // Retrieve all context with geometry and match those to pregiven in settings
@@ -137,7 +146,7 @@ namespace Bitub.Ifc.Scene
                     {
                         case ScenePositioningStrategy.UserCorrection:
                             // Center at user's center
-                            offset = s.AppliedSettings.UserModelCenter.ToXbimVector3D();
+                            offset = s.AppliedSettings.UserModelCenter.ToXbimVector3DMeter(s.Model.ModelFactors);
                             break;
                         case ScenePositioningStrategy.MostPopulatedRegionCorrection:
                             // Center at most populated
@@ -182,42 +191,51 @@ namespace Bitub.Ifc.Scene
                         // Otherwise use Quaternion representation
                         sc.Wcs = new XbimMatrix3D(offset).ToQuaternion(s.Scale);
 
-                    // Set correction to negative offset shift
+                    // Set correction to negative offset shift (without scale since in model space units)
                     s.Context[cr.ContextLabel] = new Tuple<SceneContext, XbimMatrix3D>(sc, new XbimMatrix3D(offset * -1));
                 }
                 else
                 {
-                    Logger?.LogWarning($"Excluding context label '{cr.ContextLabel}'. Not mentioned by settings.");
+                    Logger?.LogWarning("Excluding context label '{0}'. Not mentioned by settings.", cr.ContextLabel);
                 }
             }
         }
 
         // Creates a new representation context
-        private Representation CreateRepresentation(IfcSceneExportSummary s, XbimShapeInstance firstShape)
-        {
-            var context = s.ContextOf(firstShape.RepresentationContext);
-            var rep = new Representation
-            {
-                Context = context.Name,
-                BoundingBox = new BoundingBox
+        private Representation GetOrCreateRepresentation(IfcSceneExportSummary s, XbimShapeInstance shape, TesselationPackage pkg)
+        {            
+            var (context, contextWcs) = s.Context[shape.RepresentationContext];
+            var representation = pkg.Representations.FirstOrDefault(r => r.Context.Equals(context.Name));
+            // left expansion & concatenation in xbim !
+            var aabb = shape.BoundingBox.ToABox(s.Scale, p => (shape.Transformation * contextWcs).Transform(p));
+
+            if (null == representation)
+            {   // Create new representation
+                representation = new Representation
                 {
-                    ABox = firstShape.BoundingBox.ToABox(s.Scale, p => firstShape.Transformation.Transform(p))
-                }
-            };
-            return rep;
+                    Context = context.Name,
+                    BoundingBox = new BoundingBox { ABox = aabb }
+                };
+                pkg.Representations.Add(representation);
+            }
+            else
+            {   // Union bounding boxes
+                representation.BoundingBox.ABox = representation.BoundingBox.ABox.UnionWith(aabb);
+            }
+            return representation;
         }
 
         // Creates a transform
-        private Bitub.Transfer.Scene.Transform CreateTransform(IfcSceneExportSummary s, XbimShapeInstance shape)
+        private Transfer.Scene.Transform CreateTransform(IfcSceneExportSummary s, XbimShapeInstance shape)
         {
             // Context transformation (offset shift)
-            var mt = s.TransformOf(shape.RepresentationContext);
+            var contextWcs = s.TransformOf(shape.RepresentationContext);
             switch (s.AppliedSettings.Transforming)
             {
                 case SceneTransformationStrategy.Matrix:
-                    return (mt * shape.Transformation).ToRotation(s.Scale);
+                    return (shape.Transformation * contextWcs).ToRotation(s.Scale);
                 case SceneTransformationStrategy.Quaternion:
-                    return (mt * shape.Transformation).ToQuaternion(s.Scale);
+                    return (shape.Transformation * contextWcs).ToQuaternion(s.Scale);
                 default:
                     throw new NotImplementedException($"Missing implementation for '{s.AppliedSettings.Transforming}'");
             }
@@ -231,7 +249,7 @@ namespace Bitub.Ifc.Scene
                 // Append to vertices and apply scale
                 p.AppendTo(ptArray.Xyz, summary.Scale);
 
-            r.Points.Add(ptArray);            
+            r.Points.Add(ptArray);
         }
 
         /// <summary>
@@ -239,25 +257,30 @@ namespace Bitub.Ifc.Scene
         /// </summary>
         /// <param name="model">The model</param>
         /// <param name="progressing">The progress emitter</param>
+        /// <param name="forceUpdate">Whether to force an update of geometry store anyway</param>
         /// <returns>The given udpated state or a new state</returns>
-        public void ReadGeometryStore(IModel model, CancelableProgressing progressing)
+        public IEnumerable<IIfcRepresentationContext> ReadGeometryStore(IModel model, CancelableProgressing progressing, bool forceUpdate = false)
         {
             // Use Xbim Model Context for geometry creation            
-            if (model.GeometryStore.IsEmpty)
+            if (forceUpdate || (model.GeometryStore?.IsEmpty ?? false))
             {
+                progressing?.NotifyProgressEstimateUpdate(100);
                 ReportProgressDelegate progressDelegate = (percent, userState) =>
                 {
                     progressing?.State.UpdateDone(percent, userState.ToString());
                     progressing?.NotifyOnProgressChange();
-                    
-                    Logger?.LogDebug("... running internal tesselation at ${0}% (${1})", percent, userState ?? "no state info");
                 };
-
-                var context = new Xbim3DModelContext(model);
+                
+                var context = new Xbim3DModelContext(model, "model", null, Logger);                
                 context.CreateContext(progressDelegate, false);
+                return context.Contexts;
             }
-
-            progressing.NotifyOnProgressEnd();
+            else
+            {
+                return model.GeometryStore.BeginRead().ContextIds
+                        .Select(label => model.Instances[label])
+                        .Cast<IIfcRepresentationContext>();
+            }
         }
 
         /// <summary>
@@ -269,6 +292,8 @@ namespace Bitub.Ifc.Scene
         /// <returns>An enumerable of tesselated product representations</returns>
         public IEnumerable<IfcProductSceneRepresentation> Tesselate(IModel model, IfcSceneExportSummary summary, CancelableProgressing progressing)
         {
+            ReadGeometryStore(model, progressing);
+
             short[] excludeTypeId = ExcludeExpressType.Select(t => model.Metadata.ExpressTypeId(t.ExpressName)).ToArray();
             Array.Sort(excludeTypeId);
 
@@ -339,19 +364,9 @@ namespace Bitub.Ifc.Scene
                                     Logger?.LogWarning($"Shape #{shape.InstanceLabel} of product #{product.EntityLabel} out of context scope. Skipped.");
                                     continue;
                                 }
-                                var representation = pkg.Representations.FirstOrDefault(r => r.Context.Equals(ctx.Name));
-                                if (null == representation)
-                                {
-                                    representation = CreateRepresentation(summary, shape);
-                                    pkg.Representations.Add(representation);
-                                }
-                                else
-                                {
-                                    // Union bounding boxes
-                                    representation.BoundingBox.ABox = representation.BoundingBox.ABox.UnionWith(
-                                        shape.BoundingBox.ToABox(summary.Scale, p => shape.Transformation.Transform(p))
-                                    );
-                                }
+
+                                // Check for representation
+                                var representation = GetOrCreateRepresentation(summary, shape, pkg);
 
                                 if (!pkg.IsShapeGeometryDone(geometry))
                                     AppendVertices(representation, summary, tr.Vertices);
@@ -428,11 +443,13 @@ namespace Bitub.Ifc.Scene
                     foreach (var e in packageCache)
                     {
                         // Announce missing components even if unfinished due to some reason
-                        Logger?.LogWarning($"Product #{e.Key} misses {e.Value.CountOpenInstances} shape(s).");
+                        Logger?.LogWarning($"IfcProduct #{e.Key} misses {e.Value.CountOpenInstances} shape(s).");
                         yield return e.Value.ToSceneRepresentation(e.Key);
                     }
                 }
             }
+
+            progressing?.NotifyOnProgressChange("Done tesselation.");
         }
     }
 }
