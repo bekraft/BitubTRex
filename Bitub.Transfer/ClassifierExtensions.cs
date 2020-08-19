@@ -45,7 +45,7 @@ namespace Bitub.Transfer
         /// <param name="classifier">The classifier</param>
         /// <param name="qualifier">The qualifier</param>
         /// <returns>True, if the qualifier is held by this classifier</returns>
-        public static bool IsMatching(this Classifier classifier, Qualifier qualifier)
+        public static bool IsExactMatching(this Classifier classifier, Qualifier qualifier)
         {
             return classifier.Path.Any(q => q.Equals(qualifier));
         }
@@ -54,19 +54,38 @@ namespace Bitub.Transfer
         /// True, if the given qualifier is a super qualifier of at least on path fragment.
         /// </summary>
         /// <param name="classifier">The classifier which is a sub set of the qualifier</param>
-        /// <param name="qualifier">The qualifier</param>
+        /// <param name="superQualifier">The qualifier</param>
         /// <param name="comparison">The string comparision method</param>
         /// <returns>True, if the given qualifier is (paritally) a super qualifier of the classifier</returns>
-        public static bool IsSubMatching(this Classifier classifier, Qualifier qualifier, StringComparison comparison = StringComparison.Ordinal)
+        public static bool IsSubMatching(this Classifier classifier, Qualifier superQualifier, StringComparison comparison = StringComparison.Ordinal)
         {
-            switch(qualifier.GuidOrNameCase)
+            switch(superQualifier.GuidOrNameCase)
             {
                 case Qualifier.GuidOrNameOneofCase.Anonymous:
                     // Same as matching if using GUIDs
-                    return classifier.IsMatching(qualifier);
+                    return classifier.IsExactMatching(superQualifier);
                 default:
-                    return classifier.Path.Any(q => qualifier.IsSuperQualifierOf(q, comparison));
-            }            
+                    return classifier.Path.Any(q => superQualifier.IsSuperQualifierOf(q, comparison));
+            }
+        }
+
+        /// <summary>
+        /// Filters the classifier for sub matches of given super qualifier.
+        /// </summary>
+        /// <param name="classifier"></param>
+        /// <param name="superQualifier"></param>
+        /// <param name="comparison"></param>
+        /// <returns>An enumerable of the qualifiers</returns>
+        public static IEnumerable<Qualifier> FilterSubMatching(this Classifier classifier, Qualifier superQualifier, StringComparison comparison = StringComparison.Ordinal)
+        {
+            switch (superQualifier.GuidOrNameCase)
+            {
+                case Qualifier.GuidOrNameOneofCase.Anonymous:
+                    // Same as matching if using GUIDs
+                    return classifier.IsExactMatching(superQualifier) ? new Qualifier[] { superQualifier } : Enumerable.Empty<Qualifier>();
+                default:
+                    return classifier.Path.Where(q => superQualifier.IsSuperQualifierOf(q, comparison));
+            }
         }
 
         /// <summary>
@@ -76,7 +95,7 @@ namespace Bitub.Transfer
         /// <param name="qualifier">The qualifier</param>
         /// <param name="comparison">The string comparision method</param>
         /// <returns></returns>
-        public static IEnumerable<Qualifier> ToFilteredSubQualifiers(this Classifier classifier, Qualifier qualifier, StringComparison comparison = StringComparison.Ordinal)
+        public static IEnumerable<Qualifier> ToSubQualifiers(this Classifier classifier, Qualifier qualifier, StringComparison comparison = StringComparison.Ordinal)
         {
             switch (qualifier.GuidOrNameCase)
             {

@@ -80,13 +80,13 @@
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
     <PackageReference Include="Xbim.Common" Version="5.1.20209.27462" />
-    <PackageReference Include="Xbim.Geometry.Engine.Interop" Version="5.1.20049.18428" />
+    <PackageReference Include="Xbim.Geometry.Engine.Interop" Version="5.1.20213.31545" />
     <PackageReference Include="Xbim.Ifc" Version="5.1.20209.27462" />
     <PackageReference Include="Xbim.Ifc2x3" Version="5.1.20209.27462" />
     <PackageReference Include="Xbim.Ifc4" Version="5.1.20209.27462" />
     <PackageReference Include="Xbim.IO.Esent" Version="5.1.20209.27462" />
     <PackageReference Include="Xbim.IO.MemoryModel" Version="5.1.20209.27462" />
-    <PackageReference Include="Xbim.ModelGeometry.Scene" Version="5.1.20049.18428" />
+    <PackageReference Include="Xbim.ModelGeometry.Scene" Version="5.1.20213.31545" />
   </ItemGroup>
   
   <ItemGroup>

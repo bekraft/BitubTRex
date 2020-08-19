@@ -50,7 +50,7 @@ namespace Bitub.Transfer.Tests
             var nq2 = new string[] { "A" }.ToQualifier();
             var nq3 = new string[] { "Test1" }.ToQualifier();
 
-            var q1 = nc1.ToFilteredSubQualifiers(nq2).ToArray();
+            var q1 = nc1.ToSubQualifiers(nq2).ToArray();
             Assert.AreEqual(1, q1.Length);
             Assert.AreEqual(nq3, q1[0]);
         }

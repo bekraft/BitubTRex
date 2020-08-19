@@ -1,11 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Extensions.Logging;
+
 using System.Linq;
 
-using Bitub.Transfer.Scene;
 using System.Collections.Generic;
+using Bitub.Transfer.Tests;
 
-namespace Bitub.Transfer.Tests.Scene
+namespace Bitub.Transfer.Scene.Tests
 {
     [TestClass]
     public class FacetMeshTests : BaseTest<FacetMeshTests>

@@ -30,7 +30,10 @@ namespace Bitub.Transfer.Scene.Tests
                 var exporter = new IfcSceneExporter(new XbimTesselationContext(Factory), Factory);
                 exporter.Settings = settings;
 
-                result = await exporter.Run(store);
+                using (var monitor = new CancelableProgressing(true))
+                {
+                    result = await exporter.Run(store, monitor);
+                }
             }
 
             Assert.IsNotNull(result, "Result exists");

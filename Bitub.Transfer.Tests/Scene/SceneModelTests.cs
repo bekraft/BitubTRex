@@ -1,9 +1,10 @@
-﻿using Bitub.Transfer.Scene;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Bitub.Transfer.Scene;
 using Bitub.Transfer.Spatial;
+using Bitub.Transfer.Tests;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-namespace Bitub.Transfer.Tests.Scene
+namespace Bitub.Transfer.Scene.Tests
 {
     [TestClass]
     public class SceneModelTests : BaseTest<SceneModelTests>

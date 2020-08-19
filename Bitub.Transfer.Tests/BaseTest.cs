@@ -2,7 +2,7 @@
 
 namespace Bitub.Transfer.Tests
 {
-    public class BaseTest<T>
+    public abstract class BaseTest<T>
     {
         protected ILoggerFactory Factory { get; private set; }
         protected ILogger Logger { get; private set; }

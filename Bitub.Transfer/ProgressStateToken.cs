@@ -11,7 +11,7 @@ namespace Bitub.Transfer
         #region Internals
         private object _monitor = new object();
 
-        private ProgressTokenState __state;
+        private ProgressTokenState __state = 0;
         private long __done;
         private long __total;
         private object __stateObject;
@@ -29,7 +29,7 @@ namespace Bitub.Transfer
             __done = 0;
             __stateObject = stateObject;
 
-            __state = isCancelable ? ProgressTokenState.IsCancelable : ProgressTokenState.IsInitialized;
+            __state = isCancelable ? ProgressTokenState.IsCancelable : 0;
         }
 
         /// <summary>

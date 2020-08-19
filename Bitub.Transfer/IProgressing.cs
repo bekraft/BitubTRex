@@ -8,7 +8,6 @@ namespace Bitub.Transfer
     [Flags]
     public enum ProgressTokenState
     {
-        IsInitialized = 0x00,
         IsRunning = 0x01,
         IsCancelable = 0x02,
         IsCancelling = 0x04,        

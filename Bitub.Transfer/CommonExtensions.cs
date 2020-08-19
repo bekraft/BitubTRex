@@ -26,6 +26,21 @@ namespace Bitub.Transfer
             }
         }
 
+        public static bool IsEqualTo(this Guid id, System.Guid guid)
+        {
+            return Enumerable.SequenceEqual(id.Raw.ToArray(), guid.ToByteArray());
+        }
+
+        public static bool IsEqualTo(this System.Guid guid, Guid id)
+        {
+            return Enumerable.SequenceEqual(id.Raw.ToArray(), guid.ToByteArray());
+        }
+
+        public static GlobalUniqueId ToGlobalUniqueId(this System.Guid guid)
+        {
+            return new GlobalUniqueId { Guid = new Guid { Raw = guid.ToByteArray().ToByteString() } };
+        }
+
         public static Qualifier ToQualifier(this System.Guid guid)
         {
             return new GlobalUniqueId{ Guid = new Guid { Raw = guid.ToByteArray().ToByteString() }}.ToQualifier();
