@@ -20,6 +20,8 @@ namespace Bitub.Ifc.Scene
         public readonly IDictionary<int, Component> ComponentCache;
         public readonly double Scale;
 
+        #region Internals
+
         internal readonly IDictionary<int, Tuple<SceneContext, XbimMatrix3D>> Context;
 
         internal IfcSceneExportSummary(IModel model, IfcSceneExportSettings settings)
@@ -31,13 +33,7 @@ namespace Bitub.Ifc.Scene
             Scale = settings.UnitsPerMeter / model.ModelFactors.OneMeter;
 
             var p = model.Instances.OfType<IIfcProject>().First();
-            Scene = new SceneModel()
-            {
-                Name = p?.Name,
-                Id = p?.GlobalId.ToGlobalUniqueId(),
-                UnitsPerMeter = settings.UnitsPerMeter,
-                Stamp = Timestamp.FromDateTime(DateTime.Now.ToUniversalTime())
-            };
+            Scene = CreateNew(p, settings);
 
             var instanceContexts = settings.UserRepresentationContext.Select(c => new SceneContext
             {
@@ -48,11 +44,34 @@ namespace Bitub.Ifc.Scene
                 FTolerance = model.ModelFactors.LengthToMetresConversionFactor * p.Model.ModelFactors.DeflectionTolerance,
             }).ToArray();
 
-            // TODO Apply custom tolerances
             Scene.Contexts.AddRange(instanceContexts);
             settings.UserRepresentationContext = instanceContexts;
         }
 
+        private SceneModel CreateNew(IIfcProject p, IfcSceneExportSettings settings)
+        {
+            return new SceneModel()
+            {
+                Name = p?.Name,
+                Id = p?.GlobalId.ToGlobalUniqueId(),
+                UnitsPerMeter = settings.UnitsPerMeter,
+                Stamp = Timestamp.FromDateTime(DateTime.Now.ToUniversalTime())
+            };
+        }
+
+        internal void MarkAsFailure(Exception cause)
+        {
+            Context.Clear();
+            ComponentCache.Clear();
+            Scene.Components.Clear();
+            Scene.Materials.Clear();
+            Scene.Contexts.Clear();
+            FailureReason = cause;
+        }
+
+        #endregion
+
+        public Exception FailureReason { get; internal set; }
 
         public int[] ExportedContextLabels => Context.Keys.ToArray();
 
@@ -60,6 +79,6 @@ namespace Bitub.Ifc.Scene
 
         public XbimMatrix3D TransformOf(int contextLabel) => Context[contextLabel].Item2;
 
-        public bool IsInContext(int contextLabel) => Context.ContainsKey(contextLabel);
+        public bool IsInContext(int contextLabel) => Context.ContainsKey(contextLabel);        
     }
 }

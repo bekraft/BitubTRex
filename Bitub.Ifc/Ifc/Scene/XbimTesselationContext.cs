@@ -288,11 +288,11 @@ namespace Bitub.Ifc.Scene
         /// </summary>
         /// <param name="model">The model to be exported</param>
         /// <param name="summary">The scene export summary</param>
-        /// <param name="progressing">The progress emitter instance</param>
+        /// <param name="monitor">The progress emitter instance</param>
         /// <returns>An enumerable of tesselated product representations</returns>
-        public IEnumerable<IfcProductSceneRepresentation> Tesselate(IModel model, IfcSceneExportSummary summary, CancelableProgressing progressing)
+        public IEnumerable<IfcProductSceneRepresentation> Tesselate(IModel model, IfcSceneExportSummary summary, CancelableProgressing monitor)
         {
-            ReadGeometryStore(model, progressing);
+            ReadGeometryStore(model, monitor);
 
             short[] excludeTypeId = ExcludeExpressType.Select(t => model.Metadata.ExpressTypeId(t.ExpressName)).ToArray();
             Array.Sort(excludeTypeId);
@@ -307,20 +307,20 @@ namespace Bitub.Ifc.Scene
                 // Compute contexts
                 ComputeContextTransforms(gReader, summary, ContextsCreateFromSettings(gReader, summary));
 
-                progressing?.NotifyProgressEstimateUpdate(totalCount);
+                monitor?.NotifyProgressEstimateUpdate(totalCount);
 
                 foreach (var geometry in gReader.ShapeGeometries)
                 {
-                    if (progressing?.State.IsAboutCancelling ?? false)
+                    if (monitor?.State.IsAboutCancelling ?? false)
                     {
-                        progressing.State.MarkCanceled();
+                        monitor.State.MarkCanceled();
                         break;
                     }
 
                     currentCount++;
                     
-                    progressing?.State.UpdateDone(currentCount, "Running tesselation...");
-                    progressing?.NotifyOnProgressChange();                   
+                    monitor?.State.UpdateDone(currentCount, "Running tesselation...");
+                    monitor?.NotifyOnProgressChange();                   
 
                     if (geometry.ShapeData.Length <= 0)
                         // No geometry
@@ -341,9 +341,9 @@ namespace Bitub.Ifc.Scene
                             XbimShapeTriangulation tr = br.ReadShapeTriangulation();                            
                             foreach (XbimShapeInstance shape in shapes)
                             {
-                                if (progressing?.State.IsAboutCancelling ?? false)
+                                if (monitor?.State.IsAboutCancelling ?? false)
                                 {
-                                    progressing.State.MarkCanceled();
+                                    monitor.State.MarkCanceled();
                                     break;
                                 }
 
@@ -449,7 +449,7 @@ namespace Bitub.Ifc.Scene
                 }
             }
 
-            progressing?.NotifyOnProgressChange("Done tesselation.");
+            monitor?.NotifyOnProgressChange("Done tesselation.");
         }
     }
 }

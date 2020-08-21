@@ -56,9 +56,21 @@ namespace Bitub.Ifc.Scene
         /// </summary>
         /// <param name="model">The IFC model</param>
         /// <returns>A scene</returns>
-        public Task<IfcSceneExportSummary> Run(IModel model, CancelableProgressing cancelableProgressing)
+        public Task<IfcSceneExportSummary> Run(IModel model, CancelableProgressing monitor)
         {
-            return Task.Run(() => DoSceneModelTransfer(model, new IfcSceneExportSettings(Settings), cancelableProgressing));
+            return Task.Run(() =>
+            {
+                try
+                {
+                    return DoSceneModelTransfer(model, new IfcSceneExportSettings(Settings), monitor);
+                }
+                catch (Exception e)
+                {
+                    monitor?.State.MarkBroken();
+                    Logger.LogError("{0}: {1} [{2}]", e.GetType().Name, e.Message, e.StackTrace);
+                    return new IfcSceneExportSummary(model, Settings) { FailureReason = e };
+                }
+            });
         }
 
         // Runs the scene model export
