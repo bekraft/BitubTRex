@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -6,6 +7,28 @@ namespace Bitub.Transfer
 {
     public static class EventExtensions
     {
+        /// <summary>
+        /// Shortcut for <c>foreach(..)</c>.
+        /// </summary>
+        /// <typeparam name="T">The type</typeparam>
+        /// <param name="enumerable">An enumerable of <typeparamref name="T"/>T</param>
+        /// <param name="forEach">The action to take</param>
+        public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T> forEach)
+        {
+            foreach (T t in enumerable.ToArray()) forEach?.Invoke(t);
+        }
+
+        /// <summary>
+        /// Raises the actions in async way.
+        /// </summary>
+        /// <typeparam name="T">The type</typeparam>
+        /// <param name="enumerable">An enumerable of <typeparamref name="T"/>T</param>
+        /// <param name="forEach">The action to take</param>
+        public static void ForEachAsync<T>(this IEnumerable<T> enumerable, Action<T> forEach)
+        {
+            foreach (T t in enumerable.ToArray()) forEach?.RaiseAsync(t);
+        }
+
         /// <summary>
         /// Raises an event handler asynchronously.
         /// </summary>

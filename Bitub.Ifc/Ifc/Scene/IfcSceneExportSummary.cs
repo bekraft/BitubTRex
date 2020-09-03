@@ -22,7 +22,7 @@ namespace Bitub.Ifc.Scene
 
         #region Internals
 
-        internal readonly IDictionary<int, Tuple<SceneContext, XbimMatrix3D>> Context;
+        private readonly IDictionary<int, Tuple<SceneContext, XbimMatrix3D>> Context;
 
         internal IfcSceneExportSummary(IModel model, IfcSceneExportSettings settings)
         {
@@ -75,9 +75,23 @@ namespace Bitub.Ifc.Scene
 
         public int[] ExportedContextLabels => Context.Keys.ToArray();
 
-        public SceneContext ContextOf(int contextLabel) => Context[contextLabel].Item1;
+        public Tuple<SceneContext, XbimMatrix3D> RepresentationContext(int contextLabel)
+        {
+            Tuple<SceneContext, XbimMatrix3D> sc;
+            if (Context.TryGetValue(contextLabel, out sc))
+                return sc;
+            else
+                return null;
+        }
 
-        public XbimMatrix3D TransformOf(int contextLabel) => Context[contextLabel].Item2;
+        internal void SetRepresentationContext(int contextLabel, SceneContext sc, XbimMatrix3D wcs)
+        {
+            Context[contextLabel] = new Tuple<SceneContext, XbimMatrix3D>(sc, wcs);
+        }
+
+        public SceneContext ContextOf(int contextLabel) => RepresentationContext(contextLabel)?.Item1;
+        
+        public XbimMatrix3D? TransformOf(int contextLabel) => RepresentationContext(contextLabel)?.Item2;
 
         public bool IsInContext(int contextLabel) => Context.ContainsKey(contextLabel);        
     }

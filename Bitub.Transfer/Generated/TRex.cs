@@ -37,35 +37,35 @@ namespace Bitub.Transfer.TRex {
             "GAMgASgLMh0uQml0dWIuVHJhbnNmZXIuVFJleC5Qcm9wZXJ0eUgAEjgKEnBy",
             "b3BlcnR5U2V0UmVtb3ZhbBgEIAEoCzIaLkJpdHViLlRyYW5zZmVyLkNsYXNz",
             "aWZpZXJIABI0Cg5lbGVtZW50UmVtb3ZhbBgFIAEoCzIaLkJpdHViLlRyYW5z",
-            "ZmVyLkNsYXNzaWZpZXJIAEILCglqb2JTd2l0Y2giPQoNUHJvcGVydHlTY29w",
-            "ZRIsCghlbGVtZW50cxgBIAMoCzIaLkJpdHViLlRyYW5zZmVyLkNsYXNzaWZp",
-            "ZXIi3AEKDFByb3BlcnR5UGlwZRI9CgR0eXBlGAEgASgOMi8uQml0dWIuVHJh",
-            "bnNmZXIuVFJleC5Qcm9wZXJ0eVBpcGUuQ29sbGVjdG9yVHlwZRItCgZzb3Vy",
-            "Y2UYAiABKAsyHS5CaXR1Yi5UcmFuc2Zlci5UUmV4LlByb3BlcnR5Ei0KBnRh",
-            "cmdldBgDIAEoCzIdLkJpdHViLlRyYW5zZmVyLlRSZXguUHJvcGVydHkiLwoN",
-            "Q29sbGVjdG9yVHlwZRIKCgZMQVRFU1QQABIJCgVGSVJTVBABEgcKA0FMTBAC",
-            "Ip8BCghQcm9wZXJ0eRInCgRuYW1lGAEgASgLMhkuQml0dWIuVHJhbnNmZXIu",
-            "UXVhbGlmaWVyEjEKBXNjb3BlGAIgASgLMiIuQml0dWIuVHJhbnNmZXIuVFJl",
-            "eC5Qcm9wZXJ0eVNjb3BlEjcKCHVuaXRUeXBlGAMgASgLMiUuQml0dWIuVHJh",
-            "bnNmZXIuVFJleC5Qcm9wZXJ0eVVuaXRUeXBlInIKC1Byb3BlcnR5RGVmEi8K",
-            "CHByb3BlcnR5GAEgASgLMh0uQml0dWIuVHJhbnNmZXIuVFJleC5Qcm9wZXJ0",
-            "eRIyCgZ2YWx1ZXMYAiADKAsyIi5CaXR1Yi5UcmFuc2Zlci5UUmV4LlByb3Bl",
-            "cnR5VmFsdWUibwoNUHJvcGVydHlWYWx1ZRIPCgVkaWdpdBgFIAEoAUgAEhAK",
-            "BnNlcmlhbBgGIAEoCUgAEiwKAmlkGAcgASgLMh4uQml0dWIuVHJhbnNmZXIu",
-            "R2xvYmFsVW5pcXVlSWRIAEINCgt2YWx1ZVN3aXRjaCKsAQoQUHJvcGVydHlV",
-            "bml0VHlwZRIvCgR0eXBlGAEgASgOMiEuQml0dWIuVHJhbnNmZXIuVFJleC5Q",
-            "cm9wZXJ0eVR5cGUSKQoEdW5pdBgCIAEoDjIbLkJpdHViLlRyYW5zZmVyLlRS",
-            "ZXguVW5pdFNJEi8KBnByZWZpeBgDIAEoDjIfLkJpdHViLlRyYW5zZmVyLlRS",
-            "ZXguVW5pdFByZWZpeBILCgNkaW0YBCABKA0qSAoISm9iU3RhdGUSDQoJU0NI",
-            "RURVTEVEEAASEgoOTk9UX0FQUExJQ0FCTEUQARIKCgZGQUlMRUQQAhINCglT",
-            "VUNDRUVERUQQAypzCgxQcm9wZXJ0eVR5cGUSDQoJVU5ERUZJTkVEEAASCQoF",
-            "TEFCRUwQARIICgRHVUlEEAISBgoCSUQQAxIJCgVESUdJVBAEEgsKB0lOVEVH",
-            "RVIQBRIICgRURVhUEAYSCAoERU5VTRAHEgsKB0JPT0xFQU4QCCodCgZVbml0",
-            "U0kSCAoETk9ORRAAEgkKBU1FVEVSEAEqaQoKVW5pdFByZWZpeBIICgRVTklU",
-            "EAASCAoEREVDSRACEgkKBUNFTlRJEAMSCAoES0lMTxAEEggKBE1FR0EQBRII",
-            "CgRHSUdBEAYSCQoFTUlMTEkQBxIJCgVNSUNSTxAIEggKBE5BTk8QCUIrChNi",
-            "aXR1Yi50cmFuc2Zlci50cmV4qgITQml0dWIuVHJhbnNmZXIuVFJleGIGcHJv",
-            "dG8z"));
+            "ZmVyLkNsYXNzaWZpZXJIAEILCglqb2JTd2l0Y2giPAoMRWxlbWVudFNjb3Bl",
+            "EiwKCGVsZW1lbnRzGAEgAygLMhouQml0dWIuVHJhbnNmZXIuQ2xhc3NpZmll",
+            "ciLcAQoMUHJvcGVydHlQaXBlEj0KBHR5cGUYASABKA4yLy5CaXR1Yi5UcmFu",
+            "c2Zlci5UUmV4LlByb3BlcnR5UGlwZS5Db2xsZWN0b3JUeXBlEi0KBnNvdXJj",
+            "ZRgCIAEoCzIdLkJpdHViLlRyYW5zZmVyLlRSZXguUHJvcGVydHkSLQoGdGFy",
+            "Z2V0GAMgASgLMh0uQml0dWIuVHJhbnNmZXIuVFJleC5Qcm9wZXJ0eSIvCg1D",
+            "b2xsZWN0b3JUeXBlEgoKBkxBVEVTVBAAEgkKBUZJUlNUEAESBwoDQUxMEAIi",
+            "ngEKCFByb3BlcnR5EicKBG5hbWUYASABKAsyGS5CaXR1Yi5UcmFuc2Zlci5R",
+            "dWFsaWZpZXISMAoFc2NvcGUYAiABKAsyIS5CaXR1Yi5UcmFuc2Zlci5UUmV4",
+            "LkVsZW1lbnRTY29wZRI3Cgh1bml0VHlwZRgDIAEoCzIlLkJpdHViLlRyYW5z",
+            "ZmVyLlRSZXguUHJvcGVydHlVbml0VHlwZSJyCgtQcm9wZXJ0eURlZhIvCghw",
+            "cm9wZXJ0eRgBIAEoCzIdLkJpdHViLlRyYW5zZmVyLlRSZXguUHJvcGVydHkS",
+            "MgoGdmFsdWVzGAIgAygLMiIuQml0dWIuVHJhbnNmZXIuVFJleC5Qcm9wZXJ0",
+            "eVZhbHVlIm8KDVByb3BlcnR5VmFsdWUSDwoFZGlnaXQYBSABKAFIABIQCgZz",
+            "ZXJpYWwYBiABKAlIABIsCgJpZBgHIAEoCzIeLkJpdHViLlRyYW5zZmVyLkds",
+            "b2JhbFVuaXF1ZUlkSABCDQoLdmFsdWVTd2l0Y2girAEKEFByb3BlcnR5VW5p",
+            "dFR5cGUSLwoEdHlwZRgBIAEoDjIhLkJpdHViLlRyYW5zZmVyLlRSZXguUHJv",
+            "cGVydHlUeXBlEikKBHVuaXQYAiABKA4yGy5CaXR1Yi5UcmFuc2Zlci5UUmV4",
+            "LlVuaXRTSRIvCgZwcmVmaXgYAyABKA4yHy5CaXR1Yi5UcmFuc2Zlci5UUmV4",
+            "LlVuaXRQcmVmaXgSCwoDZGltGAQgASgNKkgKCEpvYlN0YXRlEg0KCVNDSEVE",
+            "VUxFRBAAEhIKDk5PVF9BUFBMSUNBQkxFEAESCgoGRkFJTEVEEAISDQoJU1VD",
+            "Q0VFREVEEAMqcwoMUHJvcGVydHlUeXBlEg0KCVVOREVGSU5FRBAAEgkKBUxB",
+            "QkVMEAESCAoER1VJRBACEgYKAklEEAMSCQoFRElHSVQQBBILCgdJTlRFR0VS",
+            "EAUSCAoEVEVYVBAGEggKBEVOVU0QBxILCgdCT09MRUFOEAgqHQoGVW5pdFNJ",
+            "EggKBE5PTkUQABIJCgVNRVRFUhABKmkKClVuaXRQcmVmaXgSCAoEVU5JVBAA",
+            "EggKBERFQ0kQAhIJCgVDRU5USRADEggKBEtJTE8QBBIICgRNRUdBEAUSCAoE",
+            "R0lHQRAGEgkKBU1JTExJEAcSCQoFTUlDUk8QCBIICgROQU5PEAlCKwoTYml0",
+            "dWIudHJhbnNmZXIudHJleKoCE0JpdHViLlRyYW5zZmVyLlRSZXhiBnByb3Rv",
+            "Mw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bitub.Transfer.CommonReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bitub.Transfer.TRex.JobState), typeof(global::Bitub.Transfer.TRex.PropertyType), typeof(global::Bitub.Transfer.TRex.UnitSI), typeof(global::Bitub.Transfer.TRex.UnitPrefix), }, new pbr::GeneratedClrTypeInfo[] {
@@ -73,7 +73,7 @@ namespace Bitub.Transfer.TRex {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bitub.Transfer.TRex.JobStateResponse), global::Bitub.Transfer.TRex.JobStateResponse.Parser, new[]{ "Name", "Percentage" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bitub.Transfer.TRex.JobStateMessage), global::Bitub.Transfer.TRex.JobStateMessage.Parser, new[]{ "State", "Message" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bitub.Transfer.TRex.Job), global::Bitub.Transfer.TRex.Job.Parser, new[]{ "PropertyPipe", "PropertyAddon", "PropertyRemoval", "PropertySetRemoval", "ElementRemoval" }, new[]{ "JobSwitch" }, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bitub.Transfer.TRex.PropertyScope), global::Bitub.Transfer.TRex.PropertyScope.Parser, new[]{ "Elements" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bitub.Transfer.TRex.ElementScope), global::Bitub.Transfer.TRex.ElementScope.Parser, new[]{ "Elements" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bitub.Transfer.TRex.PropertyPipe), global::Bitub.Transfer.TRex.PropertyPipe.Parser, new[]{ "Type", "Source", "Target" }, null, new[]{ typeof(global::Bitub.Transfer.TRex.PropertyPipe.Types.CollectorType) }, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bitub.Transfer.TRex.Property), global::Bitub.Transfer.TRex.Property.Parser, new[]{ "Name", "Scope", "UnitType" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bitub.Transfer.TRex.PropertyDef), global::Bitub.Transfer.TRex.PropertyDef.Parser, new[]{ "Property", "Values" }, null, null, null),
@@ -947,11 +947,11 @@ namespace Bitub.Transfer.TRex {
   /// <summary>
   /// A selector scope "selects" the transformation target
   /// </summary>
-  public sealed partial class PropertyScope : pb::IMessage<PropertyScope> {
-    private static readonly pb::MessageParser<PropertyScope> _parser = new pb::MessageParser<PropertyScope>(() => new PropertyScope());
+  public sealed partial class ElementScope : pb::IMessage<ElementScope> {
+    private static readonly pb::MessageParser<ElementScope> _parser = new pb::MessageParser<ElementScope>(() => new ElementScope());
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<PropertyScope> Parser { get { return _parser; } }
+    public static pb::MessageParser<ElementScope> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
@@ -964,21 +964,21 @@ namespace Bitub.Transfer.TRex {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public PropertyScope() {
+    public ElementScope() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public PropertyScope(PropertyScope other) : this() {
+    public ElementScope(ElementScope other) : this() {
       elements_ = other.elements_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public PropertyScope Clone() {
-      return new PropertyScope(this);
+    public ElementScope Clone() {
+      return new ElementScope(this);
     }
 
     /// <summary>Field number for the "elements" field.</summary>
@@ -993,11 +993,11 @@ namespace Bitub.Transfer.TRex {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
-      return Equals(other as PropertyScope);
+      return Equals(other as ElementScope);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(PropertyScope other) {
+    public bool Equals(ElementScope other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -1042,7 +1042,7 @@ namespace Bitub.Transfer.TRex {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(PropertyScope other) {
+    public void MergeFrom(ElementScope other) {
       if (other == null) {
         return;
       }
@@ -1336,12 +1336,12 @@ namespace Bitub.Transfer.TRex {
 
     /// <summary>Field number for the "scope" field.</summary>
     public const int ScopeFieldNumber = 2;
-    private global::Bitub.Transfer.TRex.PropertyScope scope_;
+    private global::Bitub.Transfer.TRex.ElementScope scope_;
     /// <summary>
     /// Classification matches
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Bitub.Transfer.TRex.PropertyScope Scope {
+    public global::Bitub.Transfer.TRex.ElementScope Scope {
       get { return scope_; }
       set {
         scope_ = value;
@@ -1448,7 +1448,7 @@ namespace Bitub.Transfer.TRex {
       }
       if (other.scope_ != null) {
         if (scope_ == null) {
-          Scope = new global::Bitub.Transfer.TRex.PropertyScope();
+          Scope = new global::Bitub.Transfer.TRex.ElementScope();
         }
         Scope.MergeFrom(other.Scope);
       }
@@ -1478,7 +1478,7 @@ namespace Bitub.Transfer.TRex {
           }
           case 18: {
             if (scope_ == null) {
-              Scope = new global::Bitub.Transfer.TRex.PropertyScope();
+              Scope = new global::Bitub.Transfer.TRex.ElementScope();
             }
             input.ReadMessage(Scope);
             break;

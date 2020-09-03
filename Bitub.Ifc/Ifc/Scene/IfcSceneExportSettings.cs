@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using System.Xml.Serialization;
-
+using Bitub.Transfer;
 using Bitub.Transfer.Scene;
 using Bitub.Transfer.Spatial;
 
@@ -50,6 +50,12 @@ namespace Bitub.Ifc.Scene
         /// The count of units per meter. Default is 1.0
         /// </summary>
         public double UnitsPerMeter { get; set; } = 1.0;
+
+        /// <summary>
+        /// Classify by property paths. Each path consists of two or one fragment. Given two will embed values of a <>pset.property</c> will embed
+        /// <c>pset.property.value</c> if existing. Given a single fragment <c>property</c> will embed <c>.property.value</c>
+        /// </summary>
+        public Qualifier[] ClassifyByPropertyPath { get; set; } = new Qualifier[] { };
 
         /// <summary>
         /// The pre-classification function to group products into components. By default each product is unique.

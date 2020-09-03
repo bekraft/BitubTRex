@@ -14,6 +14,7 @@ using Bitub.Transfer.Scene;
 
 using Component = Bitub.Transfer.Scene.Component;
 using System.Threading.Tasks;
+using Bitub.Transfer.Classify;
 
 namespace Bitub.Ifc.Scene
 {
@@ -48,7 +49,7 @@ namespace Bitub.Ifc.Scene
         public IfcSceneExporter(IIfcTesselationContext tesselatorInstance, ILoggerFactory loggerFactory = null)
         {
             Logger = loggerFactory?.CreateLogger<IfcSceneExporter>();
-            TesselatorInstance = tesselatorInstance;
+            TesselatorInstance = tesselatorInstance;            
         }
 
         /// <summary>

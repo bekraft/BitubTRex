@@ -69,17 +69,21 @@ namespace Bitub.Ifc.Scene
 
         public static IEnumerable<ColorOrNormalised> ToColorChannel(this IIfcSurfaceStyleShading ss)
         {
-            return new ColorOrNormalised[] { new ColorOrNormalised() { 
-                Channel = ColorChannel.Albedo,
-                Color = ss.SurfaceColour.ToColor(1.0f - (float)ss.Transparency)
-            } };
+            return new ColorOrNormalised[] {
+                new ColorOrNormalised()
+                {
+                    Channel = ColorChannel.Albedo,
+                    Color = ss.SurfaceColour.ToColor(1.0f - (float)(ss.Transparency ?? 0))
+                }
+            };
         }
 
         public static IEnumerable<ColorOrNormalised> ToColorChannel(this IIfcSurfaceStyleRendering sr)
         {
             // Adapting Xbim Texture transformation logic here
-            float alpha = 1.0f - (float)sr.Transparency;
-            return new ColorOrNormalised[]{
+            float alpha = 1.0f - (float)(sr.Transparency ?? 0);
+            return new ColorOrNormalised[]
+            {
                 new ColorOrNormalised() {
                     Channel = ColorChannel.Albedo,
                     Color = sr.SurfaceColour.ToColor()

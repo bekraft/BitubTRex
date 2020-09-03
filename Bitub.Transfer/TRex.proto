@@ -45,7 +45,7 @@ message Job {
 }
 
 // A selector scope "selects" the transformation target
-message PropertyScope {
+message ElementScope {
     repeated Classifier elements = 1;
 }
 
@@ -67,7 +67,7 @@ message Property {
     // PSet.Name or .Name if any pset
     Qualifier name = 1;
     // Classification matches
-    PropertyScope scope = 2;
+    ElementScope scope = 2;
     // Property definition
     PropertyUnitType unitType = 3;
 }

@@ -33,23 +33,23 @@ namespace Bitub.Transfer.Classify {
             "ZnkuRmVhdHVyZUNvbmNlcHRIABIrCghzdWJzdW1lcxgEIAMoCzIZLkJpdHVi",
             "LlRyYW5zZmVyLlF1YWxpZmllckINCgtjb25jZXB0S2luZCI6CgtDb25qdW5j",
             "dGlvbhIrCghjb25jZXB0cxgCIAMoCzIZLkJpdHViLlRyYW5zZmVyLlF1YWxp",
-            "ZmllciKEAQoORmVhdHVyZUNvbmNlcHQSDQoFbGFiZWwYASABKAkSKwoCb3AY",
-            "AiABKA4yHy5CaXR1Yi5UcmFuc2Zlci5DbGFzc2lmeS5Sb2xlT3ASNgoIZmVh",
-            "dHVyZXMYAyADKAsyJC5CaXR1Yi5UcmFuc2Zlci5DbGFzc2lmeS5GZWF0dXJl",
-            "Um9sZSKxAQoLRmVhdHVyZVJvbGUSJwoEbmFtZRgBIAEoCzIZLkJpdHViLlRy",
-            "YW5zZmVyLlF1YWxpZmllchI0CgRkYXRhGAMgASgLMiQuQml0dWIuVHJhbnNm",
-            "ZXIuQ2xhc3NpZnkuRGF0YUNvbmNlcHRIABIrCgZmaWxsZXIYBCABKAsyGS5C",
-            "aXR1Yi5UcmFuc2Zlci5RdWFsaWZpZXJIAEIWChRjb25jZXB0T3JEYXRhRmVh",
-            "dHVyZSKkAQoLRGF0YUNvbmNlcHQSLwoEdHlwZRgBIAEoDjIhLkJpdHViLlRy",
-            "YW5zZmVyLkNsYXNzaWZ5LkRhdGFUeXBlEisKAm9wGAIgASgOMh8uQml0dWIu",
-            "VHJhbnNmZXIuQ2xhc3NpZnkuRGF0YU9wEg8KBWRpZ2l0GAMgASgBSAASFAoK",
-            "c2VyaWFsaXplZBgEIAEoCUgAQhAKDm51bWJlck9yU3RyaW5nKkwKCERhdGFU",
-            "eXBlEgoKBlNUUklORxAAEgsKB0lOVEVHRVIQARILCgdERUNJTUFMEAISCwoH",
-            "Qk9PTEVBThADEg0KCVRJTUVTVEFNUBAEKh4KBlJvbGVPcBIJCgVBbGxPZhAA",
-            "EgkKBU9uZU9mEAEqVgoGRGF0YU9wEgoKBkVxdWFscxAAEggKBExlc3MQARIS",
-            "Cg5MZXNzVGhhbkVxdWFscxACEgsKB0dyZWF0ZXIQAxIVChFHcmVhdGVyVGhh",
-            "bkVxdWFscxAEQjMKF2JpdHViLnRyYW5zZmVyLmNsYXNzaWZ5qgIXQml0dWIu",
-            "VHJhbnNmZXIuQ2xhc3NpZnliBnByb3RvMw=="));
+            "ZmllciKAAQoORmVhdHVyZUNvbmNlcHQSDQoFbGFiZWwYASABKAkSKwoCb3AY",
+            "AiABKA4yHy5CaXR1Yi5UcmFuc2Zlci5DbGFzc2lmeS5Sb2xlT3ASMgoIZmVh",
+            "dHVyZXMYAyADKAsyIC5CaXR1Yi5UcmFuc2Zlci5DbGFzc2lmeS5GZWF0dXJl",
+            "Iq0BCgdGZWF0dXJlEicKBG5hbWUYASABKAsyGS5CaXR1Yi5UcmFuc2Zlci5R",
+            "dWFsaWZpZXISNAoEZGF0YRgDIAEoCzIkLkJpdHViLlRyYW5zZmVyLkNsYXNz",
+            "aWZ5LkRhdGFDb25jZXB0SAASKwoGZmlsbGVyGAQgASgLMhkuQml0dWIuVHJh",
+            "bnNmZXIuUXVhbGlmaWVySABCFgoUY29uY2VwdE9yRGF0YUZlYXR1cmUipAEK",
+            "C0RhdGFDb25jZXB0Ei8KBHR5cGUYASABKA4yIS5CaXR1Yi5UcmFuc2Zlci5D",
+            "bGFzc2lmeS5EYXRhVHlwZRIrCgJvcBgCIAEoDjIfLkJpdHViLlRyYW5zZmVy",
+            "LkNsYXNzaWZ5LkRhdGFPcBIPCgVkaWdpdBgDIAEoAUgAEhQKCnNlcmlhbGl6",
+            "ZWQYBCABKAlIAEIQCg5udW1iZXJPclN0cmluZypMCghEYXRhVHlwZRIKCgZT",
+            "VFJJTkcQABILCgdJTlRFR0VSEAESCwoHREVDSU1BTBACEgsKB0JPT0xFQU4Q",
+            "AxINCglUSU1FU1RBTVAQBCoeCgZSb2xlT3ASCQoFQWxsT2YQABIJCgVPbmVP",
+            "ZhABKlYKBkRhdGFPcBIKCgZFcXVhbHMQABIICgRMZXNzEAESEgoOTGVzc1Ro",
+            "YW5FcXVhbHMQAhILCgdHcmVhdGVyEAMSFQoRR3JlYXRlclRoYW5FcXVhbHMQ",
+            "BEIzChdiaXR1Yi50cmFuc2Zlci5jbGFzc2lmeaoCF0JpdHViLlRyYW5zZmVy",
+            "LkNsYXNzaWZ5YgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bitub.Transfer.CommonReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bitub.Transfer.Classify.DataType), typeof(global::Bitub.Transfer.Classify.RoleOp), typeof(global::Bitub.Transfer.Classify.DataOp), }, new pbr::GeneratedClrTypeInfo[] {
@@ -57,7 +57,7 @@ namespace Bitub.Transfer.Classify {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bitub.Transfer.Classify.Concept), global::Bitub.Transfer.Classify.Concept.Parser, new[]{ "Name", "Conjuncted", "Concept_", "Subsumes" }, new[]{ "ConceptKind" }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bitub.Transfer.Classify.Conjunction), global::Bitub.Transfer.Classify.Conjunction.Parser, new[]{ "Concepts" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bitub.Transfer.Classify.FeatureConcept), global::Bitub.Transfer.Classify.FeatureConcept.Parser, new[]{ "Label", "Op", "Features" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bitub.Transfer.Classify.FeatureRole), global::Bitub.Transfer.Classify.FeatureRole.Parser, new[]{ "Name", "Data", "Filler" }, new[]{ "ConceptOrDataFeature" }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bitub.Transfer.Classify.Feature), global::Bitub.Transfer.Classify.Feature.Parser, new[]{ "Name", "Data", "Filler" }, new[]{ "ConceptOrDataFeature" }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bitub.Transfer.Classify.DataConcept), global::Bitub.Transfer.Classify.DataConcept.Parser, new[]{ "Type", "Op", "Digit", "Serialized" }, new[]{ "NumberOrString" }, null, null)
           }));
     }
@@ -664,11 +664,11 @@ namespace Bitub.Transfer.Classify {
 
     /// <summary>Field number for the "features" field.</summary>
     public const int FeaturesFieldNumber = 3;
-    private static readonly pb::FieldCodec<global::Bitub.Transfer.Classify.FeatureRole> _repeated_features_codec
-        = pb::FieldCodec.ForMessage(26, global::Bitub.Transfer.Classify.FeatureRole.Parser);
-    private readonly pbc::RepeatedField<global::Bitub.Transfer.Classify.FeatureRole> features_ = new pbc::RepeatedField<global::Bitub.Transfer.Classify.FeatureRole>();
+    private static readonly pb::FieldCodec<global::Bitub.Transfer.Classify.Feature> _repeated_features_codec
+        = pb::FieldCodec.ForMessage(26, global::Bitub.Transfer.Classify.Feature.Parser);
+    private readonly pbc::RepeatedField<global::Bitub.Transfer.Classify.Feature> features_ = new pbc::RepeatedField<global::Bitub.Transfer.Classify.Feature>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::RepeatedField<global::Bitub.Transfer.Classify.FeatureRole> Features {
+    public pbc::RepeatedField<global::Bitub.Transfer.Classify.Feature> Features {
       get { return features_; }
     }
 
@@ -784,11 +784,11 @@ namespace Bitub.Transfer.Classify {
   /// <summary>
   /// A data or role feature
   /// </summary>
-  public sealed partial class FeatureRole : pb::IMessage<FeatureRole> {
-    private static readonly pb::MessageParser<FeatureRole> _parser = new pb::MessageParser<FeatureRole>(() => new FeatureRole());
+  public sealed partial class Feature : pb::IMessage<Feature> {
+    private static readonly pb::MessageParser<Feature> _parser = new pb::MessageParser<Feature>(() => new Feature());
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<FeatureRole> Parser { get { return _parser; } }
+    public static pb::MessageParser<Feature> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
@@ -801,14 +801,14 @@ namespace Bitub.Transfer.Classify {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public FeatureRole() {
+    public Feature() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public FeatureRole(FeatureRole other) : this() {
+    public Feature(Feature other) : this() {
       name_ = other.name_ != null ? other.name_.Clone() : null;
       switch (other.ConceptOrDataFeatureCase) {
         case ConceptOrDataFeatureOneofCase.Data:
@@ -823,8 +823,8 @@ namespace Bitub.Transfer.Classify {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public FeatureRole Clone() {
-      return new FeatureRole(this);
+    public Feature Clone() {
+      return new Feature(this);
     }
 
     /// <summary>Field number for the "name" field.</summary>
@@ -881,11 +881,11 @@ namespace Bitub.Transfer.Classify {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
-      return Equals(other as FeatureRole);
+      return Equals(other as Feature);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(FeatureRole other) {
+    public bool Equals(Feature other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -955,7 +955,7 @@ namespace Bitub.Transfer.Classify {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(FeatureRole other) {
+    public void MergeFrom(Feature other) {
       if (other == null) {
         return;
       }

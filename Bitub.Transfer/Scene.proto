@@ -130,7 +130,7 @@ message Component {
 	repeated Classifier concepts = 6;	
 	repeated GlobalUniqueId children = 7;
 	repeated Representation representations = 8;
-	repeated Bitub.Transfer.Classify.FeatureRole features = 9;
+	repeated Bitub.Transfer.Classify.Feature features = 9;
 }
 
 // Material 

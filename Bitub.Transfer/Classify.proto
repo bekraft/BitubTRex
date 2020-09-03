@@ -29,11 +29,11 @@ message Conjunction {
 message FeatureConcept {
 	string label = 1;
 	RoleOp op = 2;
-	repeated FeatureRole features = 3;
+	repeated Feature features = 3;
 }
 
 // A data or role feature
-message FeatureRole {
+message Feature {
 	Qualifier name = 1;
 	oneof conceptOrDataFeature {
 		DataConcept data = 3;

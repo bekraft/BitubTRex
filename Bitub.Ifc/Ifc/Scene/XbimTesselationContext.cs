@@ -192,7 +192,7 @@ namespace Bitub.Ifc.Scene
                         sc.Wcs = new XbimMatrix3D(offset).ToQuaternion(s.Scale);
 
                     // Set correction to negative offset shift (without scale since in model space units)
-                    s.Context[cr.ContextLabel] = new Tuple<SceneContext, XbimMatrix3D>(sc, new XbimMatrix3D(offset * -1));
+                    s.SetRepresentationContext(cr.ContextLabel, sc, new XbimMatrix3D(offset * -1));
                 }
                 else
                 {
@@ -204,7 +204,7 @@ namespace Bitub.Ifc.Scene
         // Creates a new representation context
         private Representation GetOrCreateRepresentation(IfcSceneExportSummary s, XbimShapeInstance shape, TesselationPackage pkg)
         {            
-            var (context, contextWcs) = s.Context[shape.RepresentationContext];
+            var (context, contextWcs) = s.RepresentationContext(shape.RepresentationContext);
             var representation = pkg.Representations.FirstOrDefault(r => r.Context.Equals(context.Name));
             // left expansion & concatenation in xbim !
             var aabb = shape.BoundingBox.ToABox(s.Scale, p => (shape.Transformation * contextWcs).Transform(p));
@@ -229,7 +229,7 @@ namespace Bitub.Ifc.Scene
         private Transfer.Scene.Transform CreateTransform(IfcSceneExportSummary s, XbimShapeInstance shape)
         {
             // Context transformation (offset shift)
-            var contextWcs = s.TransformOf(shape.RepresentationContext);
+            var contextWcs = s.TransformOf(shape.RepresentationContext) ?? XbimMatrix3D.Identity;
             switch (s.AppliedSettings.Transforming)
             {
                 case SceneTransformationStrategy.Matrix:
