@@ -47,9 +47,6 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="Resources\Ifc4-SampleHouse.ifc">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="Resources\TRexScript1.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -81,62 +78,5 @@
     <PackageReference Include="MSTest.TestFramework">
       <Version>2.1.2</Version>
     </PackageReference>
-    <PackageReference Include="Xbim.Common">
-      <Version>5.1.20209.27462</Version>
-    </PackageReference>
-    <PackageReference Include="Xbim.Geometry.Engine.Interop">
-      <Version>5.1.20213.31545</Version>
-    </PackageReference>
-    <PackageReference Include="Xbim.Ifc">
-      <Version>5.1.20209.27462</Version>
-    </PackageReference>
-    <PackageReference Include="Xbim.Ifc2x3">
-      <Version>5.1.20209.27462</Version>
-    </PackageReference>
-    <PackageReference Include="Xbim.Ifc4">
-      <Version>5.1.20209.27462</Version>
-    </PackageReference>
-    <PackageReference Include="Xbim.IO.Esent">
-      <Version>5.1.20209.27462</Version>
-    </PackageReference>
-    <PackageReference Include="Xbim.IO.MemoryModel">
-      <Version>5.1.20209.27462</Version>
-    </PackageReference>
-    <PackageReference Include="Xbim.ModelGeometry.Scene">
-      <Version>5.1.20213.31545</Version>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Bitub.Ifc.Tests\Resources\Ifc4-Base-Groundfloor.ifc">
-      <Link>Resources\Ifc4-Base-Groundfloor.ifc</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Bitub.Ifc.Tests\Resources\Ifc4-Multi-Body-House.ifc">
-      <Link>Resources\Ifc4-Multi-Body-House.ifc</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Bitub.Ifc.Tests\Resources\Ifc4-Rotated-1st-floor.ifc">
-      <Link>Resources\Ifc4-Rotated-1st-floor.ifc</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Bitub.Ifc.Tests\Resources\Ifc4-Rotated-IfcSite-1st-floor.ifc">
-      <Link>Resources\Ifc4-Rotated-IfcSite-1st-floor.ifc</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Bitub.Ifc.Tests\Resources\Ifc4-Storey-With-4Walls.ifc">
-      <Link>Resources\Ifc4-Storey-With-4Walls.ifc</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Bitub.Transfer\bin\Debug\net47\Xbim.Geometry.Engine32.dll">
-      <Link>Xbim.Geometry.Engine32.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Bitub.Transfer\bin\Debug\net47\Xbim.Geometry.Engine64.dll">
-      <Link>Xbim.Geometry.Engine64.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Ifc2x3-Slab-BooleanResult.ifc">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 </Project>

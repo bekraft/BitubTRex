@@ -43,7 +43,7 @@ namespace Bitub.Ifc.Tests
                     .Where(s => s.Name == "AllplanAttributes")
                     .Count());
 
-                var request = new IfcPropertySetRemovalRequest(this.TestLoggingFactory)
+                var request = new IfcPropertySetRemovalRequest(this.TestLoggerFactory)
                 {
                     RemovePropertySet = new string[] { "AllplanAttributes" },
                     IsNameMatchingCaseSensitive = false,
@@ -95,7 +95,7 @@ namespace Bitub.Ifc.Tests
                 var stampBefore = IfcSchemaValidationStamp.OfModel(source);
                 Assert.IsTrue(stampBefore.IsCompliantToSchema);
 
-                var request = new IfcPropertySetRemovalRequest(this.TestLoggingFactory)
+                var request = new IfcPropertySetRemovalRequest(this.TestLoggerFactory)
                 {
                     RemovePropertySet = new string[] { "AllplanAttributes" },
                     KeepPropertySet = new string[] { "AllplanAttributes", "AllplanAttributes Copy" },
@@ -150,7 +150,7 @@ namespace Bitub.Ifc.Tests
                 var stampBefore = IfcSchemaValidationStamp.OfModel(source);
                 Assert.IsTrue(stampBefore.IsCompliantToSchema);
 
-                var request = new IfcPropertySetRemovalRequest(this.TestLoggingFactory)
+                var request = new IfcPropertySetRemovalRequest(this.TestLoggerFactory)
                 {
                     RemovePropertySet = new string[] { "Other" },
                     KeepPropertySet = new string[] { "Pset_SpaceCommon", "Other" },

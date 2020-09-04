@@ -6,15 +6,16 @@ using Xbim.Ifc;
 
 using System.IO;
 using Google.Protobuf;
-using Bitub.Ifc.Scene;
+
 using System.Threading.Tasks;
 
-using Bitub.Transfer.Tests;
+using Bitub.Transfer;
+using Bitub.Ifc.Tests;
 
-namespace Bitub.Transfer.Scene.Tests
+namespace Bitub.Ifc.Scene.Tests
 {
     [TestClass]
-    public class Ifc4SceneXbimExporterTests : BaseTest<Ifc4SceneXbimExporterTests>
+    public class SceneXbimExporterTests : BaseTest<SceneXbimExporterTests>
     {
         [TestInitialize]
         public void StartUp()
@@ -27,7 +28,7 @@ namespace Bitub.Transfer.Scene.Tests
             IfcSceneExportSummary result;
             using (var store = IfcStore.Open(fileName))
             {
-                var exporter = new IfcSceneExporter(new XbimTesselationContext(Factory), Factory);
+                var exporter = new IfcSceneExporter(new XbimTesselationContext(TestLoggerFactory), TestLoggerFactory);
                 exporter.Settings = settings;
 
                 using (var monitor = new CancelableProgressing(true))
@@ -48,14 +49,14 @@ namespace Bitub.Transfer.Scene.Tests
                 var json = formatter.Format(result.Scene);
                 jsonStream.WriteLine(json);
                 jsonStream.Close();
-                Logger.LogInformation($"JSON example has been written.");
+                TestLogger.LogInformation($"JSON example has been written.");
             }
 
             using (var binStream = File.Create($"{Path.GetFileNameWithoutExtension(fileName)}.scene"))
             {
                 var binScene = result.Scene.ToByteArray();
                 binStream.Write(binScene, 0, binScene.Length);
-                Logger.LogInformation($"Binary scene of {binScene.Length} bytes has been written.");
+                TestLogger.LogInformation($"Binary scene of {binScene.Length} bytes has been written.");
             }
         }
 

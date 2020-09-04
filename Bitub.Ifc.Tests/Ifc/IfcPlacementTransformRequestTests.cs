@@ -64,7 +64,7 @@ namespace Bitub.Ifc.Tests
                 Assert.IsNotNull(testConfig.SourceReferenceAxis);
                 Assert.IsNotNull(testConfig.TargetReferenceAxis);
 
-                var request = new IfcPlacementTransformRequest(this.TestLoggingFactory)                
+                var request = new IfcPlacementTransformRequest(this.TestLoggerFactory)                
                 {
                     AxisAlignment = testConfig,
                     PlacementStrategy = IfcPlacementStrategy.ChangeRootPlacements,
@@ -110,7 +110,7 @@ namespace Bitub.Ifc.Tests
                 Assert.IsNotNull(testConfig.SourceReferenceAxis);
                 Assert.IsNotNull(testConfig.TargetReferenceAxis);
 
-                var request = new IfcPlacementTransformRequest(this.TestLoggingFactory)
+                var request = new IfcPlacementTransformRequest(this.TestLoggerFactory)
                 {
                     AxisAlignment = testConfig,
                     PlacementStrategy = IfcPlacementStrategy.ChangeRootPlacements,
@@ -160,7 +160,7 @@ namespace Bitub.Ifc.Tests
                 Assert.IsNotNull(testConfig.SourceReferenceAxis);
                 Assert.IsNotNull(testConfig.TargetReferenceAxis);
 
-                var request = new IfcPlacementTransformRequest(this.TestLoggingFactory)
+                var request = new IfcPlacementTransformRequest(this.TestLoggerFactory)
                 {
                     AxisAlignment = testConfig,
                     PlacementStrategy = IfcPlacementStrategy.NewRootPlacement,

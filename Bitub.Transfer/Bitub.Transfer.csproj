@@ -81,6 +81,7 @@
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Message Text="==> Protobuf build: Including from protobuf sources PROTOBUF_SRC=&quot;$(PROTOBUF_SRC)&quot;" Importance="high"/>
     <Exec Command="$(Protoc) -I=&quot;$(PROTOBUF_SRC)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Common.proto&quot;" />
     <Exec Command="$(Protoc) -I=&quot;$(PROTOBUF_SRC)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Spatial.proto&quot;" />
     <Exec Command="$(Protoc) -I=&quot;$(PROTOBUF_SRC)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Classify.proto&quot;" />

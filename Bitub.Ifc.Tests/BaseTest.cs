@@ -15,7 +15,7 @@ namespace Bitub.Ifc.Tests
     {
         protected readonly double Precision = 1e-5;
 
-        protected ILoggerFactory TestLoggingFactory { get; private set; }
+        protected ILoggerFactory TestLoggerFactory { get; private set; }
         protected ILogger TestLogger { get; private set; }
 
         protected XbimEditorCredentials EditorCredentials = new XbimEditorCredentials
@@ -31,8 +31,8 @@ namespace Bitub.Ifc.Tests
 
         protected void StartUpLogging()
         {
-            TestLoggingFactory = new LoggerFactory().AddConsole();
-            TestLogger = TestLoggingFactory.CreateLogger<T>();
+            TestLoggerFactory = new LoggerFactory().AddConsole();
+            TestLogger = TestLoggerFactory.CreateLogger<T>();
             TestLogger.LogInformation($"Starting {GetType()} ...");
         }
 

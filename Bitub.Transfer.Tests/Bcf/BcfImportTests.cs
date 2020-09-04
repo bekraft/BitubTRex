@@ -22,17 +22,14 @@ namespace Bitub.Transfer.Bcf.Tests
         }
 
         [TestMethod]
-        public void Test()
+        public void ImportBcfZip()
         {
-            var regex = new Regex("(?<name>[^:]*(?=:))+|(?<name>[^:]*(?!:)$)", RegexOptions.ExplicitCapture);
-            foreach (Match m in regex.Matches("Furniture_Desk:1525x762mm:287689"))
-            {
-                var captures = m.Groups["name"].Captures;
-                foreach (Capture c in captures)
-                {
-                    Logger.LogInformation($"{m.Index}:{c.Index} = {c.Value}");
-                }
-            }
         }
+
+        [TestMethod]
+        public void ImportBcf()
+        {
+        }
+
     }
 }
