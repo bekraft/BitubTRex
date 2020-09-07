@@ -4,7 +4,6 @@ namespace Bitub.Transfer.Spatial
 {
     public static class SpatialExtensions
     {
-
         #region Cross-Casting to System.Numerics
 
         public static System.Numerics.Vector3 ToNetVector3(this XYZ xyz)

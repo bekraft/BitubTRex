@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace Bitub.Transfer.Data
 {
+    /*
     public class SceneImporterDA4558
     {
     }
+    */
 }
