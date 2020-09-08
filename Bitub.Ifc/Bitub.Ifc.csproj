@@ -33,7 +33,7 @@
 
     <AssemblyFileVersionAttribute>[assembly:System.Reflection.AssemblyVersionAttribute("$(BuildMajor).$(BuildMinor).$(BuildRelease).$(Build)")];</AssemblyFileVersionAttribute>
     <AssemblyVersion>$(BuildMajor).$(BuildMinor).$(BuildRelease).$(Build)</AssemblyVersion>
-    <FileVersion>$(BuildMajor).$(BuildMinor).$(BuildRelease)$(BuildQualifier).$(Build)</FileVersion>
+    <FileVersion>$(BuildMajor).$(BuildMinor).$(BuildRelease).$(Build)</FileVersion>
     <Version>$(BuildMajor).$(BuildMinor).$(BuildRelease)$(BuildQualifier).$(Build)</Version>
     <Authors>Bernold Kraft</Authors>
     <Company>Bitub</Company>

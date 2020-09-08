@@ -1,5 +1,5 @@
 ﻿using System;
-using System.ComponentModel;
+
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -33,19 +33,17 @@ namespace Bitub.Transfer.Bcf
         [XmlElement(ElementName = "Description")]
         public string Description { get; set; }
         [XmlElement(ElementName = "BimSnippet")]
-        public BimSnippet BimSnippet { get; set; }
+        public BcfBimSnippet BimSnippet { get; set; }
         [XmlElement(ElementName = "DocumentReference")]
-        public DocumentReference[] DocumentReferences { get; set; }
-
+        public BcfDocumentReference[] DocumentReferences { get; set; } = new BcfDocumentReference[0];
         [XmlElement(ElementName = "RelatedTopic")]
         public BcfTopic[] RelatedTopic { get; set; } = new BcfTopic[0];
     }
 
-    public class DocumentReference
+    public class BcfDocumentReference
     {
         [XmlAttribute(AttributeName = "Guid")]        
         public System.Guid ID { get; set; } = System.Guid.NewGuid();
-
         [XmlAttribute(AttributeName = "isExternal")]
         public bool IsExternal { get; set; }
 
@@ -55,8 +53,14 @@ namespace Bitub.Transfer.Bcf
         public string Description { get; set; }
     }
 
-    public class BimSnippet
+    public class BcfBimSnippet
     {
+        [XmlAttribute(AttributeName = "SnippedType")]
+        public string SnippetType { get; set; }
+        [XmlAttribute(AttributeName = "isExternal")]
+        public bool IsExternal { get; set; }
 
+        [XmlElement(ElementName = "Reference")]
+        public string Reference { get; set; }        
     }
 }
