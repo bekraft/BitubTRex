@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Xml;
 using System.Xml.Serialization;
 
 namespace Bitub.Transfer.Bcf
@@ -7,6 +7,9 @@ namespace Bitub.Transfer.Bcf
     [XmlRoot("Markup")]
     public class BcfMarkup
     {
+        [XmlNamespaceDeclarations]
+        public XmlSerializerNamespaces Xmlns { get; set; }
+
         [XmlElement(ElementName = "Header")]
         public BcfHeader Header { get; set; }
 
@@ -23,6 +26,9 @@ namespace Bitub.Transfer.Bcf
 
         [XmlElement(ElementName = "Viewpoints")]
         public BcfViewpoint[] Viewpoints { get; set; } = new BcfViewpoint[0];
+
+        [XmlAnyAttribute]
+        public XmlAttribute[] Unknown { get; set; }
     }
 
     public class BcfHeader
@@ -44,9 +50,9 @@ namespace Bitub.Transfer.Bcf
     public abstract class BcfFileAttributes
     {
         [XmlAttribute(AttributeName = "IfcProject")]
-        public IfcGuidQualifier IfcProject { get; set; }
+        public string IfcProject { get; set; }
         [XmlAttribute(AttributeName = "IfcSpatialStructureElement")]
-        public IfcGuidQualifier IfcSpatialStructureElement { get; set; }
+        public string IfcSpatialStructureElement { get; set; }
         [XmlAttribute(AttributeName = "isExternal")]
         public bool IsExternal { get; set; }
     }

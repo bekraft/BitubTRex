@@ -3,12 +3,16 @@
 using Bitub.Transfer.Spatial;
 
 using System.Xml.Serialization;
+using System.Xml;
 
 namespace Bitub.Transfer.Bcf
 {
     [XmlRoot(ElementName = "VisualizationInfo")]
     public class BcfVisualizationInfo
     {
+        [XmlNamespaceDeclarations]
+        public XmlSerializerNamespaces Xmlns { get; set; }
+
         [XmlAttribute(AttributeName = "Guid")]
         public System.Guid ID { get; set; } = System.Guid.NewGuid();
 
@@ -24,6 +28,9 @@ namespace Bitub.Transfer.Bcf
         public BcfClippingPlane[] ClippingPlanes { get; set; } = new BcfClippingPlane[0];
         [XmlElement(ElementName = "Bitmap")]
         public BcfBitmap[] Bitmap { get; set; } = new BcfBitmap[0];
+
+        [XmlAnyAttribute]
+        public XmlAttribute[] Unknown { get; set; }
     }
 
     public class BcfViewpointComponents
@@ -41,7 +48,7 @@ namespace Bitub.Transfer.Bcf
     public class BcfComponent
     {
         [XmlAttribute(AttributeName = "IfcGuid")]
-        public IfcGuidQualifier IfcGuid { get; set; }
+        public string IfcGuid { get; set; }
 
         [XmlElement(ElementName = "OriginatingSystem")]
         public string OriginatingSystem { get; set; }

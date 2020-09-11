@@ -9,13 +9,17 @@ namespace Bitub.Transfer.Bcf
     {
         [XmlAttribute(AttributeName = "Guid")]
         public System.Guid ID { get; set; } = System.Guid.NewGuid();
+        [XmlAttribute(AttributeName = "TopicType")]
+        public string TopicType { get; set; }
+        [XmlAttribute(AttributeName = "TopicStatus")]
+        public string TopicStatus { get; set; }
+
         [XmlElement(ElementName = "ReferenceLink")]
         public string ReferenceLink { get; set; }
         [XmlElement(ElementName = "Title")]
         public string Title { get; set; }
         [XmlElement(ElementName = "Priority")]
         public string Priority { get; set; }
-
         [XmlElement(ElementName = "Index", IsNullable = true)]
         public int? Index { get; set; }
         [XmlElement(ElementName = "Labels")]

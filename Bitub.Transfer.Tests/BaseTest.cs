@@ -11,7 +11,7 @@ namespace Bitub.Transfer.Tests
         {
             TestLoggerFactory = new LoggerFactory().AddConsole();
             TestLogger = TestLoggerFactory.CreateLogger<T>();
-            TestLogger.LogInformation($"Starting up ${GetType()}...");
+            TestLogger.LogInformation($"Starting up {GetType()}...");
         }
 
     }

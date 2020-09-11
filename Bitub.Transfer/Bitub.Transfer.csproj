@@ -72,6 +72,20 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\BCF21\markup.xsd" />
+    <None Remove="Resources\BCF21\project.xsd" />
+    <None Remove="Resources\BCF21\version.xsd" />
+    <None Remove="Resources\BCF21\visinfo.xsd" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\BCF21\markup.xsd" />
+    <EmbeddedResource Include="Resources\BCF21\project.xsd" />
+    <EmbeddedResource Include="Resources\BCF21\version.xsd" />
+    <EmbeddedResource Include="Resources\BCF21\visinfo.xsd" />
+  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="Google.Protobuf">
@@ -84,8 +98,8 @@
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Message Text="Building $(Version)" Importance="High"/>
-    <Message Text="==> Including from protobuf sources PROTOBUF_SRC=&quot;$(PROTOBUF_SRC)&quot;" Importance="High"/>
+    <Message Text="Building $(Version)" Importance="High" />
+    <Message Text="==&gt; Including from protobuf sources PROTOBUF_SRC=&quot;$(PROTOBUF_SRC)&quot;" Importance="High" />
     <Exec Command="$(Protoc) -I=&quot;$(PROTOBUF_SRC)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Common.proto&quot;" />
     <Exec Command="$(Protoc) -I=&quot;$(PROTOBUF_SRC)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Spatial.proto&quot;" />
     <Exec Command="$(Protoc) -I=&quot;$(PROTOBUF_SRC)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Classify.proto&quot;" />
