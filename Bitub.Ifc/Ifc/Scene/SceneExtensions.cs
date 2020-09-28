@@ -1,4 +1,4 @@
-﻿using Bitub.Transfer.Spatial;
+﻿using Bitub.Dto.Spatial;
 
 using Xbim.Common;
 using Xbim.Common.Geometry;

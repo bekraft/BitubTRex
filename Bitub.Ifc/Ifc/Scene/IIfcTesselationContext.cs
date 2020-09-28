@@ -1,5 +1,5 @@
-﻿using Bitub.Transfer;
-using Bitub.Transfer.Scene;
+﻿using Bitub.Dto;
+using Bitub.Dto.Scene;
 
 using System.Collections.Generic;
 

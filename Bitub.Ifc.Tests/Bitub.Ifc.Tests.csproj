@@ -130,9 +130,9 @@
       <Project>{de9a43a1-c8b1-4da6-b9db-09e8c31204de}</Project>
       <Name>Bitub.Ifc</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Bitub.Transfer\Bitub.Transfer.csproj">
+    <ProjectReference Include="..\Bitub.Dto\Bitub.Dto.csproj">
       <Project>{d95907f9-1c22-471f-8e77-066c40d35e0d}</Project>
-      <Name>Bitub.Transfer</Name>
+      <Name>Bitub.Dto</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

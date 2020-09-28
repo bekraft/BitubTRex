@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 using Xbim.Ifc;
 using Xbim.Ifc4.Interfaces;
 
-using Bitub.Transfer;
-using Bitub.Transfer.Spatial;
+using Bitub.Dto;
+using Bitub.Dto.Spatial;
 
 using Bitub.Ifc;
 using Bitub.Ifc.Transform;

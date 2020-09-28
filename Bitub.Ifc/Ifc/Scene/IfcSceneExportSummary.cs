@@ -1,4 +1,4 @@
-﻿using Bitub.Transfer.Scene;
+﻿using Bitub.Dto.Scene;
 
 using System;
 using System.Collections.Generic;

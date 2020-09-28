@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 using Xbim.Common;
 
-using Bitub.Transfer;
+using Bitub.Dto;
 
 using Microsoft.Extensions.Logging;
 

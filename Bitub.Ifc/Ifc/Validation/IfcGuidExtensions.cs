@@ -1,4 +1,4 @@
-﻿using Bitub.Transfer;
+﻿using Bitub.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;

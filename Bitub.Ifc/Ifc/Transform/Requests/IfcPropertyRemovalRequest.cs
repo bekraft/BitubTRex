@@ -7,7 +7,7 @@ using Xbim.Common;
 
 using Microsoft.Extensions.Logging;
 
-using Bitub.Transfer;
+using Bitub.Dto;
 
 namespace Bitub.Ifc.Transform.Requests
 {

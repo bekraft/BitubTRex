@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Bitub.Ifc.Transform;
-using Bitub.Transfer;
-using Bitub.Transfer.Classify;
+using Bitub.Dto;
+using Bitub.Dto.Classify;
 
 using Xbim.Common;
 using Xbim.Ifc4.Interfaces;

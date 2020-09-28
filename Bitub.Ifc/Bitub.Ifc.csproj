@@ -91,6 +91,6 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\Bitub.Transfer\Bitub.Transfer.csproj" />
+    <ProjectReference Include="..\Bitub.Dto\Bitub.Dto.csproj" />
   </ItemGroup>
 </Project>

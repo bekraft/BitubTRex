@@ -7,9 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Bitub.Ifc.Scene;
-using Bitub.Transfer;
-using Bitub.Transfer.Scene;
-using Bitub.Transfer.Spatial;
+using Bitub.Dto;
+using Bitub.Dto.Scene;
+using Bitub.Dto.Spatial;
 
 using Bitub.Ifc.Transform;
 
@@ -226,7 +226,7 @@ namespace Bitub.Ifc.Scene
         }
 
         // Creates a transform
-        private Transfer.Scene.Transform CreateTransform(IfcSceneExportSummary s, XbimShapeInstance shape)
+        private Dto.Scene.Transform CreateTransform(IfcSceneExportSummary s, XbimShapeInstance shape)
         {
             // Context transformation (relative offset shift => make final transform relative to context shift)
             var contextWcs = s.TransformOf(shape.RepresentationContext) ?? XbimMatrix3D.Identity;

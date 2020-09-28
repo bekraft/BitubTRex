@@ -9,12 +9,12 @@ using Xbim.Common;
 using Xbim.Ifc;
 using Xbim.Ifc4.Interfaces;
 
-using Bitub.Transfer;
-using Bitub.Transfer.Scene;
+using Bitub.Dto;
+using Bitub.Dto.Scene;
 
-using Component = Bitub.Transfer.Scene.Component;
+using Component = Bitub.Dto.Scene.Component;
 using System.Threading.Tasks;
-using Bitub.Transfer.Classify;
+using Bitub.Dto.Classify;
 
 namespace Bitub.Ifc.Scene
 {

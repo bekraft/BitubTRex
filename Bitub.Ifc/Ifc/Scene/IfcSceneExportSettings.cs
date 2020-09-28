@@ -1,8 +1,8 @@
 ﻿using System.IO;
 using System.Xml.Serialization;
-using Bitub.Transfer;
-using Bitub.Transfer.Scene;
-using Bitub.Transfer.Spatial;
+using Bitub.Dto;
+using Bitub.Dto.Scene;
+using Bitub.Dto.Spatial;
 
 namespace Bitub.Ifc.Scene
 {

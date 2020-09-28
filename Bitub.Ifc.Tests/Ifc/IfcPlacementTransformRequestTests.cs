@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 using Xbim.Ifc;
 using Xbim.Ifc4.Interfaces;
 
-using Bitub.Transfer;
+using Bitub.Dto;
 
 using Bitub.Ifc.Transform;
 using Bitub.Ifc.Validation;
 using Bitub.Ifc.Transform.Requests;
-using Bitub.Transfer.Spatial;
+using Bitub.Dto.Spatial;
 
 namespace Bitub.Ifc.Tests
 {

@@ -3,9 +3,9 @@ using System.Xml.Serialization;
 
 using Xbim.Common.Geometry;
 
-using Bitub.Transfer.Spatial;
+using Bitub.Dto.Spatial;
 using Bitub.Ifc.Scene;
-using Bitub.Transfer.Scene;
+using Bitub.Dto.Scene;
 
 namespace Bitub.Ifc.Transform
 {

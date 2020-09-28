@@ -4,8 +4,8 @@ using System.Linq;
 using Xbim.Common;
 using Xbim.Ifc4.Interfaces;
 
-using Bitub.Transfer;
-using Bitub.Transfer.Scene;
+using Bitub.Dto;
+using Bitub.Dto.Scene;
 
 namespace Bitub.Ifc.Scene
 {

@@ -9,7 +9,7 @@ using Google.Protobuf;
 
 using System.Threading.Tasks;
 
-using Bitub.Transfer;
+using Bitub.Dto;
 using Bitub.Ifc.Tests;
 
 namespace Bitub.Ifc.Scene.Tests

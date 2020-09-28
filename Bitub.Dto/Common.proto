@@ -1,0 +1,45 @@
+﻿syntax = "proto3";
+package Bitub.Dto;
+
+// Version 1.0
+option csharp_namespace = "Bitub.Dto";
+option java_package = "bitub.dto";
+
+// Raw GUID
+message Guid {
+	bytes raw = 1;	
+}
+
+// Global Unique ID is either binary or base64 representation
+message GlobalUniqueId {
+	oneof numericalOrString {
+		 Guid guid = 1;
+		 string base64 = 2;
+	}
+}
+
+// Qualifier either by GUID or name
+message Qualifier {
+	oneof guidOrName {
+		GlobalUniqueId anonymous = 1;
+		Name named = 2;
+	}
+}
+
+// Concept Uniform Resource Indentifier
+message Name {
+	repeated string frags = 2;
+}
+
+// A classifier as representative reference path
+message Classifier {
+	repeated Qualifier path = 1;
+}
+
+// A reference ID based on local or global identification
+message RefId {
+	oneof localOrGlobal {
+		int32 nid = 1;
+		Qualifier sid = 2;
+	}
+}

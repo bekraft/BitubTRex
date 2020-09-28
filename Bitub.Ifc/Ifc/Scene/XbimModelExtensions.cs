@@ -4,8 +4,8 @@ using System.Linq;
 using Xbim.Common.Geometry;
 using Xbim.Ifc;
 
-using Bitub.Transfer.Scene;
-using Bitub.Transfer.Spatial;
+using Bitub.Dto.Scene;
+using Bitub.Dto.Spatial;
 
 using Google.Protobuf.Collections;
 using Xbim.Ifc4.UtilityResource;
@@ -62,9 +62,9 @@ namespace Bitub.Ifc.Scene
             f.Add((float)(v.Z * scale));
         }
 
-        public static Bitub.Transfer.Scene.Transform ToRotation(this XbimMatrix3D t, double scale = 1.0)
+        public static Bitub.Dto.Scene.Transform ToRotation(this XbimMatrix3D t, double scale = 1.0)
         {
-            return new Bitub.Transfer.Scene.Transform
+            return new Bitub.Dto.Scene.Transform
             {                
                 R = new Rotation
                 {   // XbimMatrix is transposed (left hand chaining)
@@ -76,10 +76,10 @@ namespace Bitub.Ifc.Scene
             };
         }
 
-        public static Bitub.Transfer.Scene.Transform ToQuaternion(this XbimMatrix3D t, double scale = 1.0)
+        public static Bitub.Dto.Scene.Transform ToQuaternion(this XbimMatrix3D t, double scale = 1.0)
         {
             var q = t.GetRotationQuaternion();
-            return new Bitub.Transfer.Scene.Transform
+            return new Bitub.Dto.Scene.Transform
             {
                 Q = new Quaternion
                 {

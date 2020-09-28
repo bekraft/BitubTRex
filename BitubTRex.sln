@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29209.62
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitub.Transfer", "Bitub.Transfer\Bitub.Transfer.csproj", "{D95907F9-1C22-471F-8E77-066C40D35E0D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitub.Dto", "Bitub.Dto\Bitub.Dto.csproj", "{D95907F9-1C22-471F-8E77-066C40D35E0D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitub.Ifc", "Bitub.Ifc\Bitub.Ifc.csproj", "{DE9A43A1-C8B1-4DA6-B9DB-09E8C31204DE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitub.Transfer.Tests", "Bitub.Transfer.Tests\Bitub.Transfer.Tests.csproj", "{AA78A959-7C8E-4854-B66A-2B6A2DC0CBDE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitub.Dto.Tests", "Bitub.Dto.Tests\Bitub.Dto.Tests.csproj", "{AA78A959-7C8E-4854-B66A-2B6A2DC0CBDE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitub.Ifc.Tests", "Bitub.Ifc.Tests\Bitub.Ifc.Tests.csproj", "{132FECE7-926B-44D3-9977-7FA6D9C2C8A9}"
 EndProject
