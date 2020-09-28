@@ -120,7 +120,7 @@ namespace Bitub.Ifc.Scene
             return gReader.ContextIds
                    .Select(label => s.Model.Instances[label])
                    .OfType<IIfcRepresentationContext>()
-                   .Select(c => (c.EntityLabel, s.AppliedSettings.UserRepresentationContext.FirstOrDefault(sc => sc.Name == c.ContextIdentifier)))
+                   .Select(c => (c.EntityLabel, s.AppliedSettings.UserRepresentationContext.FirstOrDefault(sc => StringComparer.OrdinalIgnoreCase.Equals(sc.Name, c.ContextIdentifier))))
                    .Where(t => t.Item2 != null)
                    .ToDictionary(t => t.EntityLabel, t => t.Item2);
         }
@@ -228,7 +228,7 @@ namespace Bitub.Ifc.Scene
         // Creates a transform
         private Transfer.Scene.Transform CreateTransform(IfcSceneExportSummary s, XbimShapeInstance shape)
         {
-            // Context transformation (offset shift)
+            // Context transformation (relative offset shift => make final transform relative to context shift)
             var contextWcs = s.TransformOf(shape.RepresentationContext) ?? XbimMatrix3D.Identity;
             switch (s.AppliedSettings.Transforming)
             {
@@ -361,7 +361,7 @@ namespace Bitub.Ifc.Scene
                                 var ctx = summary.ContextOf(shape.RepresentationContext);
                                 if (null == ctx)
                                 {
-                                    Logger?.LogWarning($"Shape #{shape.InstanceLabel} of product #{product.EntityLabel} out of context scope. Skipped.");
+                                    Logger?.LogWarning($"Shape of representation #{shape.RepresentationContext} of product #{product.EntityLabel} out of context scope. Skipped.");
                                     continue;
                                 }
 

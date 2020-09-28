@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Bitub.Transfer.Bcf
+namespace Bitub.Transfer.BcfXml
 {
     public class BcfIssue
     {

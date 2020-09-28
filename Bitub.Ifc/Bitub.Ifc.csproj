@@ -4,8 +4,8 @@
   <PropertyGroup>
     <Protoc>$(UserProfile)\.nuget\packages\google.protobuf.tools\3.8.0\tools\windows_x64\protoc.exe</Protoc>
     
-    <BuildMajor>0</BuildMajor>
-    <BuildMinor>1</BuildMinor>
+    <BuildMajor>1</BuildMajor>
+    <BuildMinor>0</BuildMinor>
     <BuildRelease>0</BuildRelease>
     <BuildQualifier></BuildQualifier>
     <Build>0</Build>    

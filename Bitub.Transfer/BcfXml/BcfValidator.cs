@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Schema;
 
-namespace Bitub.Transfer.Bcf
+namespace Bitub.Transfer.BcfXml
 {
     public class BcfValidator
     {

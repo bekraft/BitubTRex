@@ -2,7 +2,7 @@
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace Bitub.Transfer.Bcf
+namespace Bitub.Transfer.BcfXml
 {
     [XmlRoot(ElementName = "Version")]
     public class BcfVersion

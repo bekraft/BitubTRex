@@ -5,7 +5,7 @@ using Bitub.Transfer.Spatial;
 using System.Xml.Serialization;
 using System.Xml;
 
-namespace Bitub.Transfer.Bcf
+namespace Bitub.Transfer.BcfXml
 {
     [XmlRoot(ElementName = "VisualizationInfo")]
     public class BcfVisualizationInfo
