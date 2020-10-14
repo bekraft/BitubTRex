@@ -52,6 +52,9 @@ namespace Bitub.Dto
         /// <returns>True, if both have the same type</returns>
         public static bool IsCompliantTo(this Qualifier qualifier, Qualifier other)
         {
+            if (null == qualifier || null == other)
+                return false;
+
             return qualifier.GuidOrNameCase == other.GuidOrNameCase;
         }
 
@@ -107,6 +110,8 @@ namespace Bitub.Dto
 
         private static int FindCommonFragmentLength(Qualifier q1, Qualifier q2, StringComparison comparison = StringComparison.Ordinal)
         {
+            if (null == q1 || null == q2)
+                return int.MinValue;
             if (!q1.IsCompliantTo(q2))
                 return int.MinValue;
             if (q1.GuidOrNameCase != Qualifier.GuidOrNameOneofCase.Named)

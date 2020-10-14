@@ -115,5 +115,10 @@ namespace Bitub.Dto.Spatial
                 }
             };
         }
+
+        public static double Volume(this ABox a)
+        {
+            return (a.Max.X - a.Min.X) * (a.Max.Y - a.Min.Y) * (a.Max.Z - a.Min.Z);
+        }
     }
 }

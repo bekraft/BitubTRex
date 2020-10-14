@@ -35,7 +35,7 @@ namespace Bitub.Ifc.Tests
             IfcStore.ModelProviderFactory.UseMemoryModelProvider();
             using (var source = IfcStore.Open(@"Resources\Ifc4-Storey-With-4Walls.ifc"))
             {
-                var stampBefore = IfcSchemaValidationStamp.OfModel(source);
+                var stampBefore = SchemaValidator.OfModel(source);
                 Assert.IsTrue(stampBefore.IsCompliantToSchema);
 
                 Assert.AreEqual(4, source.Instances
@@ -75,7 +75,7 @@ namespace Bitub.Ifc.Tests
                     Assert.AreEqual(4, pset.Length);
                     Assert.IsTrue(pset.All(p => p.Properties<IIfcProperty>().Count() == 3));
 
-                    var stampAfter = IfcSchemaValidationStamp.OfModel(result.Target);
+                    var stampAfter = SchemaValidator.OfModel(result.Target);
                     Assert.IsTrue(stampAfter.IsCompliantToSchema);
 
                     Assert.IsTrue(cp.State.State.HasFlag(ProgressTokenState.IsTerminated));
@@ -92,7 +92,7 @@ namespace Bitub.Ifc.Tests
             IfcStore.ModelProviderFactory.UseMemoryModelProvider();
             using (var source = IfcStore.Open(@"Resources\Ifc4-Storey-With-4Walls.ifc"))
             {
-                var stampBefore = IfcSchemaValidationStamp.OfModel(source);
+                var stampBefore = SchemaValidator.OfModel(source);
                 Assert.IsTrue(stampBefore.IsCompliantToSchema);
 
                 var request = new IfcPropertySetRemovalRequest(this.TestLoggerFactory)
@@ -130,7 +130,7 @@ namespace Bitub.Ifc.Tests
                     Assert.AreEqual(4, pset.Length);
                     Assert.IsTrue(pset.All(p => p.Properties<IIfcProperty>().Count() == 3));                    
 
-                    var stampAfter = IfcSchemaValidationStamp.OfModel(result.Target);
+                    var stampAfter = SchemaValidator.OfModel(result.Target);
 
                     Assert.IsTrue(stampAfter.IsCompliantToSchema);
                     Assert.IsTrue(cp.State.State.HasFlag(ProgressTokenState.IsTerminated));
@@ -147,7 +147,7 @@ namespace Bitub.Ifc.Tests
             IfcStore.ModelProviderFactory.UseMemoryModelProvider();
             using (var source = IfcStore.Open(@"Resources\Ifc4-SampleHouse.ifc"))
             {
-                var stampBefore = IfcSchemaValidationStamp.OfModel(source);
+                var stampBefore = SchemaValidator.OfModel(source);
                 Assert.IsTrue(stampBefore.IsCompliantToSchema);
 
                 var request = new IfcPropertySetRemovalRequest(this.TestLoggerFactory)
@@ -180,7 +180,7 @@ namespace Bitub.Ifc.Tests
                     Assert.AreEqual(1, psetsRemaining.Length);
                     Assert.IsTrue(string.Equals("Pset_SpaceCommon", psetsRemaining[0], StringComparison.OrdinalIgnoreCase));
 
-                    var stampAfter = IfcSchemaValidationStamp.OfModel(result.Target);
+                    var stampAfter = SchemaValidator.OfModel(result.Target);
 
                     Assert.IsTrue(stampAfter.IsCompliantToSchema);
                     Assert.IsTrue(cp.State.State.HasFlag(ProgressTokenState.IsTerminated));

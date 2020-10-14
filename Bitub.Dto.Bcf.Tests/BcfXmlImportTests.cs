@@ -3,12 +3,12 @@
 using System.IO;
 using System.Linq;
 
-using Bitub.Dto.Tests;
+using Bitub.Dto.BcfXml;
 
 namespace Bitub.Dto.Bcf.Tests
 {
     [TestClass]
-    public class BcfImportTests : BaseTest<BcfImportTests>
+    public class BcfXmlImportTests : BaseTest<BcfXmlImportTests>
     {
         [TestInitialize]
         public void StartUp()
@@ -17,11 +17,11 @@ namespace Bitub.Dto.Bcf.Tests
         }
 
         [TestMethod]
-        [DeploymentItem(@"Resources\BCF\Example1.bcfzip")]
+        [DeploymentItem(@"Resources\Bcf21\Example1.bcfzip")]
         public void ReadExample1()
         {
-            Assert.IsTrue(File.Exists(@"Resources\BCF\Example1.bcfzip"));
-            var example1 = BcfFile.ReadFrom(@"Resources\BCF\Example1.bcfzip");
+            Assert.IsTrue(File.Exists(@"Resources\Bcf21\Example1.bcfzip"));
+            var example1 = BcfFile.ReadFrom(@"Resources\Bcf21\Example1.bcfzip");
             Assert.IsNotNull(example1);
             
             var issues = example1.Issues.ToArray();
@@ -33,11 +33,11 @@ namespace Bitub.Dto.Bcf.Tests
         }
 
         [TestMethod]
-        [DeploymentItem(@"Resources\BCF\Example2.bcfzip")]
+        [DeploymentItem(@"Resources\Bcf21\Example2.bcfzip")]
         public void ReadExample2()
         {
-            Assert.IsTrue(File.Exists(@"Resources\BCF\Example2.bcfzip"));
-            var example2 = BcfFile.ReadFrom(@"Resources\BCF\Example2.bcfzip");
+            Assert.IsTrue(File.Exists(@"Resources\Bcf21\Example2.bcfzip"));
+            var example2 = BcfFile.ReadFrom(@"Resources\Bcf21\Example2.bcfzip");
             Assert.IsNotNull(example2);
 
             var issues = example2.Issues.ToArray();
