@@ -13,11 +13,6 @@ namespace Bitub.Dto.BcfXml
         [XmlElement(ElementName = "Header")]
         public BcfHeader Header { get; set; }
 
-        [XmlElement(ElementName = "Title")]
-        public string Title { get; set; }
-        [XmlElement(ElementName = "Priority")]
-        public string Priority { get; set; }
-
         [XmlElement(ElementName = "Topic")]
         public BcfTopic Topic { get; set; }
 

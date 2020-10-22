@@ -89,10 +89,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="BcfApi\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Bitub.Dto\Bitub.Dto.csproj" />
   </ItemGroup>
 

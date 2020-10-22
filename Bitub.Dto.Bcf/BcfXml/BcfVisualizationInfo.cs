@@ -17,7 +17,7 @@ namespace Bitub.Dto.BcfXml
         public System.Guid ID { get; set; } = System.Guid.NewGuid();
 
         [XmlElement(ElementName = "Components")]
-        public BcfViewpointComponents Viewpoints { get; set; }
+        public BcfViewpointComponents Components { get; set; }
         [XmlElement(ElementName = "PerspectiveCamera")]
         public BcfPerspectiveCamera PerspectiveCamera { get; set; }
         [XmlElement(ElementName = "OrthogonalCamera")]
