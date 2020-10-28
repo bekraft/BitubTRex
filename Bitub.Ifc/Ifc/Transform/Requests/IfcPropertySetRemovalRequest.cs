@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 using Bitub.Dto;
@@ -13,109 +14,108 @@ using Xbim.Ifc4.Kernel;
 
 namespace Bitub.Ifc.Transform.Requests
 {
+    public enum FilterRuleStrategyType
+    {
+        IncludeBeforeExclude, ExcludeBeforeInclude
+    }
+
     /// <summary>
     /// Property set removal package
     /// </summary>
     public class IfcPropertySetRemovalPackage : TransformPackage
     {
         #region Internals
-
-        private readonly ISet<string> RemovePropertySet = new HashSet<string>();
-        private readonly ISet<string> KeepPropertySet = new HashSet<string>();
-
+        private FilterRuleStrategyType removalStrategy;
+        internal List<IIfcRelDefinesByProperties> relDefinesByProperties = new List<IIfcRelDefinesByProperties>();
         #endregion
 
-        internal readonly bool IgnoreCase;
+        /// <summary>
+        /// Names to be excluded.
+        /// </summary>
+        public ISet<string> ExcludeName { get; private set; }
 
-        internal readonly bool RemovePSetOnConflict;
+        /// <summary>
+        /// Names to be included exclusively.
+        /// </summary>
+        public ISet<string> IncludeExclusivelyName { get; private set; }
 
-        internal List<IIfcRelDefinesByProperties> RelDefinesByProperties = new List<IIfcRelDefinesByProperties>();
+        /// <summary>
+        /// Property definition relations which ought to be modified.
+        /// </summary>
+        public IEnumerable<IIfcRelDefinesByProperties> ModifiedRelDefinesProperties
+        { 
+            get => ImmutableList.ToImmutableList(relDefinesByProperties); 
+        }
 
-        internal IfcPropertySetRemovalPackage(IModel source, IModel target, bool ignoreCase, bool removePSetOnConflict) : base(source, target)
+        internal IfcPropertySetRemovalPackage(IModel source, IModel target, 
+            bool ignoreCase, FilterRuleStrategyType strategy) : base(source, target)
         {
-            IgnoreCase = ignoreCase;
-            RemovePSetOnConflict = removePSetOnConflict;
+            var comparer = ignoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
+            ExcludeName = new HashSet<string>(comparer);
+            IncludeExclusivelyName = new HashSet<string>(comparer);
+            removalStrategy = strategy;
+        }
+
+        public bool HasNameConflicts(ILogger logger = null)
+        {
+            var conflicts = ExcludeName
+                .Where(n => IncludeExclusivelyName.Contains(n));
+            if (null != logger)
+                conflicts.ForEach(n => logger.LogWarning("Property set '{0}' is marked for removal and inclusion.", n));
+
+            return conflicts.Any();        
         }
 
         /// <summary>
-        /// The property set names to be removed from model.
+        /// Passes by default if empty filter or not contained.
         /// </summary>
-        /// <param name="pSetNames">The property set names which shall be removed</param>
-        internal void AddToRemovePropertySet(IEnumerable<string> pSetNames)
+        /// <param name="pset">The property set</param>
+        /// <returns>True, if passes by name</returns>
+        public bool PassesExclusionFilter(IIfcPropertySetDefinition pset)
         {
-            foreach (var name in pSetNames)
-            {
-                if (IgnoreCase)
-                    RemovePropertySet.Add(name.ToLower().Trim());
-                else
-                    RemovePropertySet.Add(name.Trim());
-            }
+            return ExcludeName.Count == 0 || !ExcludeName.Contains(pset.Name.ToString());
         }
 
         /// <summary>
-        /// The property set names to be removed from model.
+        /// Passes by default if empty filter or not contained.
         /// </summary>
-        /// <param name="pSetNames">The property set names which shall be removed</param>
-        internal void AddToKeepPropertySet(IEnumerable<string> pSetNames)
+        /// <param name="pset">The property set</param>
+        /// <returns>True, if passes by name</returns>
+        public bool PassesInclusionFilter(IIfcPropertySetDefinition pset)
         {
-            foreach (var name in pSetNames)
-            {
-                if (IgnoreCase)
-                    KeepPropertySet.Add(name.ToLower().Trim());
-                else
-                    KeepPropertySet.Add(name.Trim());
-            }
+            return IncludeExclusivelyName.Count == 0 || IncludeExclusivelyName.Contains(pset.Name.ToString());
         }
 
-        internal bool HasConflicts(ILogger logger = null)
+        /// <summary>
+        /// Passes both filters in sequence given by <see cref="FilterRuleStrategyType"/>.
+        /// </summary>
+        /// <param name="pset">The property set</param>
+        /// <returns>True, if set passes by its name</returns>
+        public bool PassesNameFilter(IIfcPropertySetDefinition pset)
         {
-            bool hasConflicts = false;
-            foreach (string name in RemovePropertySet)
+            switch (removalStrategy)
             {
-                if (KeepPropertySet.Contains(name))
-                {
-                    hasConflicts = true;
-                    if (null != logger)
-                        logger.LogWarning("Property set '{0}' is marked both for removal and to be kept. RemovePSetOnConflict = {1}", name, RemovePSetOnConflict);
+                case FilterRuleStrategyType.IncludeBeforeExclude:
+                    if (IncludeExclusivelyName.Count > 0)
+                        return IncludeExclusivelyName.Contains(pset.Name.ToString());
                     else
-                        return hasConflicts;
-                }
-            }
-            return hasConflicts;
-        }
-
-        // Keep property set
-        internal bool PassesNameFilter(IIfcPropertySetDefinition p)
-        {
-            return !HitsNameFilter(p);
-        }
-
-        // Dropped by name filter
-        internal bool HitsNameFilter(IIfcPropertySetDefinition p)
-        {
-            string name = IgnoreCase ? p.Name.ToString().ToLower().Trim() : p.Name.ToString();
-
-            if (KeepPropertySet.Count == 0)
-            {
-                // No white list, maybe only black list or nothing (noop tranform)
-                return RemovePropertySet.Contains(name);
-            } 
-            else if (RemovePropertySet.Count == 0)
-            {
-                // Only to be kept names defined
-                return !KeepPropertySet.Contains(name);
-            }
-            else
-            {   // Both lists are populated
-                if (RemovePropertySet.Contains(name) && KeepPropertySet.Contains(name))
-                    // Use priority flag
-                    return RemovePSetOnConflict;
-                else
-                    // Otherwise hit if removal list is hit or keep list doesn't hit
-                    return RemovePropertySet.Contains(name) || !KeepPropertySet.Contains(name);
+                        return PassesExclusionFilter(pset);
+                case FilterRuleStrategyType.ExcludeBeforeInclude:
+                    if (ExcludeName.Count > 0)
+                        return !ExcludeName.Contains(pset.Name.ToString());
+                    else
+                        return PassesInclusionFilter(pset);                    
+                default:
+                    throw new NotImplementedException();
             }
         }
 
+        /// <summary>
+        /// Inverse to <see cref="PassesNameFilter(IIfcPropertySetDefinition)"/>.
+        /// </summary>
+        /// <param name="pset">The property set</param>
+        /// <returns>True, if set hits by its name</returns>
+        public bool HitsNameFilter(IIfcPropertySetDefinition pset) => !PassesNameFilter(pset);
     }
 
     /// <summary>
@@ -142,21 +142,24 @@ namespace Bitub.Ifc.Transform.Requests
         /// Whether to remove property sets marked for keeping if they mentioned also for removal.
         /// Will keep property set by default.
         /// </summary>
-        public bool IsRemovingPSetOnConflict { get; set; } = false;
+        public FilterRuleStrategyType FilterRuleStrategy { get; set; } = FilterRuleStrategyType.IncludeBeforeExclude;
 
         /// <summary>
         /// Black list of property set names. 
         /// If <see cref="IsNameMatchingCaseSensitive"/> set to <c>true</c>, case sensitive matches are applied.
         /// </summary>
-        public string[] RemovePropertySet { get; set; } = new string[] { };
+        public string[] ExludePropertySetByName { get; set; } = new string[] { };
 
         /// <summary>
         /// White list of property set names.
         /// If <see cref="IsNameMatchingCaseSensitive"/> set to <c>true</c>, case sensitive matches are applied.
         /// </summary>
-        public string[] KeepPropertySet { get; set; } = new string[] { };
+        public string[] IncludePropertySetByName { get; set; } = new string[] { };
 
-        protected override bool IsNoopTransform { get => RemovePropertySet.Length == 0; }
+        protected override bool IsNoopTransform 
+        { 
+            get => ExludePropertySetByName.Length == 0; 
+        }
 
         public override bool IsInplaceTransform { get => IsNoopTransform; }
 
@@ -195,7 +198,7 @@ namespace Bitub.Ifc.Transform.Requests
                 {   // Only exists starting from IFC4
                     if (setOfSet.PropertySetDefinitions.Any(package.HitsNameFilter))
                     {
-                        package.RelDefinesByProperties.Add(rDefProps);
+                        package.relDefinesByProperties.Add(rDefProps);
                         package.Log?.Add(new TransformLogEntry(new XbimInstanceHandle(rDefProps), TransformAction.Modified));
                         return null;
                     }
@@ -267,7 +270,7 @@ namespace Bitub.Ifc.Transform.Requests
 
         protected override TransformResult.Code DoPostTransform(IfcPropertySetRemovalPackage package, CancelableProgressing progress)
         {
-            foreach(var r in package.RelDefinesByProperties)
+            foreach(var r in package.relDefinesByProperties)
             {
                 if (progress.State.IsCanceled)
                     return TransformResult.Code.Canceled;
@@ -294,9 +297,9 @@ namespace Bitub.Ifc.Transform.Requests
 
         protected override IfcPropertySetRemovalPackage CreateTransformPackage(IModel aSource, IModel aTarget)
         {
-            var package = new IfcPropertySetRemovalPackage(aSource, aTarget, !IsNameMatchingCaseSensitive, IsRemovingPSetOnConflict);
-            package.AddToRemovePropertySet(RemovePropertySet);
-            package.AddToKeepPropertySet(KeepPropertySet);
+            var package = new IfcPropertySetRemovalPackage(aSource, aTarget, !IsNameMatchingCaseSensitive, FilterRuleStrategy);
+            ExludePropertySetByName.ForEach(n => package.ExcludeName.Add(n));
+            IncludePropertySetByName.ForEach(n => package.IncludeExclusivelyName.Add(n));            
             return package;
         }        
     }

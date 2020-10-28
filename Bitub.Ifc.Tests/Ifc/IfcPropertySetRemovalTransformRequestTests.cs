@@ -45,7 +45,7 @@ namespace Bitub.Ifc.Tests
 
                 var request = new IfcPropertySetRemovalRequest(this.TestLoggerFactory)
                 {
-                    RemovePropertySet = new string[] { "AllplanAttributes" },
+                    ExludePropertySetByName = new string[] { "AllplanAttributes" },
                     IsNameMatchingCaseSensitive = false,
                     // Common config
                     IsLogEnabled = true,
@@ -97,10 +97,10 @@ namespace Bitub.Ifc.Tests
 
                 var request = new IfcPropertySetRemovalRequest(this.TestLoggerFactory)
                 {
-                    RemovePropertySet = new string[] { "AllplanAttributes" },
-                    KeepPropertySet = new string[] { "AllplanAttributes", "AllplanAttributes Copy" },
+                    ExludePropertySetByName = new string[] { "AllplanAttributes" },
+                    IncludePropertySetByName = new string[] { "AllplanAttributes", "AllplanAttributes Copy" },
                     IsNameMatchingCaseSensitive = false,
-                    IsRemovingPSetOnConflict = true,
+                    FilterRuleStrategy = FilterRuleStrategyType.ExcludeBeforeInclude,
                     // Common config
                     IsLogEnabled = true,
                     TargetStoreType = Xbim.IO.XbimStoreType.InMemoryModel,
@@ -152,10 +152,10 @@ namespace Bitub.Ifc.Tests
 
                 var request = new IfcPropertySetRemovalRequest(this.TestLoggerFactory)
                 {
-                    RemovePropertySet = new string[] { "Other" },
-                    KeepPropertySet = new string[] { "Pset_SpaceCommon", "Other" },
+                    ExludePropertySetByName = new string[] { "Other" },
+                    IncludePropertySetByName = new string[] { "Pset_SpaceCommon", "Other" },
                     IsNameMatchingCaseSensitive = false,
-                    IsRemovingPSetOnConflict = true,
+                    FilterRuleStrategy = FilterRuleStrategyType.ExcludeBeforeInclude,
                     // Common config
                     IsLogEnabled = true,
                     TargetStoreType = Xbim.IO.XbimStoreType.InMemoryModel,
