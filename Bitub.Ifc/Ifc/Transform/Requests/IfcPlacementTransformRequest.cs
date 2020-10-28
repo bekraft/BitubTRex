@@ -171,11 +171,6 @@ namespace Bitub.Ifc.Transform.Requests
 
         public override string Name { get => "IFC Model Placement Transform"; }
 
-        // TODO Check alignment for identity transform
-        protected override bool IsNoopTransform { get => false; }
-
-        public override bool IsInplaceTransform { get => false; }
-
         /// <summary>
         /// Default strategy is <see cref="IfcPlacementStrategy.AdjustRootPlacements"/>.
         /// </summary>

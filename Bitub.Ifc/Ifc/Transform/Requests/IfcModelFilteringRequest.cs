@@ -37,11 +37,7 @@ namespace Bitub.Ifc.Transform.Requests
     {
         public override string Name => "Model filtering";
 
-        public override bool IsInplaceTransform => throw new NotImplementedException();
-
         public override ILogger Log { get => throw new NotImplementedException(); protected set => throw new NotImplementedException(); }
-
-        protected override bool IsNoopTransform => throw new NotImplementedException();
 
         protected override IfcModelFilteringPackage CreateTransformPackage(IModel aSource, IModel aTarget)
         {

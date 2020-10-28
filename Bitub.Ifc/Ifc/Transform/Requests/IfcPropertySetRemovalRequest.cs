@@ -156,13 +156,6 @@ namespace Bitub.Ifc.Transform.Requests
         /// </summary>
         public string[] IncludePropertySetByName { get; set; } = new string[] { };
 
-        protected override bool IsNoopTransform 
-        { 
-            get => ExludePropertySetByName.Length == 0; 
-        }
-
-        public override bool IsInplaceTransform { get => IsNoopTransform; }
-
         /// <summary>
         /// New property cut task request.
         /// </summary>

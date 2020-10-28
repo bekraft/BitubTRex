@@ -62,10 +62,6 @@ namespace Bitub.Ifc.Transform.Requests
 
         public bool IsIncludeOverride { get; set; } = true;
 
-        public override bool IsInplaceTransform => throw new NotImplementedException();
-
-        protected override bool IsNoopTransform => throw new NotImplementedException();
-
         public IfcProductFilterRequest()
         {
         }

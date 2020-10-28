@@ -109,11 +109,6 @@ namespace Bitub.Ifc.Transform
         string Name { get; }
 
         /// <summary>
-        /// Whether the transformation effects the source model.
-        /// </summary>
-        bool IsInplaceTransform { get; }
-
-        /// <summary>
         /// Runs the transformation request.
         /// </summary>
         /// <param name="aSource">The model</param>

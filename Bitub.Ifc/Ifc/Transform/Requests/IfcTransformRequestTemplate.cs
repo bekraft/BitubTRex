@@ -26,17 +26,6 @@ namespace Bitub.Ifc.Transform.Requests
     {
         public abstract string Name { get; }
 
-        /// <summary>
-        /// See <see cref="IIfcTransformRequest.IsInplaceTransform"/>
-        /// </summary>
-        public abstract bool IsInplaceTransform { get; }
-
-        /// <summary>
-        /// Whether the current transform doesn't do anything (based on configuration). This may imply
-        /// that <see cref="IsInplaceTransform"/> will also yield to true.
-        /// </summary>
-        protected abstract bool IsNoopTransform { get; }
-
         public bool IsLogEnabled { get; set; } = true;
 
         /// <summary>
@@ -268,10 +257,7 @@ namespace Bitub.Ifc.Transform.Requests
         {
             progressing = new CancelableProgressing(true);
             progressing.NotifyProgressEstimateChange(aSource.Instances.Count);
-            if (IsNoopTransform)
-                return new Task<TransformResult>(FastForward(aSource, progressing));
-            else
-                return new Task<TransformResult>(PrepareInternally(aSource, progressing));
+            return new Task<TransformResult>(PrepareInternally(aSource, progressing));
         }
 
         /// <summary>
@@ -283,10 +269,7 @@ namespace Bitub.Ifc.Transform.Requests
         public Task<TransformResult> Run(IModel aSource, CancelableProgressing cancelableProgressing)
         {
             cancelableProgressing?.NotifyProgressEstimateChange(aSource.Instances.Count);
-            if (IsNoopTransform)
-                return Task.Run(FastForward(aSource, cancelableProgressing));
-            else
-                return Task.Run(PrepareInternally(aSource, cancelableProgressing));
+            return Task.Run(PrepareInternally(aSource, cancelableProgressing));
         }
     }
 }

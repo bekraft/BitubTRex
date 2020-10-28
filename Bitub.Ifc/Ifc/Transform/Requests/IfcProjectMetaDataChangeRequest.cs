@@ -66,10 +66,6 @@ namespace Bitub.Ifc.Transform.Requests
 
         public override string Name => "Project Meta Data Change";
 
-        public override bool IsInplaceTransform => throw new NotImplementedException();
-
-        protected override bool IsNoopTransform => throw new NotImplementedException();
-
         protected override IfcMetadataTransformPackage CreateTransformPackage(IModel aSource, IModel aTarget)
         {
             throw new NotImplementedException();

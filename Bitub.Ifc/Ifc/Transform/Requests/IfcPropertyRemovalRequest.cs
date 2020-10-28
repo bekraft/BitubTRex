@@ -51,10 +51,6 @@ namespace Bitub.Ifc.Transform.Requests
 
         public override string Name { get => "Property Removal"; }
 
-        public override bool IsInplaceTransform => throw new NotImplementedException();
-
-        protected override bool IsNoopTransform => throw new NotImplementedException();
-
         protected override IfcPropertyRemovalPackage CreateTransformPackage(IModel aSource, IModel aTarget)
         {
             throw new NotImplementedException();
