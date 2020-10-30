@@ -1,11 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 using Xbim.Common;
 using Xbim.Common.Metadata;
+
+using Bitub.Dto;
 
 namespace Bitub.Ifc.Transform.Requests
 {
@@ -44,14 +43,14 @@ namespace Bitub.Ifc.Transform.Requests
             throw new NotImplementedException();
         }
 
-        protected override IPersistEntity DelegateCopy(IPersistEntity instance, IfcModelFilteringPackage package)
+        protected override IPersistEntity DelegateCopy(IPersistEntity instance, IfcModelFilteringPackage package, CancelableProgressing cp)
         {
-            return base.DelegateCopy(instance, package);
+            return base.DelegateCopy(instance, package, cp);
         }
 
-        protected override object PropertyTransform(ExpressMetaProperty property, object hostObject, IfcModelFilteringPackage package)
+        protected override object PropertyTransform(ExpressMetaProperty property, object hostObject, IfcModelFilteringPackage package, CancelableProgressing cp)
         {
-            return base.PropertyTransform(property, hostObject, package);
+            return base.PropertyTransform(property, hostObject, package, cp);
         }
 
         protected override TransformActionType PassInstance(IPersistEntity instance, IfcModelFilteringPackage package)

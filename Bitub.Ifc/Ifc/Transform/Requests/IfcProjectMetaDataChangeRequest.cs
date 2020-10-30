@@ -9,6 +9,7 @@ using Xbim.Common;
 using Xbim.Ifc4.Interfaces;
 
 using Microsoft.Extensions.Logging;
+using Bitub.Dto;
 
 namespace Bitub.Ifc.Transform.Requests
 {
@@ -71,9 +72,9 @@ namespace Bitub.Ifc.Transform.Requests
             throw new NotImplementedException();
         }
 
-        protected override IPersistEntity DelegateCopy(IPersistEntity instance, IfcMetadataTransformPackage package)
+        protected override IPersistEntity DelegateCopy(IPersistEntity instance, IfcMetadataTransformPackage package, CancelableProgressing cp)
         {
-            return base.DelegateCopy(instance, package);
+            return base.DelegateCopy(instance, package, cp);
         }
 
         protected override TransformActionType PassInstance(IPersistEntity instance, IfcMetadataTransformPackage package)

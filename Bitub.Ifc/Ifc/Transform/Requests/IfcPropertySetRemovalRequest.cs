@@ -183,7 +183,7 @@ namespace Bitub.Ifc.Transform.Requests
             return TransformActionType.Copy;
         }
 
-        protected override IPersistEntity DelegateCopy(IPersistEntity instance, IfcPropertySetRemovalPackage package)
+        protected override IPersistEntity DelegateCopy(IPersistEntity instance, IfcPropertySetRemovalPackage package, CancelableProgressing cp)
         {
             if(instance is IIfcRelDefinesByProperties rDefProps)
             {
@@ -212,10 +212,10 @@ namespace Bitub.Ifc.Transform.Requests
                 }
             }
 
-            return Copy(instance, package, false);
+            return Copy(instance, package, false, cp);
         }
 
-        protected override object PropertyTransform(ExpressMetaProperty property, object hostObject, IfcPropertySetRemovalPackage package)
+        protected override object PropertyTransform(ExpressMetaProperty property, object hostObject, IfcPropertySetRemovalPackage package, CancelableProgressing cp)
         {
             if(hostObject is IIfcProduct prod && property.PropertyInfo.Name == nameof(IIfcProduct.IsDefinedBy)) // Inverse
             {
@@ -258,7 +258,7 @@ namespace Bitub.Ifc.Transform.Requests
                 return EmptyToNull(rDefTemplate.RelatedPropertySets.Where(package.PassesNameFilter));
             }
 
-            return base.PropertyTransform(property, hostObject, package);
+            return base.PropertyTransform(property, hostObject, package, cp);
         }
 
         protected override TransformResult.Code DoPostTransform(IfcPropertySetRemovalPackage package, CancelableProgressing progress)

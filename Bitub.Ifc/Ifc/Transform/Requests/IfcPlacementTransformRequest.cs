@@ -233,13 +233,13 @@ namespace Bitub.Ifc.Transform.Requests
                 return TransformActionType.CopyWithInverse;
         }
 
-        protected override IPersistEntity DelegateCopy(IPersistEntity instance, IfcPlacementTransformPackage package)
+        protected override IPersistEntity DelegateCopy(IPersistEntity instance, IfcPlacementTransformPackage package, CancelableProgressing cp)
         {
             if (instance is IIfcLocalPlacement p)
             {
                 Log?.LogInformation($"Changing placement '{p}'");
                 // Don't copy inverse references (products and children)
-                var targetPlacement = Copy(instance, package, false) as IIfcLocalPlacement;
+                var targetPlacement = Copy(instance, package, false, cp) as IIfcLocalPlacement;
                 package.HandlePlacementCopy(p, targetPlacement);
                 return targetPlacement;
             }
