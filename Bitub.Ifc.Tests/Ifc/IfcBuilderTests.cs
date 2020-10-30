@@ -24,7 +24,7 @@ namespace Bitub.Ifc.Tests
         {
             using (var store = IfcStore.Create(XbimSchemaVersion.Ifc2X3, XbimStoreType.InMemoryModel))
             {
-                var builder = new Ifc2x3Builder(store, TestLoggingFactory);
+                var builder = new Ifc2x3Builder(store, TestLoggerFactory);
                 Assert.IsNotNull(builder.NewSite("Some building"));
                 Assert.IsNotNull(builder.NewBuilding("Some building"));
                 Assert.IsNotNull(builder.NewStorey("Some building"));
@@ -44,7 +44,7 @@ namespace Bitub.Ifc.Tests
         {
             using (var store = IfcStore.Create(XbimSchemaVersion.Ifc4, XbimStoreType.InMemoryModel))
             {
-                var builder = new Ifc4Builder(store, TestLoggingFactory);
+                var builder = new Ifc4Builder(store, TestLoggerFactory);
                 Assert.IsNotNull(builder.NewSite("Some building"));
                 Assert.IsNotNull(builder.NewBuilding("Some building"));
                 Assert.IsNotNull(builder.NewStorey("Some building"));

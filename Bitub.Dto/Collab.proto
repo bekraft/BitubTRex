@@ -1,0 +1,67 @@
+﻿syntax = "proto3";
+package Bitub.Dto.Collab;
+
+// Version 1.0
+import "Common.proto";
+import "Spatial.proto";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "Bitub.Dto.Collab";
+option java_package = "bitub.dto.collab";
+
+message Report {
+	RefId id = 1; 
+
+	repeated Issue issues = 2;
+	repeated Contact contacts = 3;
+
+	repeated CameraViewpoint viewpoints = 4;
+}
+
+message Issue {
+	GlobalUniqueId id = 1;
+	uint32 severity = 2;
+
+	GlobalUniqueId reporterContact = 3;
+	GlobalUniqueId authorContact = 4;
+	GlobalUniqueId assigneeContact = 5;
+
+	string stageLabel = 6;
+	string statusLabel = 7;
+}
+
+message Comment {
+	GlobalUniqueId id = 1;
+	GlobalUniqueId authorContact = 2;
+	GlobalUniqueId thread = 3;  
+	string comment = 4;
+	google.protobuf.Timestamp stamp = 5;
+}
+
+message Contact {
+	GlobalUniqueId id = 1;
+
+	string name = 2;
+	string givenName = 3;
+
+	string mail = 4;
+}
+
+message CameraViewpoint {
+	Bitub.Dto.Spatial.Viewpoint viewpoint = 1;
+	float fieldOfView = 2;
+}
+
+enum AttachementType {
+	PLAIN = 0;	
+	PNG = 1;
+	JPG = 2;
+	JSON = 3;
+}
+
+message Attachement {
+	GlobalUniqueId id = 1;
+	AttachementType type = 2;
+
+	bytes raw = 3;
+}

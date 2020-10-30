@@ -4,45 +4,48 @@
   <PropertyGroup>
     <Protoc>$(UserProfile)\.nuget\packages\google.protobuf.tools\3.8.0\tools\windows_x64\protoc.exe</Protoc>
     
-    <Major>0</Major>
-    <Minor>1</Minor>
-    <Release>0</Release>
-    <Qualifier></Qualifier>
+    <BuildMajor>1</BuildMajor>
+    <BuildMinor>0</BuildMinor>
+    <BuildRelease>0</BuildRelease>
+    <BuildQualifier></BuildQualifier>
     <Build>0</Build>    
     <Configurations>Debug;Release;Beta</Configurations>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)' == 'Beta' ">
-    <Release>$([System.DateTime]::Now.ToString("yy"))$([System.String]::Format("{0:000}",$([System.DateTime]::Now.DayOfYear)))</Release>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <IsPackable>true</IsPackable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+    <BuildRelease>$([System.DateTime]::Now.ToString("yy"))$([System.String]::Format("{0:000}",$([System.DateTime]::Now.DayOfYear)))</BuildRelease>
+    <DayOfMonth>$([MSBuild]::Multiply($([MSBuild]::Multiply($([System.DateTime]::Now.Day), 24)), 60))</DayOfMonth>
     <HourOfDay>$([MSBuild]::Multiply($([System.DateTime]::Now.Hour), 60))</HourOfDay>
-    <Build>$([System.Math]::Floor($([MSBuild]::Divide($([MSBuild]::Add($(HourOfDay), $([System.DateTime]::Now.Minute))), 2))))</Build>
-    <Qualifier>-Beta</Qualifier>
+    <Build>$([MSBuild]::Add($([MSBuild]::Add($([System.DateTime]::Now.Minute),$(HourOfDay))), $(DayOfMonth)))</Build>
+    <BuildQualifier>-Alpha</BuildQualifier>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <IncludeSymbols>true</IncludeSymbols>
+    <IncludeSymbols>true</IncludeSymbols>    
   </PropertyGroup>
 
   <PropertyGroup>
-    <IsPackable>true</IsPackable>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-  
-    <Title>Bitub.Ifc</Title>
-    <Description>IFC transformation pipes</Description>
+    <Title>Bitub.Ifc</Title>    
+    <Description>IFC utilities and transformation</Description>
 
     <TargetFrameworks>net47</TargetFrameworks>
 
-    <AssemblyFileVersionAttribute>[assembly:System.Reflection.AssemblyVersionAttribute("$(Major).$(Minor).$(Release).$(Build)")];</AssemblyFileVersionAttribute>
-    <AssemblyVersion>$(Major).$(Minor).$(Release).$(Build)</AssemblyVersion>
-    <FileVersion>$(Major).$(Minor).$(Release).$(Build)</FileVersion>
-    <Version>$(Major).$(Minor).$(Release)$(Qualifier).$(Build)</Version>
+    <AssemblyFileVersionAttribute>[assembly:System.Reflection.AssemblyVersionAttribute("$(BuildMajor).$(BuildMinor).$(BuildRelease).$(Build)")];</AssemblyFileVersionAttribute>
+    <AssemblyVersion>$(BuildMajor).$(BuildMinor).$(BuildRelease).$(Build)</AssemblyVersion>
+    <FileVersion>$(BuildMajor).$(BuildMinor).$(BuildRelease).$(Build)</FileVersion>
+    <Version>$(BuildMajor).$(BuildMinor).$(BuildRelease)$(BuildQualifier).$(Build)</Version>
     <Authors>Bernold Kraft</Authors>
     <Company>Bitub</Company>
     <Copyright>Bernold Kraft</Copyright>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://www.github.com/bekraft/BitubTRex</PackageProjectUrl>
     <RootNamespace>Bitub</RootNamespace>
+
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <!-- Local debug profile -->
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -53,8 +56,9 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Beta|AnyCPU'">
+    <!-- Build debug profile -->
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
+    <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
@@ -63,6 +67,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <!-- Build release profile -->
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -71,25 +76,21 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Beta|net47|AnyCPU'">
-    <DocumentationFile></DocumentationFile>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Serilog" Version="2.9.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
-    <PackageReference Include="Xbim.Common" Version="5.1.20048.17373" />
-    <PackageReference Include="Xbim.Geometry.Engine.Interop" Version="5.1.20049.18428" />
-    <PackageReference Include="Xbim.Ifc" Version="5.1.20048.17371" />
-    <PackageReference Include="Xbim.Ifc2x3" Version="5.1.20048.17371" />
-    <PackageReference Include="Xbim.Ifc4" Version="5.1.20048.17371" />
-    <PackageReference Include="Xbim.IO.Esent" Version="5.1.20048.17371" />
-    <PackageReference Include="Xbim.IO.MemoryModel" Version="5.1.20048.17371" />
-    <PackageReference Include="Xbim.ModelGeometry.Scene" Version="5.1.20049.18428" />
+    <PackageReference Include="Xbim.Common" Version="5.1.20209.27462" />
+    <PackageReference Include="Xbim.Geometry.Engine.Interop" Version="5.1.20213.31545" />
+    <PackageReference Include="Xbim.Ifc" Version="5.1.20209.27462" />
+    <PackageReference Include="Xbim.Ifc2x3" Version="5.1.20209.27462" />
+    <PackageReference Include="Xbim.Ifc4" Version="5.1.20209.27462" />
+    <PackageReference Include="Xbim.IO.Esent" Version="5.1.20209.27462" />
+    <PackageReference Include="Xbim.IO.MemoryModel" Version="5.1.20209.27462" />
+    <PackageReference Include="Xbim.ModelGeometry.Scene" Version="5.1.20213.31545" />
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\Bitub.Transfer\Bitub.Transfer.csproj" />
+    <ProjectReference Include="..\Bitub.Dto\Bitub.Dto.csproj" />
   </ItemGroup>
 </Project>

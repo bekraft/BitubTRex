@@ -7,7 +7,7 @@ using Xbim.Common.Geometry;
 using Xbim.Ifc4.Interfaces;
 using Xbim.ModelGeometry.Scene;
 
-using Bitub.Transfer;
+using Bitub.Dto;
 using Microsoft.Extensions.Logging;
 
 
@@ -57,7 +57,7 @@ namespace Bitub.Ifc.Transform.Requests
             AppliedAxisAlignment = new IfcAxisAlignment(axisAlignment);
         }
 
-        internal void Prepare(CancelableProgress cancelableProgress)
+        internal void Prepare(CancelableProgressing cancelableProgress)
         {
             PlacementTree = new XbimPlacementTree(Source, false);
             SourceRootPlacementsLabels = Source.Instances
@@ -158,19 +158,18 @@ namespace Bitub.Ifc.Transform.Requests
     {
         #region Internals
 
-        private readonly ILogger Log;
         private readonly object _monitor = new object();
         private IfcPlacementStrategy _placementStrategy = IfcPlacementStrategy.ChangeRootPlacements;
         private IfcAxisAlignment _axisAlignment = new IfcAxisAlignment();
 
         #endregion
 
+        /// <summary>
+        /// The logger.
+        /// </summary>
+        public override ILogger Log { get; protected set; }
+
         public override string Name { get => "IFC Model Placement Transform"; }
-
-        // TODO Check alignment for identity transform
-        protected override bool IsNoopTransform { get => false; }
-
-        public override bool IsInplaceTransform { get => false; }
 
         /// <summary>
         /// Default strategy is <see cref="IfcPlacementStrategy.AdjustRootPlacements"/>.
@@ -218,7 +217,7 @@ namespace Bitub.Ifc.Transform.Requests
                 return new IfcPlacementTransformPackage(aSource, aTarget, _placementStrategy, _axisAlignment);
         }
 
-        protected override TransformResult.Code DoPreprocessTransform(IfcPlacementTransformPackage package, CancelableProgress progress)
+        protected override TransformResult.Code DoPreprocessTransform(IfcPlacementTransformPackage package, CancelableProgressing progress)
         {
             Log?.LogInformation("({0}) Applying '{1}' strategy to model.", Name, PlacementStrategy);
             package.Prepare(progress);
@@ -234,13 +233,13 @@ namespace Bitub.Ifc.Transform.Requests
                 return TransformActionType.CopyWithInverse;
         }
 
-        protected override IPersistEntity DelegateCopy(IPersistEntity instance, IfcPlacementTransformPackage package)
+        protected override IPersistEntity DelegateCopy(IPersistEntity instance, IfcPlacementTransformPackage package, CancelableProgressing cp)
         {
             if (instance is IIfcLocalPlacement p)
             {
                 Log?.LogInformation($"Changing placement '{p}'");
                 // Don't copy inverse references (products and children)
-                var targetPlacement = Copy(instance, package, false) as IIfcLocalPlacement;
+                var targetPlacement = Copy(instance, package, false, cp) as IIfcLocalPlacement;
                 package.HandlePlacementCopy(p, targetPlacement);
                 return targetPlacement;
             }

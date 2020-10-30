@@ -7,7 +7,7 @@ using Xbim.Common;
 
 using Microsoft.Extensions.Logging;
 
-using Bitub.Transfer;
+using Bitub.Dto;
 
 namespace Bitub.Ifc.Transform.Requests
 {
@@ -44,13 +44,12 @@ namespace Bitub.Ifc.Transform.Requests
     /// </summary>
     public class IfcPropertyRemovalRequest : IfcTransformRequestTemplate<IfcPropertyRemovalPackage>
     {
-        private readonly ILogger Log;
+        /// <summary>
+        /// The logger.
+        /// </summary>
+        public override ILogger Log { get; protected set; }
 
         public override string Name { get => "Property Removal"; }
-
-        public override bool IsInplaceTransform => throw new NotImplementedException();
-
-        protected override bool IsNoopTransform => throw new NotImplementedException();
 
         protected override IfcPropertyRemovalPackage CreateTransformPackage(IModel aSource, IModel aTarget)
         {

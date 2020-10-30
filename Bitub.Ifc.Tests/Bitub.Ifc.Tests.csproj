@@ -63,34 +63,34 @@
       <Version>2.1.1</Version>
     </PackageReference>
     <PackageReference Include="MSTest.TestAdapter">
-      <Version>1.3.2</Version>
+      <Version>2.1.2</Version>
     </PackageReference>
     <PackageReference Include="MSTest.TestFramework">
-      <Version>1.3.2</Version>
+      <Version>2.1.2</Version>
     </PackageReference>
     <PackageReference Include="Xbim.Common">
-      <Version>5.1.20048.17373</Version>
+      <Version>5.1.20209.27462</Version>
     </PackageReference>
     <PackageReference Include="Xbim.Geometry.Engine.Interop">
-      <Version>5.1.20049.18428</Version>
+      <Version>5.1.20213.31545</Version>
     </PackageReference>
     <PackageReference Include="Xbim.Ifc">
-      <Version>5.1.20048.17371</Version>
+      <Version>5.1.20209.27462</Version>
     </PackageReference>
     <PackageReference Include="Xbim.Ifc2x3">
-      <Version>5.1.20048.17371</Version>
+      <Version>5.1.20209.27462</Version>
     </PackageReference>
     <PackageReference Include="Xbim.Ifc4">
-      <Version>5.1.20048.17371</Version>
+      <Version>5.1.20209.27462</Version>
     </PackageReference>
     <PackageReference Include="Xbim.IO.Esent">
-      <Version>5.1.20048.17371</Version>
+      <Version>5.1.20209.27462</Version>
     </PackageReference>
     <PackageReference Include="Xbim.IO.MemoryModel">
-      <Version>5.1.20048.17371</Version>
+      <Version>5.1.20209.27462</Version>
     </PackageReference>
     <PackageReference Include="Xbim.ModelGeometry.Scene">
-      <Version>5.1.20049.18428</Version>
+      <Version>5.1.20213.31545</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -130,9 +130,9 @@
       <Project>{de9a43a1-c8b1-4da6-b9db-09e8c31204de}</Project>
       <Name>Bitub.Ifc</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Bitub.Transfer\Bitub.Transfer.csproj">
+    <ProjectReference Include="..\Bitub.Dto\Bitub.Dto.csproj">
       <Project>{d95907f9-1c22-471f-8e77-066c40d35e0d}</Project>
-      <Name>Bitub.Transfer</Name>
+      <Name>Bitub.Dto</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

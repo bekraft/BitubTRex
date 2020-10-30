@@ -15,7 +15,7 @@ namespace Bitub.Ifc.Transform
     [XmlRoot(ElementName = "Alignment", Namespace = "https://github.com/bekraft/BitubTRex/Bitub.Ifc.Transform")]
     public class IfcAxisAlignment
     {
-        internal readonly static XmlSerializer Serializer = new XmlSerializer(typeof(IfcAxisAlignment));
+        internal readonly static XmlSerializer serializer = new XmlSerializer(typeof(IfcAxisAlignment));
 
         [XmlElement(ElementName = "Source")]
         public IfcAlignReferenceAxis SourceReferenceAxis { get; set; } = new IfcAlignReferenceAxis();
@@ -105,7 +105,7 @@ namespace Bitub.Ifc.Transform
         {
             using(var reader = new FileStream(fileName, FileMode.Open))
             {
-                return Serializer.Deserialize(reader) as IfcAxisAlignment;                
+                return serializer.Deserialize(reader) as IfcAxisAlignment;                
             }            
         }
 
@@ -117,7 +117,7 @@ namespace Bitub.Ifc.Transform
         {            
             using (var writer = new StreamWriter(new FileStream(fileName, FileMode.Create), System.Text.Encoding.UTF8))
             {                
-                Serializer.Serialize(writer, this);
+                serializer.Serialize(writer, this);
                 writer.Close();
             }
         }

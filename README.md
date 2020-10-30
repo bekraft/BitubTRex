@@ -5,7 +5,7 @@ It abstracts IFC model transformations and model transferring tasks.
 
 Provided assemblies:
 - ```Bitub.Ifc``` wraps all extensions, workflows and additions concerning Xbim IFC model handling 
-- ```Bitub.Transfer``` wraps protocol buffers for scene transmitting and other data
+- ```Bitub.Dto``` wraps protocol buffers for scene transmitting and other data
 
 ## Bitub.Ifc
 #### Extension methods
@@ -61,7 +61,7 @@ Provided assemblies:
  - Drop IFC specific properties
  - ...
 
-## Bitub.Transfer
+## Bitub.Dto
 #### - Scene - model
 
  A scene model is an extraction of the component meshes and the model hierarchy. It is

@@ -1,4 +1,4 @@
-﻿using Bitub.Transfer.Scene;
+﻿using Bitub.Dto.Scene;
 
 using System;
 using System.Collections.Generic;
@@ -20,7 +20,9 @@ namespace Bitub.Ifc.Scene
         public readonly IDictionary<int, Component> ComponentCache;
         public readonly double Scale;
 
-        internal readonly IDictionary<int, Tuple<SceneContext, XbimMatrix3D>> Context;
+        #region Internals
+
+        private readonly IDictionary<int, Tuple<SceneContext, XbimMatrix3D>> Context;
 
         internal IfcSceneExportSummary(IModel model, IfcSceneExportSettings settings)
         {
@@ -31,13 +33,7 @@ namespace Bitub.Ifc.Scene
             Scale = settings.UnitsPerMeter / model.ModelFactors.OneMeter;
 
             var p = model.Instances.OfType<IIfcProject>().First();
-            Scene = new SceneModel()
-            {
-                Name = p?.Name,
-                Id = p?.GlobalId.ToGlobalUniqueId(),
-                UnitsPerMeter = settings.UnitsPerMeter,
-                Stamp = Timestamp.FromDateTime(DateTime.Now.ToUniversalTime())
-            };
+            Scene = CreateNew(p, settings);
 
             var instanceContexts = settings.UserRepresentationContext.Select(c => new SceneContext
             {
@@ -48,18 +44,55 @@ namespace Bitub.Ifc.Scene
                 FTolerance = model.ModelFactors.LengthToMetresConversionFactor * p.Model.ModelFactors.DeflectionTolerance,
             }).ToArray();
 
-            // TODO Apply custom tolerances
             Scene.Contexts.AddRange(instanceContexts);
             settings.UserRepresentationContext = instanceContexts;
         }
 
+        private SceneModel CreateNew(IIfcProject p, IfcSceneExportSettings settings)
+        {
+            return new SceneModel()
+            {
+                Name = p?.Name,
+                Id = p?.GlobalId.ToGlobalUniqueId(),
+                UnitsPerMeter = settings.UnitsPerMeter,
+                Stamp = Timestamp.FromDateTime(DateTime.Now.ToUniversalTime())
+            };
+        }
+
+        internal void MarkAsFailure(Exception cause)
+        {
+            Context.Clear();
+            ComponentCache.Clear();
+            Scene.Components.Clear();
+            Scene.Materials.Clear();
+            Scene.Contexts.Clear();
+            FailureReason = cause;
+        }
+
+        #endregion
+
+        public Exception FailureReason { get; internal set; }
 
         public int[] ExportedContextLabels => Context.Keys.ToArray();
 
-        public SceneContext ContextOf(int contextLabel) => Context[contextLabel].Item1;
+        public Tuple<SceneContext, XbimMatrix3D> RepresentationContext(int contextLabel)
+        {
+            Tuple<SceneContext, XbimMatrix3D> sc;
+            if (Context.TryGetValue(contextLabel, out sc))
+                return sc;
+            else
+                return null;
+        }
 
-        public XbimMatrix3D TransformOf(int contextLabel) => Context[contextLabel].Item2;
+        internal void SetRepresentationContext(int contextLabel, SceneContext sc, XbimMatrix3D wcs)
+        {
+            Context[contextLabel] = new Tuple<SceneContext, XbimMatrix3D>(sc, wcs);
+        }
 
-        public bool IsInContext(int contextLabel) => Context.ContainsKey(contextLabel);
+        public SceneContext ContextOf(int contextLabel) => RepresentationContext(contextLabel)?.Item1;
+        
+        public XbimMatrix3D? TransformOf(int contextLabel) => RepresentationContext(contextLabel)?.Item2;
+
+        public bool IsInContext(int contextLabel) => Context.ContainsKey(contextLabel);        
     }
 }

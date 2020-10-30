@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 
 using Xbim.Common;
 
-using Bitub.Transfer;
+using Bitub.Dto;
+
+using Microsoft.Extensions.Logging;
 
 namespace Bitub.Ifc.Transform
 {
@@ -97,22 +99,22 @@ namespace Bitub.Ifc.Transform
     public interface IIfcTransformRequest
     {
         /// <summary>
+        /// The associated logger instance.
+        /// </summary>
+        ILogger Log { get; }
+
+        /// <summary>
         /// A (unique) name.
         /// </summary>
         string Name { get; }
 
         /// <summary>
-        /// Whether the transformation effects the source model.
-        /// </summary>
-        bool IsInplaceTransform { get; }
-
-        /// <summary>
         /// Runs the transformation request.
         /// </summary>
         /// <param name="aSource">The model</param>
-        /// <param name="progressReceiver">An optional progress receiver</param>
+        /// <param name="cancelableProgressing">An optional progress emitter</param>
         /// <returns></returns>
-        Task<TransformResult> Run(IModel aSource, IProgress<ICancelableProgressState> progressReceiver);
+        Task<TransformResult> Run(IModel aSource, CancelableProgressing cancelableProgressing);
     }
 
     public interface IProcessingVendorIssue : IIfcTransformRequest
@@ -121,8 +123,8 @@ namespace Bitub.Ifc.Transform
         /// Indicates whether a model as the issue targeted by this processing transform or not.
         /// </summary>
         /// <param name="aSource">The model</param>
-        /// <param name="progressReceiver">An optional progress receiver</param>
+        /// <param name="cancelableProgressing">An optional progress emitter</param>
         /// <returns></returns>
-        bool HasIssue(IModel aSource, IProgress<ICancelableProgressState> progressReceiver);
+        bool HasIssue(IModel aSource, CancelableProgressing cancelableProgressing);
     }
 }

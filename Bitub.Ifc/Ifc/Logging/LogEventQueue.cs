@@ -6,7 +6,7 @@ using System.Collections.Concurrent;
 using Serilog.Core;
 using Serilog.Events;
 
-using Bitub.Transfer;
+using Bitub.Dto;
 
 namespace Bitub.Ifc.Logging
 {

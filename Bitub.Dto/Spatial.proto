@@ -1,0 +1,55 @@
+﻿syntax = "proto3";
+package Bitub.Dto.Spatial;
+
+// Version 1.0
+option csharp_namespace = "Bitub.Dto.Spatial";
+option java_package = "bitub.dto.spatial";
+
+// Standalone XYZ concept
+message XYZ {
+	double x = 1;
+	double y = 2;
+	double z = 3;
+}
+
+// Standalone Latitude-Longitude concept
+message LatLon {
+	double lat = 1;
+	double lon = 2;
+}
+
+// Oriented bounding box with principal axes
+message OBox {
+	XYZ base = 1;
+	XYZ ex = 2;
+	XYZ ey = 3;
+	XYZ ez = 4;
+}
+
+// Aligned bounding box having global axis as principal axes
+message ABox {
+	XYZ min = 1;
+	XYZ max = 2;	
+}
+
+// Bounding box select
+message BoundingBox {
+	OBox oBox = 1;
+	ABox aBox = 2;
+}
+
+// Bounding box having a population indicator
+message Region {
+    int32 population = 1;
+	string label = 2;
+	BoundingBox boundingBox = 3;
+}
+
+// View point using a global position, a view direction and clipping planes
+message Viewpoint {
+	XYZ base = 1;
+	XYZ forward = 2;
+
+	float near = 3;
+	float far = 4;
+}

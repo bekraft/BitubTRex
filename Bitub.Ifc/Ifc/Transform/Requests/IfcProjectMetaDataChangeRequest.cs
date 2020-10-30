@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 using Xbim.Common;
 
-using Bitub.Transfer;
-using Bitub.Ifc.Transform;
 using Xbim.Ifc4.Interfaces;
-using Xbim.Ifc2x3.Kernel;
-using System.Configuration;
+
+using Microsoft.Extensions.Logging;
+using Bitub.Dto;
 
 namespace Bitub.Ifc.Transform.Requests
 {
@@ -61,20 +60,21 @@ namespace Bitub.Ifc.Transform.Requests
     /// </summary>
     public class IfcProjectMetaDataChangeRequest : IfcTransformRequestTemplate<IfcMetadataTransformPackage>
     {
+        /// <summary>
+        /// The logger.
+        /// </summary>
+        public override ILogger Log { get; protected set; }
+
         public override string Name => "Project Meta Data Change";
-
-        public override bool IsInplaceTransform => throw new NotImplementedException();
-
-        protected override bool IsNoopTransform => throw new NotImplementedException();
 
         protected override IfcMetadataTransformPackage CreateTransformPackage(IModel aSource, IModel aTarget)
         {
             throw new NotImplementedException();
         }
 
-        protected override IPersistEntity DelegateCopy(IPersistEntity instance, IfcMetadataTransformPackage package)
+        protected override IPersistEntity DelegateCopy(IPersistEntity instance, IfcMetadataTransformPackage package, CancelableProgressing cp)
         {
-            return base.DelegateCopy(instance, package);
+            return base.DelegateCopy(instance, package, cp);
         }
 
         protected override TransformActionType PassInstance(IPersistEntity instance, IfcMetadataTransformPackage package)

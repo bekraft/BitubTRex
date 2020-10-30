@@ -1,5 +1,5 @@
-﻿using Bitub.Transfer;
-using Bitub.Transfer.Scene;
+﻿using Bitub.Dto;
+using Bitub.Dto.Scene;
 
 using System.Collections.Generic;
 
@@ -7,6 +7,9 @@ using Xbim.Common;
 
 namespace Bitub.Ifc.Scene
 {
+    /// <summary>
+    /// A tuple of model entity label and an enumeration of scene represenation messages.
+    /// </summary>
     public sealed class IfcProductSceneRepresentation 
     {
         public readonly int EntityLabel;
@@ -19,10 +22,11 @@ namespace Bitub.Ifc.Scene
         }
     }
 
-    public interface IIfcTesselationContext
-    {
-        event OnProgressChangeDelegate OnProgressChange;
-
-        IEnumerable<IfcProductSceneRepresentation> Tesselate(IModel m, IfcSceneExportSummary summary, CancelableProgressStateToken progressState);
+    /// <summary>
+    /// A tesselation context provider contract.
+    /// </summary>
+    public interface IIfcTesselationContext 
+    {        
+        IEnumerable<IfcProductSceneRepresentation> Tesselate(IModel m, IfcSceneExportSummary summary, CancelableProgressing progressing);
     }
 }

@@ -1,37 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.ComponentModel;
 
 using Microsoft.Extensions.Logging;
 
 using Xbim.Common;
-using Xbim.Common.Geometry;
-using Xbim.Common.XbimExtensions;
 
 using Xbim.Ifc;
 using Xbim.Ifc4.Interfaces;
-using Xbim.ModelGeometry.Scene;
 
-using Bitub.Transfer;
-using Bitub.Transfer.Scene;
+using Bitub.Dto;
+using Bitub.Dto.Scene;
 
-using Bitub.Ifc;
-using Bitub.Ifc.Transform;
-
-using Component = Bitub.Transfer.Scene.Component;
+using Component = Bitub.Dto.Scene.Component;
 using System.Threading.Tasks;
+using Bitub.Dto.Classify;
 
 namespace Bitub.Ifc.Scene
 {
     /// <summary>
-    /// Exports a SceneModel 
+    /// Transfer scene model data exporter. Internally uses an abstract tesselation provider. In case of Xbim tesselation use
+    /// <code>
+    /// var exporter = new IfcSceneExporter(new XbimTesselationContext(loggerFactory), loggerFactory);
+    /// var result = await exporter.Run(myModel);
+    /// </code>
     /// </summary>
     public class IfcSceneExporter
     {
+        #region Internals
         private readonly ILogger Logger;
         private readonly IIfcTesselationContext TesselatorInstance;
+        #endregion
 
         /// <summary>
         /// Initial experter settings.
@@ -50,30 +49,34 @@ namespace Bitub.Ifc.Scene
         public IfcSceneExporter(IIfcTesselationContext tesselatorInstance, ILoggerFactory loggerFactory = null)
         {
             Logger = loggerFactory?.CreateLogger<IfcSceneExporter>();
-            TesselatorInstance = tesselatorInstance;
-            TesselatorInstance.OnProgressChange += (state) => OnProgressChange?.Invoke(state);
+            TesselatorInstance = tesselatorInstance;            
         }
-
-        /// <summary>
-        /// Progress change event.
-        /// </summary>
-        public event OnProgressChangeDelegate OnProgressChange;
 
         /// <summary>
         /// Runs the model transformation.
         /// </summary>
         /// <param name="model">The IFC model</param>
         /// <returns>A scene</returns>
-        public Task<IfcSceneExportSummary> Run(IModel model)
+        public Task<IfcSceneExportSummary> Run(IModel model, CancelableProgressing monitor)
         {
-            return Task.Run<IfcSceneExportSummary>(() => DoSceneModelTransfer(model, new IfcSceneExportSettings(Settings)));
+            return Task.Run(() =>
+            {
+                try
+                {
+                    return DoSceneModelTransfer(model, new IfcSceneExportSettings(Settings), monitor);
+                }
+                catch (Exception e)
+                {
+                    monitor?.State.MarkBroken();
+                    Logger.LogError("{0}: {1} [{2}]", e.GetType().Name, e.Message, e.StackTrace);
+                    return new IfcSceneExportSummary(model, Settings) { FailureReason = e };
+                }
+            });
         }
 
         // Runs the scene model export
-        private IfcSceneExportSummary DoSceneModelTransfer(IModel model, IfcSceneExportSettings settings)
+        private IfcSceneExportSummary DoSceneModelTransfer(IModel model, IfcSceneExportSettings settings, CancelableProgressing progressing)
         {
-            CancelableProgressStateToken progressState = new CancelableProgressStateToken(true, 100);
-
             // Generate new summary
             var summary = new IfcSceneExportSummary(model, settings);
 
@@ -81,16 +84,22 @@ namespace Bitub.Ifc.Scene
             var materials = StylesToMaterial(model).ToDictionary(m => m.Id.Nid);
             summary.Scene.Materials.AddRange(materials.Values);
 
-            // Retrieve enumeration of components having a geomety within given contexts
-            var sceneRepresentations = TesselatorInstance.Tesselate(model, summary, progressState);
+            Logger?.LogInformation("Starting model tesselation of {0}", model.Header.Name);
+            // Retrieve enumeration of components having a geomety within given contexts            
+            var sceneRepresentations = TesselatorInstance.Tesselate(model, summary, progressing);
 
+            Logger?.LogInformation("Starting model export of {0}", model.Header.Name);
             // Run transfer and log parents
             var parents = new HashSet<int>();
             foreach (var sr in sceneRepresentations)
             {
                 var p = model.Instances[sr.EntityLabel] as IIfcProduct;
-                if (progressState.IsCanceled)
+                if (progressing?.State.IsAboutCancelling ?? false)
+                {
+                    Logger?.LogInformation("Canceled model export of '{0}'", model.Header.FileName);
+                    progressing.State.MarkCanceled();
                     break;
+                }
 
                 Component c;
                 if (!summary.ComponentCache.TryGetValue(p.EntityLabel, out c))
@@ -112,6 +121,16 @@ namespace Bitub.Ifc.Scene
             Queue<int> missingInstance = new Queue<int>(parents);
             while (missingInstance.Count > 0)
             {
+                if (progressing?.State.IsAboutCancelling ?? false)
+                {
+                    if (!progressing.State.IsCanceled)
+                    {
+                        Logger?.LogInformation("Canceled model export of '{0}'", model.Header.FileName);
+                        progressing.State.MarkCanceled();
+                    }
+                    break;
+                }
+
                 if (model.Instances[missingInstance.Dequeue()] is IIfcProduct product)
                 {
                     Component c;

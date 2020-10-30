@@ -3,7 +3,7 @@
 using Xbim.Common;
 using Xbim.Ifc4.UtilityResource;
 
-using Bitub.Transfer;
+using Bitub.Dto;
 
 namespace Bitub.Ifc
 {
@@ -40,7 +40,7 @@ namespace Bitub.Ifc
                 var guid = IfcGloballyUniqueId.ConvertFromBase64(id);
                 return new GlobalUniqueId
                 {
-                    Guid = new Bitub.Transfer.Guid
+                    Guid = new Bitub.Dto.Guid
                     {
                         Raw = Google.Protobuf.ByteString.CopyFrom(guid.ToByteArray())
                     }

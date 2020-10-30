@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{AA78A959-7C8E-4854-B66A-2B6A2DC0CBDE}</ProjectGuid>
+
+    <RootNamespace>Bitub.Dto.Tests</RootNamespace>
+    <AssemblyName>Bitub.Dto.Tests</AssemblyName>
+
+    <TargetFrameworks>net47;netcoreapp3.1</TargetFrameworks>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="Resources\TRexScript1.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Bitub.Dto\Bitub.Dto.csproj">
+      <Project>{d95907f9-1c22-471f-8e77-066c40d35e0d}</Project>
+      <Name>Bitub.Dto</Name>
+    </ProjectReference>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0"/>
+    <PackageReference Include="Microsoft.Extensions.Logging">
+      <Version>2.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions">
+      <Version>2.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.Console">
+      <Version>2.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="MSTest.TestAdapter">
+      <Version>2.1.2</Version>
+    </PackageReference>
+    <PackageReference Include="MSTest.TestFramework">
+      <Version>2.1.2</Version>
+    </PackageReference>
+  </ItemGroup>
+</Project>
