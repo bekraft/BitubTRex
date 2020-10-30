@@ -29,7 +29,7 @@ namespace Bitub.Dto.Bcf.Tests
             Assert.IsNotNull(issues);
             Assert.AreEqual(16, issues.Length);
 
-            Assert.IsTrue(issues.All(i => null != i.Markup.Topic && 0 < i.VisualizationInfos.Length));
+            Assert.IsTrue(issues.All(i => null != i.Markup.Topic && 0 < i.Viewpoints.Length));
         }
 
         [TestMethod]
@@ -46,7 +46,7 @@ namespace Bitub.Dto.Bcf.Tests
             Assert.AreEqual(2, issues.Length);
 
             Assert.IsTrue(issues.All(i => null != i.Markup.Topic));
-            Assert.AreEqual(1, issues.Count(i => i.VisualizationInfos.Length == 0));
+            Assert.AreEqual(1, issues.Count(i => i.Viewpoints.Length == 0));
 
             var extensions = example2.Extensions;
             Assert.AreEqual(6, extensions.Count);
