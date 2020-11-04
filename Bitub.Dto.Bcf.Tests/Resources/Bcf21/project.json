@@ -1,0 +1,10 @@
+{
+  "project_id": "F445F4F2-4D02-4B2A-B612-5E456BEF9137",
+  "name": "Example project 1",
+  "authorization": {
+    "project_actions": [
+      "createTopic",
+      "createDocument"
+    ]    
+  }
+}

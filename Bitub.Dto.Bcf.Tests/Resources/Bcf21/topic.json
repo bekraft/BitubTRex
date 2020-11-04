@@ -1,0 +1,26 @@
+{
+  "guid": "B345F4F2-3A04-B43B-A713-5E456BEF8228",
+  "creation_author": "Architect@example.com",
+  "creation_date": "2016-08-01T17:34:22.409Z",
+  "topic_type": "Clash",
+  "topic_status": "open",
+  "title": "Example topic 3",
+  "priority": "high",
+  "labels": [
+    "Architecture",
+    "Heating"
+  ],
+  "assigned_to": "harry.muster@example.com",
+  "bim_snippet": {
+    "snippet_type": "clash",
+    "is_external": true,
+    "reference": "https://example.com/bcf/1.0/ADFE23AA11BCFF444122BB",
+    "reference_schema": "https://example.com/bcf/1.0/clash.xsd"
+  },
+  "authorization": {
+    "topic_actions": [
+      "createComment",
+      "createViewpoint"
+    ]
+  }
+}

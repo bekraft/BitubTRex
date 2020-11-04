@@ -1,0 +1,52 @@
+{
+  "topic_type": [
+    "Information",
+    "Error"
+  ],
+  "topic_status": [
+    "Open",
+    "Closed",
+    "ReOpened"
+  ],
+  "topic_label": [
+    "Architecture",
+    "Structural",
+    "MEP"
+  ],
+  "snippet_type": [
+    ".ifc",
+    ".csv"
+  ],
+  "priority": [
+    "Low",
+    "Medium",
+    "High"
+  ],
+  "user_id_type": [
+    "Architect@example.com",
+    "BIM-Manager@example.com",
+    "bob_heater@example.com"
+  ],
+  "stage": [
+    "Preliminary Planning End",
+    "Construction Start",
+    "Construction End"
+  ],
+  "project_actions": [
+    "update",
+    "createTopic",
+    "createDocument"
+  ],
+  "topic_actions": [
+    "update",
+    "updateBimSnippet",
+    "updateRelatedTopics",
+    "updateDocumentReferences",
+    "updateFiles",
+    "createComment",
+    "createViewpoint"
+  ],
+  "comment_actions": [
+    "update"
+  ]
+}
