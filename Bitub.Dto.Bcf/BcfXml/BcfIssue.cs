@@ -55,12 +55,16 @@ namespace Bitub.Dto.BcfXml
         private void Init()
         {
             Markup = BcfFile.Deserialize<BcfMarkup>(FileAccessor("markup.bcf"));
+            if (null == Markup)
+                throw new NotSupportedException($"Non BXFXML conformant: Required markup.bcf missing.");
 
-            Viewpoints = Markup.Viewpoints
+            var extractedViewpoints = Markup.Viewpoints?
                 .Select(v => (v, BcfFile.Deserialize<BcfVisualizationInfo>(FileAccessor(v.Reference))))
                 .ToArray();
 
-            var topic = Markup?.Topic;            
+            Viewpoints = extractedViewpoints ?? new (BcfViewpoint v, BcfVisualizationInfo)[0];
+
+            var topic = Markup.Topic;            
             if (null == topic)
                 throw new NotSupportedException($"Empty Markup or Topic of BCF topic not supported.");
             ID = topic.ID;

@@ -15,14 +15,8 @@ using System.Xml.Linq;
 namespace Bitub.Ifc.Tests
 {
     [TestClass]
-    public class RegisteredTypeFactoryTests : BaseTest<RegisteredTypeFactoryTests>
+    public class RegisteredTypeFactoryTests : BaseTests<RegisteredTypeFactoryTests>
     {
-        [TestInitialize]
-        public void StartUp()
-        {
-            StartUpLogging();
-        }
-
         [TestMethod]
         public void IfcXLabeledTests()
         {

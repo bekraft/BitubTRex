@@ -46,8 +46,8 @@ namespace Bitub.Dto.Classify {
             "Q0lNQUwQAhILCgdCT09MRUFOEAMSDQoJVElNRVNUQU1QEAQqHgoGUm9sZU9w",
             "EgkKBUFsbE9mEAASCQoFT25lT2YQASpWCgZEYXRhT3ASCgoGRXF1YWxzEAAS",
             "CAoETGVzcxABEhIKDkxlc3NUaGFuRXF1YWxzEAISCwoHR3JlYXRlchADEhUK",
-            "EUdyZWF0ZXJUaGFuRXF1YWxzEARCKQoSYml0dWIuZHRvLmNsYXNzaWZ5qgIS",
-            "Qml0dWIuRHRvLkNsYXNzaWZ5YgZwcm90bzM="));
+            "EUdyZWF0ZXJUaGFuRXF1YWxzEARCIAoJYml0dWIuZHRvqgISQml0dWIuRHRv",
+            "LkNsYXNzaWZ5YgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bitub.Dto.CommonReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bitub.Dto.Classify.DataType), typeof(global::Bitub.Dto.Classify.RoleOp), typeof(global::Bitub.Dto.Classify.DataOp), }, new pbr::GeneratedClrTypeInfo[] {

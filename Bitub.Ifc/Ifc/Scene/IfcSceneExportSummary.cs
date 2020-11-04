@@ -18,7 +18,7 @@ namespace Bitub.Ifc.Scene
         public readonly SceneModel Scene;
         public readonly IfcSceneExportSettings AppliedSettings;
         public readonly IDictionary<int, Component> ComponentCache;
-        public readonly double Scale;
+        public readonly float Scale;
 
         #region Internals
 
@@ -30,7 +30,7 @@ namespace Bitub.Ifc.Scene
             AppliedSettings = settings;
             Context = new SortedDictionary<int, Tuple<SceneContext, XbimMatrix3D>>();
             ComponentCache = new Dictionary<int, Component>();
-            Scale = settings.UnitsPerMeter / model.ModelFactors.OneMeter;
+            Scale = settings.UnitsPerMeter / (float)model.ModelFactors.OneMeter;
 
             var p = model.Instances.OfType<IIfcProject>().First();
             Scene = CreateNew(p, settings);

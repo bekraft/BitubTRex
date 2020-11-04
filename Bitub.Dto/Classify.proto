@@ -5,7 +5,7 @@ import "Common.proto";
 
 // Version 1.0
 option csharp_namespace = "Bitub.Dto.Classify";
-option java_package = "bitub.dto.classify";
+option java_package = "bitub.dto";
 
 message Ontology {
 	repeated Classifier classifiers = 1;

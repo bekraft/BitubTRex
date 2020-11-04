@@ -8,7 +8,7 @@ import "Spatial.proto";
 import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "Bitub.Dto.Scene";
-option java_package = "bitub.dto.scene";
+option java_package = "bitub.dto";
 
 // Orientation either CCW or CW
 enum Orientation {
@@ -65,7 +65,7 @@ message Patch {
 
 // XYZ Container
 message PtArray {
-	repeated double xyz = 1;
+	repeated float xyz = 1;
 }
 
 // A BREP body face container
@@ -90,10 +90,10 @@ message WireBody {
 }
 
 message Quaternion {
-	double x = 1;
-	double y = 2;
-	double z = 3;
-	double w = 4;
+	float x = 1;
+	float y = 2;
+	float z = 3;
+	float w = 4;
 }
 
 message Rotation {
@@ -187,7 +187,7 @@ message SceneModel {
 	GlobalUniqueId id = 1;
     string name = 2;
 	
-	double unitsPerMeter = 3;
+	float unitsPerMeter = 3;
 	google.protobuf.Timestamp stamp = 4;
 
 	repeated SceneContext contexts = 5;

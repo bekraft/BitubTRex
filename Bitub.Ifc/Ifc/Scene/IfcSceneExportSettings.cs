@@ -44,12 +44,12 @@ namespace Bitub.Ifc.Scene
         /// Maximum threshold of centre bias of local coordinates relative to local origin.
         /// Percentage measure of greater axis extent of bounding box. By default disabled (positive infinity).
         /// </summary>
-        public double MaxBodyOriginCentreBias { get; set; } = double.PositiveInfinity;
+        public float MaxBodyOriginCentreBias { get; set; } = float.PositiveInfinity;
 
         /// <summary>
         /// The count of units per meter. Default is 1.0
         /// </summary>
-        public double UnitsPerMeter { get; set; } = 1.0;
+        public float UnitsPerMeter { get; set; } = 1.0f;
 
         /// <summary>
         /// Classify by property paths. Each path consists of two or one fragment. Given two will embed values of a <>pset.property</c> will embed

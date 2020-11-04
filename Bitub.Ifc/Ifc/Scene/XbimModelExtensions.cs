@@ -14,13 +14,13 @@ namespace Bitub.Ifc.Scene
 {
     public static class XbimModelExtensions
     {
-        public static XYZ ToXYZ(this XbimPoint3D p, double scale = 1.0)
+        public static XYZ ToXYZ(this XbimPoint3D p, float scale = 1.0f)
         {
             return new XYZ()
             {
-                X = (p.X * scale),
-                Y = (p.Y * scale),
-                Z = (p.Z * scale)
+                X = (float)(p.X * scale),
+                Y = (float)(p.Y * scale),
+                Z = (float)(p.Z * scale)
             };
         }
 
@@ -38,13 +38,13 @@ namespace Bitub.Ifc.Scene
             f.Add((float)(p.Z * scale));
         }
 
-        public static XYZ ToXYZ(this XbimVector3D v, double scale = 1.0)
+        public static XYZ ToXYZ(this XbimVector3D v, float scale = 1.0f)
         {
             return new XYZ()
             {
-                X = (v.X * scale),
-                Y = (v.Y * scale),
-                Z = (v.Z * scale)
+                X = (float)(v.X * scale),
+                Y = (float)(v.Y * scale),
+                Z = (float)(v.Z * scale)
             };
         }
 
@@ -62,7 +62,7 @@ namespace Bitub.Ifc.Scene
             f.Add((float)(v.Z * scale));
         }
 
-        public static Bitub.Dto.Scene.Transform ToRotation(this XbimMatrix3D t, double scale = 1.0)
+        public static Bitub.Dto.Scene.Transform ToRotation(this XbimMatrix3D t, float scale = 1.0f)
         {
             return new Bitub.Dto.Scene.Transform
             {                
@@ -76,17 +76,17 @@ namespace Bitub.Ifc.Scene
             };
         }
 
-        public static Bitub.Dto.Scene.Transform ToQuaternion(this XbimMatrix3D t, double scale = 1.0)
+        public static Bitub.Dto.Scene.Transform ToQuaternion(this XbimMatrix3D t, float scale = 1.0f)
         {
             var q = t.GetRotationQuaternion();
             return new Bitub.Dto.Scene.Transform
             {
                 Q = new Quaternion
                 {
-                    X = q.X,
-                    Y = q.Y,
-                    Z = q.Z,
-                    W = q.W
+                    X = (float)q.X,
+                    Y = (float)q.Y,
+                    Z = (float)q.Z,
+                    W = (float)q.W
                 },
                 T = t.Translation.ToXYZ(scale)
             };
@@ -103,7 +103,7 @@ namespace Bitub.Ifc.Scene
             };
         }
 
-        public static ABox ToABox(this XbimRect3D rect3D, double scale = 1.0, Func<XbimPoint3D, XbimPoint3D> adapter = null)
+        public static ABox ToABox(this XbimRect3D rect3D, float scale = 1.0f, Func<XbimPoint3D, XbimPoint3D> adapter = null)
         {
             return new ABox
             {
@@ -112,7 +112,7 @@ namespace Bitub.Ifc.Scene
             };
         }
 
-        public static BoundingBox ToBoundingBox(this XbimRect3D rect3D, double scale = 1.0, Func<XbimPoint3D, XbimPoint3D> adapter = null)
+        public static BoundingBox ToBoundingBox(this XbimRect3D rect3D, float scale = 1.0f, Func<XbimPoint3D, XbimPoint3D> adapter = null)
         {
             return new BoundingBox
             {
@@ -120,7 +120,7 @@ namespace Bitub.Ifc.Scene
             };
         }
 
-        public static Region ToRegion(this XbimRegion r, double scale = 1.0, Func<XbimPoint3D, XbimPoint3D> adapter = null)
+        public static Region ToRegion(this XbimRegion r, float scale = 1.0f, Func<XbimPoint3D, XbimPoint3D> adapter = null)
         {
             return new Region
             {

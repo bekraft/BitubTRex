@@ -61,8 +61,8 @@ namespace Bitub.Dto.TRex {
             "B0JPT0xFQU4QCCodCgZVbml0U0kSCAoETk9ORRAAEgkKBU1FVEVSEAEqaQoK",
             "VW5pdFByZWZpeBIICgRVTklUEAASCAoEREVDSRACEgkKBUNFTlRJEAMSCAoE",
             "S0lMTxAEEggKBE1FR0EQBRIICgRHSUdBEAYSCQoFTUlMTEkQBxIJCgVNSUNS",
-            "TxAIEggKBE5BTk8QCUIhCg5iaXR1Yi5kdG8udHJleKoCDkJpdHViLkR0by5U",
-            "UmV4YgZwcm90bzM="));
+            "TxAIEggKBE5BTk8QCUIcCgliaXR1Yi5kdG+qAg5CaXR1Yi5EdG8uVFJleGIG",
+            "cHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bitub.Dto.CommonReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bitub.Dto.TRex.JobState), typeof(global::Bitub.Dto.TRex.PropertyType), typeof(global::Bitub.Dto.TRex.UnitSI), typeof(global::Bitub.Dto.TRex.UnitPrefix), }, new pbr::GeneratedClrTypeInfo[] {

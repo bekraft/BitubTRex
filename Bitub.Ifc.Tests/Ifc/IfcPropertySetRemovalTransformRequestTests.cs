@@ -20,14 +20,8 @@ using Bitub.Ifc.Transform.Requests;
 namespace Bitub.Ifc.Tests
 {
     [TestClass]
-    public class IfcPropertySetRemovalTransformRequestTests : BaseTest<IfcPropertySetRemovalTransformRequestTests>
+    public class IfcPropertySetRemovalTransformRequestTests : BaseTests<IfcPropertySetRemovalTransformRequestTests>
     {
-        [TestInitialize]
-        public void StartUp()
-        {
-            StartUpLogging();
-        }
-
         [TestMethod]
         [DeploymentItem(@"Resources\Ifc4-Storey-With-4Walls.ifc")]
         public async Task RemoveByName()
@@ -43,7 +37,7 @@ namespace Bitub.Ifc.Tests
                     .Where(s => s.Name == "AllplanAttributes")
                     .Count());
 
-                var request = new IfcPropertySetRemovalRequest(this.TestLoggerFactory)
+                var request = new IfcPropertySetRemovalRequest(LoggerFactory)
                 {
                     ExludePropertySetByName = new string[] { "AllplanAttributes" },
                     IsNameMatchingCaseSensitive = false,
@@ -54,12 +48,12 @@ namespace Bitub.Ifc.Tests
                 };
 
                 var cp = new CancelableProgressing(true);
-                cp.OnProgressChange += (sender, e) => TestLogger.LogDebug($"State {e.State}: Percentage = {e.Percentage}; State object = {e.StateObject}");
+                cp.OnProgressChange += (sender, e) => logger.LogDebug($"State {e.State}: Percentage = {e.Percentage}; State object = {e.StateObject}");
 
                 using (var result = await request.Run(source, cp))
                 {
                     if (null != result.Cause)
-                        TestLogger?.LogError("Exception: {0}, {1}, {2}", result.Cause, result.Cause.Message, result.Cause.StackTrace);
+                        logger?.LogError("Exception: {0}, {1}, {2}", result.Cause, result.Cause.Message, result.Cause.StackTrace);
 
                     Assert.AreEqual(TransformResult.Code.Finished, result.ResultCode);
                     Assert.AreEqual(0, result.Target.Instances
@@ -95,7 +89,7 @@ namespace Bitub.Ifc.Tests
                 var stampBefore = SchemaValidator.OfModel(source);
                 Assert.IsTrue(stampBefore.IsCompliantToSchema);
 
-                var request = new IfcPropertySetRemovalRequest(this.TestLoggerFactory)
+                var request = new IfcPropertySetRemovalRequest(LoggerFactory)
                 {
                     ExludePropertySetByName = new string[] { "AllplanAttributes" },
                     IncludePropertySetByName = new string[] { "AllplanAttributes", "AllplanAttributes Copy" },
@@ -108,12 +102,12 @@ namespace Bitub.Ifc.Tests
                 };
 
                 var cp = new CancelableProgressing(true);
-                cp.OnProgressChange += (sender, e) => TestLogger.LogDebug($"State {e.State}: Percentage = {e.Percentage}; State object = {e.StateObject}");
+                cp.OnProgressChange += (sender, e) => logger.LogDebug($"State {e.State}: Percentage = {e.Percentage}; State object = {e.StateObject}");
 
                 using (var result = await request.Run(source, cp))
                 {
                     if (null != result.Cause)
-                        TestLogger?.LogError("Exception: {0}, {1}, {2}", result.Cause, result.Cause.Message, result.Cause.StackTrace);
+                        logger?.LogError("Exception: {0}, {1}, {2}", result.Cause, result.Cause.Message, result.Cause.StackTrace);
 
                     Assert.AreEqual(TransformResult.Code.Finished, result.ResultCode);
 
@@ -150,7 +144,7 @@ namespace Bitub.Ifc.Tests
                 var stampBefore = SchemaValidator.OfModel(source);
                 Assert.IsTrue(stampBefore.IsCompliantToSchema);
 
-                var request = new IfcPropertySetRemovalRequest(this.TestLoggerFactory)
+                var request = new IfcPropertySetRemovalRequest(LoggerFactory)
                 {
                     ExludePropertySetByName = new string[] { "Other" },
                     IncludePropertySetByName = new string[] { "Pset_SpaceCommon", "Other" },
@@ -163,12 +157,12 @@ namespace Bitub.Ifc.Tests
                 };
 
                 var cp = new CancelableProgressing(true);
-                cp.OnProgressChange += (sender, e) => TestLogger.LogDebug($"State {e.State}: Percentage = {e.Percentage}; State object = {e.StateObject}");
+                cp.OnProgressChange += (sender, e) => logger.LogDebug($"State {e.State}: Percentage = {e.Percentage}; State object = {e.StateObject}");
 
                 using (var result = await request.Run(source, cp))
                 {
                     if (null != result.Cause)
-                        TestLogger?.LogError("Exception: {0}, {1}, {2}", result.Cause, result.Cause.Message, result.Cause.StackTrace);
+                        logger?.LogError("Exception: {0}, {1}, {2}", result.Cause, result.Cause.Message, result.Cause.StackTrace);
 
                     var psetsRemaining = result.Target.Instances
                         .OfType<IIfcPropertySet>()

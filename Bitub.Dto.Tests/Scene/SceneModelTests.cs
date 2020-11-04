@@ -7,14 +7,14 @@ using Bitub.Dto.Tests;
 namespace Bitub.Dto.Scene.Tests
 {
     [TestClass]
-    public class SceneModelTests : BaseTest<SceneModelTests>
+    public class SceneModelTests : BaseTests<SceneModelTests>
     {
         const string tExample1 = "{ \"q\": { \"x\": 0.25, \"y\": 0, \"z\": 0, \"w\": 1 }, \"t\": { \"x\": 38.41, \"y\": 0.7, \"z\": 62.75 } }";
 
         [TestInitialize]
         public void StartUp()
         {
-            base.StartUpLogging();
+            InternallySetup();
         }
 
         [TestMethod]

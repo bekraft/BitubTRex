@@ -39,6 +39,7 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://www.github.com/bekraft/BitubTRex</PackageProjectUrl>
     <RootNamespace>Bitub.Dto.Bcf</RootNamespace>
+    <LangVersion>8.0</LangVersion>
 
   </PropertyGroup>
 

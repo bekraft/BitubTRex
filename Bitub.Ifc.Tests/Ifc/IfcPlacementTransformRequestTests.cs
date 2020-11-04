@@ -19,14 +19,8 @@ using Bitub.Dto.Spatial;
 namespace Bitub.Ifc.Tests
 {
     [TestClass]
-    public class IfcPlacementTransformRequestTests : BaseTest<IfcPlacementTransformRequestTests>
+    public class IfcPlacementTransformRequestTests : BaseTests<IfcPlacementTransformRequestTests>
     {
-        [TestInitialize]
-        public void StartUp()
-        {
-            StartUpLogging();
-        }
-
         [TestMethod]
         public void IfcAxisAlignmentSerializationTest()
         {
@@ -42,11 +36,11 @@ namespace Bitub.Ifc.Tests
 
             Assert.IsNotNull(axis2);
             Assert.IsNotNull(axis2.SourceReferenceAxis);
-            Assert.IsTrue(axis2.SourceReferenceAxis.Offset.IsAlmostEqual(axis1.SourceReferenceAxis.Offset, Precision));
-            Assert.IsTrue(axis2.SourceReferenceAxis.Target.IsAlmostEqual(axis1.SourceReferenceAxis.Target, Precision));
+            Assert.IsTrue(axis2.SourceReferenceAxis.Offset.IsAlmostEqual(axis1.SourceReferenceAxis.Offset, precision));
+            Assert.IsTrue(axis2.SourceReferenceAxis.Target.IsAlmostEqual(axis1.SourceReferenceAxis.Target, precision));
             Assert.IsNotNull(axis2.TargetReferenceAxis);
-            Assert.IsTrue(axis2.TargetReferenceAxis.Offset.IsAlmostEqual(axis1.TargetReferenceAxis.Offset, Precision));
-            Assert.IsTrue(axis2.TargetReferenceAxis.Target.IsAlmostEqual(axis1.TargetReferenceAxis.Target, Precision));
+            Assert.IsTrue(axis2.TargetReferenceAxis.Offset.IsAlmostEqual(axis1.TargetReferenceAxis.Offset, precision));
+            Assert.IsTrue(axis2.TargetReferenceAxis.Target.IsAlmostEqual(axis1.TargetReferenceAxis.Target, precision));
         }
 
         [TestMethod]
@@ -64,7 +58,7 @@ namespace Bitub.Ifc.Tests
                 Assert.IsNotNull(testConfig.SourceReferenceAxis);
                 Assert.IsNotNull(testConfig.TargetReferenceAxis);
 
-                var request = new IfcPlacementTransformRequest(this.TestLoggerFactory)                
+                var request = new IfcPlacementTransformRequest(LoggerFactory)                
                 {
                     AxisAlignment = testConfig,
                     PlacementStrategy = IfcPlacementStrategy.ChangeRootPlacements,
@@ -76,12 +70,12 @@ namespace Bitub.Ifc.Tests
 
                 using (var cp = new CancelableProgressing(true))
                 {
-                    cp.OnProgressChange += (s, o) => TestLogger.LogDebug($"State {o.State}: Percentage = {o.Percentage}; State object = {o.StateObject}");
+                    cp.OnProgressChange += (s, o) => logger.LogDebug($"State {o.State}: Percentage = {o.Percentage}; State object = {o.StateObject}");
 
                     using (var result = await request.Run(source, cp))
                     {
                         if (null != result.Cause)
-                            TestLogger?.LogError("Exception: {0}, {1}, {2}", result.Cause, result.Cause.Message, result.Cause.StackTrace);
+                            logger?.LogError("Exception: {0}, {1}, {2}", result.Cause, result.Cause.Message, result.Cause.StackTrace);
 
                         //Assert.AreEqual(TransformResult.Code.Finished, result.ResultCode);
                         // TODO Specific tests
@@ -110,7 +104,7 @@ namespace Bitub.Ifc.Tests
                 Assert.IsNotNull(testConfig.SourceReferenceAxis);
                 Assert.IsNotNull(testConfig.TargetReferenceAxis);
 
-                var request = new IfcPlacementTransformRequest(this.TestLoggerFactory)
+                var request = new IfcPlacementTransformRequest(LoggerFactory)
                 {
                     AxisAlignment = testConfig,
                     PlacementStrategy = IfcPlacementStrategy.ChangeRootPlacements,
@@ -122,12 +116,12 @@ namespace Bitub.Ifc.Tests
 
                 using (var cp = new CancelableProgressing(true))
                 {
-                    cp.OnProgressChange += (s, o) => TestLogger.LogDebug($"State {o.State}: Percentage = {o.Percentage}; State object = {o.StateObject}");
+                    cp.OnProgressChange += (s, o) => logger.LogDebug($"State {o.State}: Percentage = {o.Percentage}; State object = {o.StateObject}");
 
                     using (var result = await request.Run(source, cp))
                     {
                         if (null != result.Cause)
-                            TestLogger?.LogError("Exception: {0}, {1}, {2}", result.Cause, result.Cause.Message, result.Cause.StackTrace);
+                            logger?.LogError("Exception: {0}, {1}, {2}", result.Cause, result.Cause.Message, result.Cause.StackTrace);
 
                         var rootPlacement = result.Target.Instances.OfType<IIfcLocalPlacement>().Where(i => i.PlacementRelTo == null).FirstOrDefault();
                         Assert.IsNotNull(rootPlacement.PlacesObject);
@@ -160,7 +154,7 @@ namespace Bitub.Ifc.Tests
                 Assert.IsNotNull(testConfig.SourceReferenceAxis);
                 Assert.IsNotNull(testConfig.TargetReferenceAxis);
 
-                var request = new IfcPlacementTransformRequest(this.TestLoggerFactory)
+                var request = new IfcPlacementTransformRequest(LoggerFactory)
                 {
                     AxisAlignment = testConfig,
                     PlacementStrategy = IfcPlacementStrategy.NewRootPlacement,
@@ -172,12 +166,12 @@ namespace Bitub.Ifc.Tests
 
                 using (var cp = new CancelableProgressing(true))
                 {
-                    cp.OnProgressChange += (s, o) => TestLogger.LogDebug($"State {o.State}: Percentage = {o.Percentage}; State object = {o.StateObject}");
+                    cp.OnProgressChange += (s, o) => logger.LogDebug($"State {o.State}: Percentage = {o.Percentage}; State object = {o.StateObject}");
 
                     using (var result = await request.Run(source, cp))
                     {
                         if (null != result.Cause)
-                            TestLogger?.LogError("Exception: {0}, {1}, {2}", result.Cause, result.Cause.Message, result.Cause.StackTrace);
+                            logger?.LogError("Exception: {0}, {1}, {2}", result.Cause, result.Cause.Message, result.Cause.StackTrace);
 
                         var rootPlacement = result.Target.Instances.OfType<IIfcLocalPlacement>().Where(i => i.PlacementRelTo == null).FirstOrDefault();
                         Assert.IsNotNull(rootPlacement.PlacesObject);
@@ -197,7 +191,7 @@ namespace Bitub.Ifc.Tests
 
         public void Report(ProgressStateToken value)
         {
-            TestLogger.LogDebug($"State {value.State}: Percentage = {value.Percentage}; State object = {value.StateObject}");
+            logger.LogDebug($"State {value.State}: Percentage = {value.Percentage}; State object = {value.StateObject}");
         }
     }
 }

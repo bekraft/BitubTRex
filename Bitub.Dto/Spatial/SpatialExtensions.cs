@@ -18,19 +18,19 @@ namespace Bitub.Dto.Spatial
             return !(Math.Abs(a.X - b.X) > precision || Math.Abs(a.Y - b.Y) > precision || Math.Abs(a.Z - b.Z) > precision);
         }
 
-        public static double[] ToArray(this XYZ a)
+        public static float[] ToArray(this XYZ a)
         {
-            return new double[] { a.X, a.Y, a.Z };
+            return new float[] { a.X, a.Y, a.Z };
         }
 
-        public static double ToNorm2(this XYZ a)
+        public static float ToNorm2(this XYZ a)
         {
-            return Math.Sqrt(a.X * a.X + a.Y * a.Y + a.Z * a.Z);
+            return (float)Math.Sqrt((double)a.X * a.X + (double)a.Y * a.Y + (double)a.Z * a.Z);
         }
 
         public static XYZ ToNormalized(this XYZ a)
         {
-            double norm2 = a.ToNorm2();
+            var norm2 = a.ToNorm2();
             return new XYZ
             {
                 X = a.X / norm2,
@@ -60,17 +60,17 @@ namespace Bitub.Dto.Spatial
             Z = a.Z + b.Z
         };
 
-        public static XYZ Scale(this XYZ a, double s) => new XYZ
+        public static XYZ Scale(this XYZ a, float s) => new XYZ
         {
-            X = (float)(a.X * s),
-            Y = (float)(a.Y * s),
-            Z = (float)(a.Z * s),
+            X = (a.X * s),
+            Y = (a.Y * s),
+            Z = (a.Z * s),
         };
 
         public static XYZ CenterOf(this ABox box)
         {
             // Scale extent by 0.5 and add to base
-            return box.Min.Add(box.Max.Scale(0.5));
+            return box.Min.Add(box.Max.Scale(0.5f));
         }
 
         public static bool IsEmpty(this ABox box)

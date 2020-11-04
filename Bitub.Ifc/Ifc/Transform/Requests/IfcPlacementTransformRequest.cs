@@ -52,8 +52,8 @@ namespace Bitub.Ifc.Transform.Requests
             IfcPlacementStrategy placementStrategy, IfcAxisAlignment axisAlignment) : base(aSource, aTarget)
         {
             AppliedPlacementStrategy = placementStrategy;
-            UnitsPerMeterSource = aSource.ModelFactors.OneMeter;
-            UnitsPerMeterTarget = aTarget.ModelFactors.OneMeter;
+            UnitsPerMeterSource = (float)aSource.ModelFactors.OneMeter;
+            UnitsPerMeterTarget = (float)aTarget.ModelFactors.OneMeter;
             AppliedAxisAlignment = new IfcAxisAlignment(axisAlignment);
         }
 
@@ -96,9 +96,9 @@ namespace Bitub.Ifc.Transform.Requests
 
         internal XbimPlacementTree PlacementTree { get; private set; }
 
-        internal double UnitsPerMeterSource { get; set; }
+        internal float UnitsPerMeterSource { get; set; }
 
-        internal double UnitsPerMeterTarget { get; set; }
+        internal float UnitsPerMeterTarget { get; set; }
 
         internal IEnumerable<IIfcLocalPlacement> Placements 
         { 

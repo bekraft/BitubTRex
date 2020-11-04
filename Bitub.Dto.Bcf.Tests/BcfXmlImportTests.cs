@@ -1,27 +1,22 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using NUnit.Framework;
 
-using System.IO;
 using System.Linq;
 
 using Bitub.Dto.BcfXml;
 
 namespace Bitub.Dto.Bcf.Tests
 {
-    [TestClass]
-    public class BcfXmlImportTests : BaseTest<BcfXmlImportTests>
+    public class BcfXmlTests : BaseTests<BcfXmlTests>
     {
-        [TestInitialize]
-        public void StartUp()
-        {
-            base.StartUpLogging();
-        }
+        public BcfXmlTests() : base()
+        { }
 
-        [TestMethod]
-        [DeploymentItem(@"Resources\Bcf21\Example1.bcfzip")]
+        [Test]
         public void ReadExample1()
         {
-            Assert.IsTrue(File.Exists(@"Resources\Bcf21\Example1.bcfzip"));
-            var example1 = BcfFile.ReadFrom(@"Resources\Bcf21\Example1.bcfzip");
+            var fixture = GetEmbeddedFileStream("Bcf21.Example1.bcfzip");
+            Assert.IsNotNull(fixture);
+            var example1 = BcfFile.ReadFrom(fixture);
             Assert.IsNotNull(example1);
             
             var issues = example1.Issues.ToArray();
@@ -32,12 +27,12 @@ namespace Bitub.Dto.Bcf.Tests
             Assert.IsTrue(issues.All(i => null != i.Markup.Topic && 0 < i.Viewpoints.Length));
         }
 
-        [TestMethod]
-        [DeploymentItem(@"Resources\Bcf21\Example2.bcfzip")]
+        [Test]
         public void ReadExample2()
         {
-            Assert.IsTrue(File.Exists(@"Resources\Bcf21\Example2.bcfzip"));
-            var example2 = BcfFile.ReadFrom(@"Resources\Bcf21\Example2.bcfzip");
+            var fixture = GetEmbeddedFileStream("Bcf21.Example2.bcfzip");
+            Assert.IsNotNull(fixture);
+            var example2 = BcfFile.ReadFrom(fixture);
             Assert.IsNotNull(example2);
 
             var issues = example2.Issues.ToArray();

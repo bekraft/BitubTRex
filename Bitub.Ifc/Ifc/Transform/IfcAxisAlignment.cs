@@ -79,7 +79,7 @@ namespace Bitub.Ifc.Transform
             // Compute delta alignment
             var virtualParent = SourceReferenceAxis.TransformAxisTo(TargetReferenceAxis);
             // Multiply out with selected placement
-            var unitsPerMeter = placement.Model.ModelFactors.OneMeter;
+            var unitsPerMeter = (float)placement.Model.ModelFactors.OneMeter;
             var finalAlignment = new IfcAlignReferenceAxis(transform * virtualParent.To3D(unitsPerMeter), unitsPerMeter);
 
             switch (placement.Model.SchemaVersion)

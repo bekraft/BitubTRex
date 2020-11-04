@@ -10,14 +10,8 @@ using Xbim.Ifc;
 namespace Bitub.Ifc.Tests
 {
     [TestClass]
-    public class XbimRegressionTests : BaseTest<XbimRegressionTests>
+    public class XbimRegressionTests : BaseTests<XbimRegressionTests>
     {
-        [TestInitialize]
-        public void StartUp()
-        {
-            StartUpLogging();
-        }
-
         [DeploymentItem(@"Resources\Ifc4-Storey-With-4Walls.ifc")]
         [TestMethod]
         public void IfcStoreInsertCopyCloneTests()

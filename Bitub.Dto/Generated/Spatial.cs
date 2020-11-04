@@ -25,21 +25,21 @@ namespace Bitub.Dto.Spatial {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Cg1TcGF0aWFsLnByb3RvEhFCaXR1Yi5EdG8uU3BhdGlhbCImCgNYWVoSCQoB",
-            "eBgBIAEoARIJCgF5GAIgASgBEgkKAXoYAyABKAEiIgoGTGF0TG9uEgsKA2xh",
-            "dBgBIAEoARILCgNsb24YAiABKAEimAEKBE9Cb3gSJAoEYmFzZRgBIAEoCzIW",
+            "eBgBIAEoAhIJCgF5GAIgASgCEgkKAXoYAyABKAIiIgoGTGF0TG9uEgsKA2xh",
+            "dBgBIAEoAhILCgNsb24YAiABKAIimAEKBE9Cb3gSJAoEYmFzZRgBIAEoCzIW",
             "LkJpdHViLkR0by5TcGF0aWFsLlhZWhIiCgJleBgCIAEoCzIWLkJpdHViLkR0",
             "by5TcGF0aWFsLlhZWhIiCgJleRgDIAEoCzIWLkJpdHViLkR0by5TcGF0aWFs",
             "LlhZWhIiCgJlehgEIAEoCzIWLkJpdHViLkR0by5TcGF0aWFsLlhZWiJQCgRB",
             "Qm94EiMKA21pbhgBIAEoCzIWLkJpdHViLkR0by5TcGF0aWFsLlhZWhIjCgNt",
-            "YXgYAiABKAsyFi5CaXR1Yi5EdG8uU3BhdGlhbC5YWVoiWwoLQm91bmRpbmdC",
-            "b3gSJQoEb0JveBgBIAEoCzIXLkJpdHViLkR0by5TcGF0aWFsLk9Cb3gSJQoE",
-            "YUJveBgCIAEoCzIXLkJpdHViLkR0by5TcGF0aWFsLkFCb3giYAoGUmVnaW9u",
-            "EhIKCnBvcHVsYXRpb24YASABKAUSDQoFbGFiZWwYAiABKAkSMwoLYm91bmRp",
-            "bmdCb3gYAyABKAsyHi5CaXR1Yi5EdG8uU3BhdGlhbC5Cb3VuZGluZ0JveCJ1",
-            "CglWaWV3cG9pbnQSJAoEYmFzZRgBIAEoCzIWLkJpdHViLkR0by5TcGF0aWFs",
-            "LlhZWhInCgdmb3J3YXJkGAIgASgLMhYuQml0dWIuRHRvLlNwYXRpYWwuWFla",
-            "EgwKBG5lYXIYAyABKAISCwoDZmFyGAQgASgCQicKEWJpdHViLmR0by5zcGF0",
-            "aWFsqgIRQml0dWIuRHRvLlNwYXRpYWxiBnByb3RvMw=="));
+            "YXgYAiABKAsyFi5CaXR1Yi5EdG8uU3BhdGlhbC5YWVoibQoLQm91bmRpbmdC",
+            "b3gSJwoEb0JveBgBIAEoCzIXLkJpdHViLkR0by5TcGF0aWFsLk9Cb3hIABIn",
+            "CgRhQm94GAIgASgLMhcuQml0dWIuRHRvLlNwYXRpYWwuQUJveEgAQgwKCk9C",
+            "b3hPckFCb3giYAoGUmVnaW9uEhIKCnBvcHVsYXRpb24YASABKAUSDQoFbGFi",
+            "ZWwYAiABKAkSMwoLYm91bmRpbmdCb3gYAyABKAsyHi5CaXR1Yi5EdG8uU3Bh",
+            "dGlhbC5Cb3VuZGluZ0JveCJ1CglWaWV3cG9pbnQSJAoEYmFzZRgBIAEoCzIW",
+            "LkJpdHViLkR0by5TcGF0aWFsLlhZWhInCgdmb3J3YXJkGAIgASgLMhYuQml0",
+            "dWIuRHRvLlNwYXRpYWwuWFlaEgwKBG5lYXIYAyABKAISCwoDZmFyGAQgASgC",
+            "Qh8KCWJpdHViLmR0b6oCEUJpdHViLkR0by5TcGF0aWFsYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
@@ -47,7 +47,7 @@ namespace Bitub.Dto.Spatial {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bitub.Dto.Spatial.LatLon), global::Bitub.Dto.Spatial.LatLon.Parser, new[]{ "Lat", "Lon" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bitub.Dto.Spatial.OBox), global::Bitub.Dto.Spatial.OBox.Parser, new[]{ "Base", "Ex", "Ey", "Ez" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bitub.Dto.Spatial.ABox), global::Bitub.Dto.Spatial.ABox.Parser, new[]{ "Min", "Max" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bitub.Dto.Spatial.BoundingBox), global::Bitub.Dto.Spatial.BoundingBox.Parser, new[]{ "OBox", "ABox" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bitub.Dto.Spatial.BoundingBox), global::Bitub.Dto.Spatial.BoundingBox.Parser, new[]{ "OBox", "ABox" }, new[]{ "OBoxOrABox" }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bitub.Dto.Spatial.Region), global::Bitub.Dto.Spatial.Region.Parser, new[]{ "Population", "Label", "BoundingBox" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bitub.Dto.Spatial.Viewpoint), global::Bitub.Dto.Spatial.Viewpoint.Parser, new[]{ "Base", "Forward", "Near", "Far" }, null, null, null)
           }));
@@ -97,9 +97,9 @@ namespace Bitub.Dto.Spatial {
 
     /// <summary>Field number for the "x" field.</summary>
     public const int XFieldNumber = 1;
-    private double x_;
+    private float x_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public double X {
+    public float X {
       get { return x_; }
       set {
         x_ = value;
@@ -108,9 +108,9 @@ namespace Bitub.Dto.Spatial {
 
     /// <summary>Field number for the "y" field.</summary>
     public const int YFieldNumber = 2;
-    private double y_;
+    private float y_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public double Y {
+    public float Y {
       get { return y_; }
       set {
         y_ = value;
@@ -119,9 +119,9 @@ namespace Bitub.Dto.Spatial {
 
     /// <summary>Field number for the "z" field.</summary>
     public const int ZFieldNumber = 3;
-    private double z_;
+    private float z_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public double Z {
+    public float Z {
       get { return z_; }
       set {
         z_ = value;
@@ -141,18 +141,18 @@ namespace Bitub.Dto.Spatial {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(X, other.X)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(Y, other.Y)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(Z, other.Z)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(X, other.X)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Y, other.Y)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Z, other.Z)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (X != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(X);
-      if (Y != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(Y);
-      if (Z != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(Z);
+      if (X != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(X);
+      if (Y != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Y);
+      if (Z != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Z);
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -166,17 +166,17 @@ namespace Bitub.Dto.Spatial {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (X != 0D) {
-        output.WriteRawTag(9);
-        output.WriteDouble(X);
+      if (X != 0F) {
+        output.WriteRawTag(13);
+        output.WriteFloat(X);
       }
-      if (Y != 0D) {
-        output.WriteRawTag(17);
-        output.WriteDouble(Y);
+      if (Y != 0F) {
+        output.WriteRawTag(21);
+        output.WriteFloat(Y);
       }
-      if (Z != 0D) {
-        output.WriteRawTag(25);
-        output.WriteDouble(Z);
+      if (Z != 0F) {
+        output.WriteRawTag(29);
+        output.WriteFloat(Z);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -186,14 +186,14 @@ namespace Bitub.Dto.Spatial {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (X != 0D) {
-        size += 1 + 8;
+      if (X != 0F) {
+        size += 1 + 4;
       }
-      if (Y != 0D) {
-        size += 1 + 8;
+      if (Y != 0F) {
+        size += 1 + 4;
       }
-      if (Z != 0D) {
-        size += 1 + 8;
+      if (Z != 0F) {
+        size += 1 + 4;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -206,13 +206,13 @@ namespace Bitub.Dto.Spatial {
       if (other == null) {
         return;
       }
-      if (other.X != 0D) {
+      if (other.X != 0F) {
         X = other.X;
       }
-      if (other.Y != 0D) {
+      if (other.Y != 0F) {
         Y = other.Y;
       }
-      if (other.Z != 0D) {
+      if (other.Z != 0F) {
         Z = other.Z;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -226,16 +226,16 @@ namespace Bitub.Dto.Spatial {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 9: {
-            X = input.ReadDouble();
+          case 13: {
+            X = input.ReadFloat();
             break;
           }
-          case 17: {
-            Y = input.ReadDouble();
+          case 21: {
+            Y = input.ReadFloat();
             break;
           }
-          case 25: {
-            Z = input.ReadDouble();
+          case 29: {
+            Z = input.ReadFloat();
             break;
           }
         }
@@ -284,9 +284,9 @@ namespace Bitub.Dto.Spatial {
 
     /// <summary>Field number for the "lat" field.</summary>
     public const int LatFieldNumber = 1;
-    private double lat_;
+    private float lat_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public double Lat {
+    public float Lat {
       get { return lat_; }
       set {
         lat_ = value;
@@ -295,9 +295,9 @@ namespace Bitub.Dto.Spatial {
 
     /// <summary>Field number for the "lon" field.</summary>
     public const int LonFieldNumber = 2;
-    private double lon_;
+    private float lon_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public double Lon {
+    public float Lon {
       get { return lon_; }
       set {
         lon_ = value;
@@ -317,16 +317,16 @@ namespace Bitub.Dto.Spatial {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(Lat, other.Lat)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(Lon, other.Lon)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Lat, other.Lat)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Lon, other.Lon)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (Lat != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(Lat);
-      if (Lon != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(Lon);
+      if (Lat != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Lat);
+      if (Lon != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Lon);
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -340,13 +340,13 @@ namespace Bitub.Dto.Spatial {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (Lat != 0D) {
-        output.WriteRawTag(9);
-        output.WriteDouble(Lat);
+      if (Lat != 0F) {
+        output.WriteRawTag(13);
+        output.WriteFloat(Lat);
       }
-      if (Lon != 0D) {
-        output.WriteRawTag(17);
-        output.WriteDouble(Lon);
+      if (Lon != 0F) {
+        output.WriteRawTag(21);
+        output.WriteFloat(Lon);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -356,11 +356,11 @@ namespace Bitub.Dto.Spatial {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (Lat != 0D) {
-        size += 1 + 8;
+      if (Lat != 0F) {
+        size += 1 + 4;
       }
-      if (Lon != 0D) {
-        size += 1 + 8;
+      if (Lon != 0F) {
+        size += 1 + 4;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -373,10 +373,10 @@ namespace Bitub.Dto.Spatial {
       if (other == null) {
         return;
       }
-      if (other.Lat != 0D) {
+      if (other.Lat != 0F) {
         Lat = other.Lat;
       }
-      if (other.Lon != 0D) {
+      if (other.Lon != 0F) {
         Lon = other.Lon;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -390,12 +390,12 @@ namespace Bitub.Dto.Spatial {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 9: {
-            Lat = input.ReadDouble();
+          case 13: {
+            Lat = input.ReadFloat();
             break;
           }
-          case 17: {
-            Lon = input.ReadDouble();
+          case 21: {
+            Lon = input.ReadFloat();
             break;
           }
         }
@@ -844,8 +844,15 @@ namespace Bitub.Dto.Spatial {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public BoundingBox(BoundingBox other) : this() {
-      oBox_ = other.oBox_ != null ? other.oBox_.Clone() : null;
-      aBox_ = other.aBox_ != null ? other.aBox_.Clone() : null;
+      switch (other.OBoxOrABoxCase) {
+        case OBoxOrABoxOneofCase.OBox:
+          OBox = other.OBox.Clone();
+          break;
+        case OBoxOrABoxOneofCase.ABox:
+          ABox = other.ABox.Clone();
+          break;
+      }
+
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -856,24 +863,43 @@ namespace Bitub.Dto.Spatial {
 
     /// <summary>Field number for the "oBox" field.</summary>
     public const int OBoxFieldNumber = 1;
-    private global::Bitub.Dto.Spatial.OBox oBox_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Bitub.Dto.Spatial.OBox OBox {
-      get { return oBox_; }
+      get { return oBoxOrABoxCase_ == OBoxOrABoxOneofCase.OBox ? (global::Bitub.Dto.Spatial.OBox) oBoxOrABox_ : null; }
       set {
-        oBox_ = value;
+        oBoxOrABox_ = value;
+        oBoxOrABoxCase_ = value == null ? OBoxOrABoxOneofCase.None : OBoxOrABoxOneofCase.OBox;
       }
     }
 
     /// <summary>Field number for the "aBox" field.</summary>
     public const int ABoxFieldNumber = 2;
-    private global::Bitub.Dto.Spatial.ABox aBox_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Bitub.Dto.Spatial.ABox ABox {
-      get { return aBox_; }
+      get { return oBoxOrABoxCase_ == OBoxOrABoxOneofCase.ABox ? (global::Bitub.Dto.Spatial.ABox) oBoxOrABox_ : null; }
       set {
-        aBox_ = value;
+        oBoxOrABox_ = value;
+        oBoxOrABoxCase_ = value == null ? OBoxOrABoxOneofCase.None : OBoxOrABoxOneofCase.ABox;
       }
+    }
+
+    private object oBoxOrABox_;
+    /// <summary>Enum of possible cases for the "OBoxOrABox" oneof.</summary>
+    public enum OBoxOrABoxOneofCase {
+      None = 0,
+      OBox = 1,
+      ABox = 2,
+    }
+    private OBoxOrABoxOneofCase oBoxOrABoxCase_ = OBoxOrABoxOneofCase.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public OBoxOrABoxOneofCase OBoxOrABoxCase {
+      get { return oBoxOrABoxCase_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void ClearOBoxOrABox() {
+      oBoxOrABoxCase_ = OBoxOrABoxOneofCase.None;
+      oBoxOrABox_ = null;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -891,14 +917,16 @@ namespace Bitub.Dto.Spatial {
       }
       if (!object.Equals(OBox, other.OBox)) return false;
       if (!object.Equals(ABox, other.ABox)) return false;
+      if (OBoxOrABoxCase != other.OBoxOrABoxCase) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (oBox_ != null) hash ^= OBox.GetHashCode();
-      if (aBox_ != null) hash ^= ABox.GetHashCode();
+      if (oBoxOrABoxCase_ == OBoxOrABoxOneofCase.OBox) hash ^= OBox.GetHashCode();
+      if (oBoxOrABoxCase_ == OBoxOrABoxOneofCase.ABox) hash ^= ABox.GetHashCode();
+      hash ^= (int) oBoxOrABoxCase_;
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -912,11 +940,11 @@ namespace Bitub.Dto.Spatial {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (oBox_ != null) {
+      if (oBoxOrABoxCase_ == OBoxOrABoxOneofCase.OBox) {
         output.WriteRawTag(10);
         output.WriteMessage(OBox);
       }
-      if (aBox_ != null) {
+      if (oBoxOrABoxCase_ == OBoxOrABoxOneofCase.ABox) {
         output.WriteRawTag(18);
         output.WriteMessage(ABox);
       }
@@ -928,10 +956,10 @@ namespace Bitub.Dto.Spatial {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (oBox_ != null) {
+      if (oBoxOrABoxCase_ == OBoxOrABoxOneofCase.OBox) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(OBox);
       }
-      if (aBox_ != null) {
+      if (oBoxOrABoxCase_ == OBoxOrABoxOneofCase.ABox) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(ABox);
       }
       if (_unknownFields != null) {
@@ -945,18 +973,21 @@ namespace Bitub.Dto.Spatial {
       if (other == null) {
         return;
       }
-      if (other.oBox_ != null) {
-        if (oBox_ == null) {
-          OBox = new global::Bitub.Dto.Spatial.OBox();
-        }
-        OBox.MergeFrom(other.OBox);
+      switch (other.OBoxOrABoxCase) {
+        case OBoxOrABoxOneofCase.OBox:
+          if (OBox == null) {
+            OBox = new global::Bitub.Dto.Spatial.OBox();
+          }
+          OBox.MergeFrom(other.OBox);
+          break;
+        case OBoxOrABoxOneofCase.ABox:
+          if (ABox == null) {
+            ABox = new global::Bitub.Dto.Spatial.ABox();
+          }
+          ABox.MergeFrom(other.ABox);
+          break;
       }
-      if (other.aBox_ != null) {
-        if (aBox_ == null) {
-          ABox = new global::Bitub.Dto.Spatial.ABox();
-        }
-        ABox.MergeFrom(other.ABox);
-      }
+
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -969,17 +1000,21 @@ namespace Bitub.Dto.Spatial {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            if (oBox_ == null) {
-              OBox = new global::Bitub.Dto.Spatial.OBox();
+            global::Bitub.Dto.Spatial.OBox subBuilder = new global::Bitub.Dto.Spatial.OBox();
+            if (oBoxOrABoxCase_ == OBoxOrABoxOneofCase.OBox) {
+              subBuilder.MergeFrom(OBox);
             }
-            input.ReadMessage(OBox);
+            input.ReadMessage(subBuilder);
+            OBox = subBuilder;
             break;
           }
           case 18: {
-            if (aBox_ == null) {
-              ABox = new global::Bitub.Dto.Spatial.ABox();
+            global::Bitub.Dto.Spatial.ABox subBuilder = new global::Bitub.Dto.Spatial.ABox();
+            if (oBoxOrABoxCase_ == OBoxOrABoxOneofCase.ABox) {
+              subBuilder.MergeFrom(ABox);
             }
-            input.ReadMessage(ABox);
+            input.ReadMessage(subBuilder);
+            ABox = subBuilder;
             break;
           }
         }

@@ -5,7 +5,7 @@ import "Common.proto";
 
 // Version 1.0
 option csharp_namespace = "Bitub.Dto.TRex";
-option java_package = "bitub.dto.trex";
+option java_package = "bitub.dto";
 
 // A Job request
 message JobRequest {

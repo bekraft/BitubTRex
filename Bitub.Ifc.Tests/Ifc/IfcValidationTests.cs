@@ -12,14 +12,8 @@ using Microsoft.Extensions.Logging;
 namespace Bitub.Ifc.Tests
 {
     [TestClass]
-    public class IfcValidationTests : BaseTest<IfcValidationTests>
+    public class IfcValidationTests : BaseTests<IfcValidationTests>
     {
-        [TestInitialize]
-        public void StartUp()
-        {
-            StartUpLogging();
-        }
-
         [DeploymentItem(@"Resources\Ifc2x3-Slab-BooleanResult.ifc")]
         [TestMethod]
         public void SchemaValidateTest()
@@ -83,9 +77,9 @@ namespace Bitub.Ifc.Tests
                     double oneMeter = source.ModelFactors.LengthToMetresConversionFactor;
                     double oneMeter3 = oneMeter * oneMeter * oneMeter;
 
-                    foreach (var issue in new GeometryValidator(TestLoggerFactory).GetIssuesFromModel(source).Where(i => i.Any(info => info.HasGeometricalIssues)))
+                    foreach (var issue in new GeometryValidator(LoggerFactory).GetIssuesFromModel(source).Where(i => i.Any(info => info.HasGeometricalIssues)))
                     {
-                        TestLogger.LogInformation($"Found issues for #{issue.Key.EntityLabel} '{issue.Key.Name ?? "Unkown"}' GUID '{issue.Key.GlobalId}'");
+                        logger.LogInformation($"Found issues for #{issue.Key.EntityLabel} '{issue.Key.Name ?? "Unkown"}' GUID '{issue.Key.GlobalId}'");
                         writer.WriteLine($"# #{issue.Key.EntityLabel} ({issue.Key.ExpressType.Name}) '{issue.Key.Name ?? "Unkown"}'");
                         writer.WriteLine();
 

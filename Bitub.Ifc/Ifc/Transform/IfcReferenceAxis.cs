@@ -127,15 +127,15 @@ namespace Bitub.Ifc.Transform
         /// </summary>
         /// <param name="m">The 4x4 transformation matrix</param>
         /// <param name="unitsPerMeter">The scale of 1 meter (i.e. 1000 for "mm")</param>
-        public IfcAlignReferenceAxis(XbimMatrix3D m, double unitsPerMeter = 1.0)
+        public IfcAlignReferenceAxis(XbimMatrix3D m, float unitsPerMeter = 1.0f)
         {
             // Set offset and target by translation and EX            
-            _offset = m.Translation.ToXYZ(1.0 / unitsPerMeter);
+            _offset = m.Translation.ToXYZ(1.0f / unitsPerMeter);
             _target = new XYZ
             {
-                X = m.M11 + _offset.X,
-                Y = m.M12 + _offset.Y,
-                Z = m.M13 + _offset.Z
+                X = (float)m.M11 + _offset.X,
+                Y = (float)m.M12 + _offset.Y,
+                Z = (float)m.M13 + _offset.Z
             };
 
             // Set Y & Z from transformation directly
@@ -155,9 +155,9 @@ namespace Bitub.Ifc.Transform
         /// </summary>
         /// <param name="deltaOffset">The shift</param>
         /// <param name="unitsPerMeter">The units per meter scale</param>
-        public void Translate(XbimVector3D deltaOffset, double unitsPerMeter = 1.0)
+        public void Translate(XbimVector3D deltaOffset, float unitsPerMeter = 1.0f)
         {
-            var shift = deltaOffset.ToXYZ(1 / unitsPerMeter);
+            var shift = deltaOffset.ToXYZ(1.0f / unitsPerMeter);
             _offset = _offset.Add(shift);
             _target = _target.Add(shift);
         }

@@ -15,20 +15,14 @@ using Bitub.Ifc.Tests;
 namespace Bitub.Ifc.Scene.Tests
 {
     [TestClass]
-    public class SceneXbimExporterTests : BaseTest<SceneXbimExporterTests>
+    public class SceneXbimExporterTests : BaseTests<SceneXbimExporterTests>
     {
-        [TestInitialize]
-        public void StartUp()
-        {
-            base.StartUpLogging();
-        }
-
         private async Task TestIfcModelExport(string fileName, IfcSceneExportSettings settings)
         {
             IfcSceneExportSummary result;
             using (var store = IfcStore.Open(fileName))
             {
-                var exporter = new IfcSceneExporter(new XbimTesselationContext(TestLoggerFactory), TestLoggerFactory);
+                var exporter = new IfcSceneExporter(new XbimTesselationContext(LoggerFactory), LoggerFactory);
                 exporter.Settings = settings;
 
                 using (var monitor = new CancelableProgressing(true))
@@ -49,14 +43,14 @@ namespace Bitub.Ifc.Scene.Tests
                 var json = formatter.Format(result.Scene);
                 jsonStream.WriteLine(json);
                 jsonStream.Close();
-                TestLogger.LogInformation($"JSON example has been written.");
+                logger.LogInformation($"JSON example has been written.");
             }
 
             using (var binStream = File.Create($"{Path.GetFileNameWithoutExtension(fileName)}.scene"))
             {
                 var binScene = result.Scene.ToByteArray();
                 binStream.Write(binScene, 0, binScene.Length);
-                TestLogger.LogInformation($"Binary scene of {binScene.Length} bytes has been written.");
+                logger.LogInformation($"Binary scene of {binScene.Length} bytes has been written.");
             }
         }
 

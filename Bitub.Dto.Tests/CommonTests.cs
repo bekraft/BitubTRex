@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 namespace Bitub.Dto.Tests
 {
     [TestClass]
-    public class CommonTests : BaseTest<CommonTests>
+    public class CommonTests : BaseTests<CommonTests>
     {
         [TestInitialize]
         public void StartUp()
         {
-            base.StartUpLogging();
+            InternallySetup();
         }
 
         [TestMethod]

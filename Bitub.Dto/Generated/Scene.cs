@@ -35,7 +35,7 @@ namespace Bitub.Dto.Scene {
             "KAsyFS5CaXR1Yi5EdG8uU2NlbmUuTWVzaCIaCgJVVhIJCgF1GAEgASgCEgkK",
             "AXYYAiABKAIiJgoFUG9pbnQSDQoFbGFiZWwYASABKAkSDgoGdmVydGV4GAIg",
             "ASgNIjYKBVBhdGNoEg0KBWxhYmVsGAEgASgJEg4KBmlzTG9vcBgCIAEoCBIO",
-            "CgZ2ZXJ0ZXgYAyADKA0iFgoHUHRBcnJheRILCgN4eXoYASADKAEitQEKCEZh",
+            "CgZ2ZXJ0ZXgYAyADKA0iFgoHUHRBcnJheRILCgN4eXoYASADKAIitQEKCEZh",
             "Y2VCb2R5Eg0KBXB0U2V0GAEgASgNEiIKCG1hdGVyaWFsGAIgASgLMhAuQml0",
             "dWIuRHRvLlJlZklkEg8KB2lzU2hlbGwYAyABKAgSEAoIaXNDb252ZXgYBCAB",
             "KAgSLQoJdHJhbnNmb3JtGAogASgLMhouQml0dWIuRHRvLlNjZW5lLlRyYW5z",
@@ -44,8 +44,8 @@ namespace Bitub.Dto.Scene {
             "LkJpdHViLkR0by5SZWZJZBItCgl0cmFuc2Zvcm0YCiABKAsyGi5CaXR1Yi5E",
             "dG8uU2NlbmUuVHJhbnNmb3JtEicKB3BhdGNoZXMYCyADKAsyFi5CaXR1Yi5E",
             "dG8uU2NlbmUuUGF0Y2gSKgoKc2luZ2xldG9ucxgMIAMoCzIWLkJpdHViLkR0",
-            "by5TY2VuZS5Qb2ludCI4CgpRdWF0ZXJuaW9uEgkKAXgYASABKAESCQoBeRgC",
-            "IAEoARIJCgF6GAMgASgBEgkKAXcYBCABKAEidgoIUm90YXRpb24SIgoCcngY",
+            "by5TY2VuZS5Qb2ludCI4CgpRdWF0ZXJuaW9uEgkKAXgYASABKAISCQoBeRgC",
+            "IAEoAhIJCgF6GAMgASgCEgkKAXcYBCABKAIidgoIUm90YXRpb24SIgoCcngY",
             "ASABKAsyFi5CaXR1Yi5EdG8uU3BhdGlhbC5YWVoSIgoCcnkYAiABKAsyFi5C",
             "aXR1Yi5EdG8uU3BhdGlhbC5YWVoSIgoCcnoYAyABKAsyFi5CaXR1Yi5EdG8u",
             "U3BhdGlhbC5YWVoimAEKCVRyYW5zZm9ybRImCgFyGAEgASgLMhkuQml0dWIu",
@@ -78,7 +78,7 @@ namespace Bitub.Dto.Scene {
             "d2dzODQYBCABKAsyGS5CaXR1Yi5EdG8uU3BhdGlhbC5MYXRMb24SCwoDY3Jz",
             "GAUgASgJEgsKA2hycxgGIAEoCSKSAgoKU2NlbmVNb2RlbBIlCgJpZBgBIAEo",
             "CzIZLkJpdHViLkR0by5HbG9iYWxVbmlxdWVJZBIMCgRuYW1lGAIgASgJEhUK",
-            "DXVuaXRzUGVyTWV0ZXIYAyABKAESKQoFc3RhbXAYBCABKAsyGi5nb29nbGUu",
+            "DXVuaXRzUGVyTWV0ZXIYAyABKAISKQoFc3RhbXAYBCABKAsyGi5nb29nbGUu",
             "cHJvdG9idWYuVGltZXN0YW1wEi8KCGNvbnRleHRzGAUgAygLMh0uQml0dWIu",
             "RHRvLlNjZW5lLlNjZW5lQ29udGV4dBIsCgltYXRlcmlhbHMYBiADKAsyGS5C",
             "aXR1Yi5EdG8uU2NlbmUuTWF0ZXJpYWwSLgoKY29tcG9uZW50cxgHIAMoCzIa",
@@ -102,8 +102,8 @@ namespace Bitub.Dto.Scene {
             "bmVEYXRhVHlwZRIMCghNRVRBREFUQRAAEg0KCUNPTVBPTkVOVBABEgwKCE1B",
             "VEVSSUFMEAISEgoOQ0xBU1NJRklDQVRJT04QBBIMCghGRUFUVVJFUxAIEhoK",
             "FkNPTVBPTkVOVF9BTkRfTUFURVJJQUwQAxISCg5GVUxMX0NPTVBPTkVOVBAH",
-            "EgcKA0FMTBAPQiMKD2JpdHViLmR0by5zY2VuZaoCD0JpdHViLkR0by5TY2Vu",
-            "ZWIGcHJvdG8z"));
+            "EgcKA0FMTBAPQh0KCWJpdHViLmR0b6oCD0JpdHViLkR0by5TY2VuZWIGcHJv",
+            "dG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bitub.Dto.CommonReflection.Descriptor, global::Bitub.Dto.Classify.ClassifyReflection.Descriptor, global::Bitub.Dto.Spatial.SpatialReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bitub.Dto.Scene.Orientation), typeof(global::Bitub.Dto.Scene.FacetType), typeof(global::Bitub.Dto.Scene.ColorChannel), typeof(global::Bitub.Dto.Scene.SceneDataType), }, new pbr::GeneratedClrTypeInfo[] {
@@ -1181,11 +1181,11 @@ namespace Bitub.Dto.Scene {
 
     /// <summary>Field number for the "xyz" field.</summary>
     public const int XyzFieldNumber = 1;
-    private static readonly pb::FieldCodec<double> _repeated_xyz_codec
-        = pb::FieldCodec.ForDouble(10);
-    private readonly pbc::RepeatedField<double> xyz_ = new pbc::RepeatedField<double>();
+    private static readonly pb::FieldCodec<float> _repeated_xyz_codec
+        = pb::FieldCodec.ForFloat(10);
+    private readonly pbc::RepeatedField<float> xyz_ = new pbc::RepeatedField<float>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::RepeatedField<double> Xyz {
+    public pbc::RepeatedField<float> Xyz {
       get { return xyz_; }
     }
 
@@ -1257,7 +1257,7 @@ namespace Bitub.Dto.Scene {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10:
-          case 9: {
+          case 13: {
             xyz_.AddEntriesFrom(input, _repeated_xyz_codec);
             break;
           }
@@ -1822,9 +1822,9 @@ namespace Bitub.Dto.Scene {
 
     /// <summary>Field number for the "x" field.</summary>
     public const int XFieldNumber = 1;
-    private double x_;
+    private float x_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public double X {
+    public float X {
       get { return x_; }
       set {
         x_ = value;
@@ -1833,9 +1833,9 @@ namespace Bitub.Dto.Scene {
 
     /// <summary>Field number for the "y" field.</summary>
     public const int YFieldNumber = 2;
-    private double y_;
+    private float y_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public double Y {
+    public float Y {
       get { return y_; }
       set {
         y_ = value;
@@ -1844,9 +1844,9 @@ namespace Bitub.Dto.Scene {
 
     /// <summary>Field number for the "z" field.</summary>
     public const int ZFieldNumber = 3;
-    private double z_;
+    private float z_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public double Z {
+    public float Z {
       get { return z_; }
       set {
         z_ = value;
@@ -1855,9 +1855,9 @@ namespace Bitub.Dto.Scene {
 
     /// <summary>Field number for the "w" field.</summary>
     public const int WFieldNumber = 4;
-    private double w_;
+    private float w_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public double W {
+    public float W {
       get { return w_; }
       set {
         w_ = value;
@@ -1877,20 +1877,20 @@ namespace Bitub.Dto.Scene {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(X, other.X)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(Y, other.Y)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(Z, other.Z)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(W, other.W)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(X, other.X)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Y, other.Y)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Z, other.Z)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(W, other.W)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (X != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(X);
-      if (Y != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(Y);
-      if (Z != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(Z);
-      if (W != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(W);
+      if (X != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(X);
+      if (Y != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Y);
+      if (Z != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Z);
+      if (W != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(W);
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1904,21 +1904,21 @@ namespace Bitub.Dto.Scene {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (X != 0D) {
-        output.WriteRawTag(9);
-        output.WriteDouble(X);
+      if (X != 0F) {
+        output.WriteRawTag(13);
+        output.WriteFloat(X);
       }
-      if (Y != 0D) {
-        output.WriteRawTag(17);
-        output.WriteDouble(Y);
+      if (Y != 0F) {
+        output.WriteRawTag(21);
+        output.WriteFloat(Y);
       }
-      if (Z != 0D) {
-        output.WriteRawTag(25);
-        output.WriteDouble(Z);
+      if (Z != 0F) {
+        output.WriteRawTag(29);
+        output.WriteFloat(Z);
       }
-      if (W != 0D) {
-        output.WriteRawTag(33);
-        output.WriteDouble(W);
+      if (W != 0F) {
+        output.WriteRawTag(37);
+        output.WriteFloat(W);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -1928,17 +1928,17 @@ namespace Bitub.Dto.Scene {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (X != 0D) {
-        size += 1 + 8;
+      if (X != 0F) {
+        size += 1 + 4;
       }
-      if (Y != 0D) {
-        size += 1 + 8;
+      if (Y != 0F) {
+        size += 1 + 4;
       }
-      if (Z != 0D) {
-        size += 1 + 8;
+      if (Z != 0F) {
+        size += 1 + 4;
       }
-      if (W != 0D) {
-        size += 1 + 8;
+      if (W != 0F) {
+        size += 1 + 4;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1951,16 +1951,16 @@ namespace Bitub.Dto.Scene {
       if (other == null) {
         return;
       }
-      if (other.X != 0D) {
+      if (other.X != 0F) {
         X = other.X;
       }
-      if (other.Y != 0D) {
+      if (other.Y != 0F) {
         Y = other.Y;
       }
-      if (other.Z != 0D) {
+      if (other.Z != 0F) {
         Z = other.Z;
       }
-      if (other.W != 0D) {
+      if (other.W != 0F) {
         W = other.W;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -1974,20 +1974,20 @@ namespace Bitub.Dto.Scene {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 9: {
-            X = input.ReadDouble();
+          case 13: {
+            X = input.ReadFloat();
             break;
           }
-          case 17: {
-            Y = input.ReadDouble();
+          case 21: {
+            Y = input.ReadFloat();
             break;
           }
-          case 25: {
-            Z = input.ReadDouble();
+          case 29: {
+            Z = input.ReadFloat();
             break;
           }
-          case 33: {
-            W = input.ReadDouble();
+          case 37: {
+            W = input.ReadFloat();
             break;
           }
         }
@@ -4019,9 +4019,9 @@ namespace Bitub.Dto.Scene {
 
     /// <summary>Field number for the "unitsPerMeter" field.</summary>
     public const int UnitsPerMeterFieldNumber = 3;
-    private double unitsPerMeter_;
+    private float unitsPerMeter_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public double UnitsPerMeter {
+    public float UnitsPerMeter {
       get { return unitsPerMeter_; }
       set {
         unitsPerMeter_ = value;
@@ -4084,7 +4084,7 @@ namespace Bitub.Dto.Scene {
       }
       if (!object.Equals(Id, other.Id)) return false;
       if (Name != other.Name) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(UnitsPerMeter, other.UnitsPerMeter)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(UnitsPerMeter, other.UnitsPerMeter)) return false;
       if (!object.Equals(Stamp, other.Stamp)) return false;
       if(!contexts_.Equals(other.contexts_)) return false;
       if(!materials_.Equals(other.materials_)) return false;
@@ -4097,7 +4097,7 @@ namespace Bitub.Dto.Scene {
       int hash = 1;
       if (id_ != null) hash ^= Id.GetHashCode();
       if (Name.Length != 0) hash ^= Name.GetHashCode();
-      if (UnitsPerMeter != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(UnitsPerMeter);
+      if (UnitsPerMeter != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(UnitsPerMeter);
       if (stamp_ != null) hash ^= Stamp.GetHashCode();
       hash ^= contexts_.GetHashCode();
       hash ^= materials_.GetHashCode();
@@ -4123,9 +4123,9 @@ namespace Bitub.Dto.Scene {
         output.WriteRawTag(18);
         output.WriteString(Name);
       }
-      if (UnitsPerMeter != 0D) {
-        output.WriteRawTag(25);
-        output.WriteDouble(UnitsPerMeter);
+      if (UnitsPerMeter != 0F) {
+        output.WriteRawTag(29);
+        output.WriteFloat(UnitsPerMeter);
       }
       if (stamp_ != null) {
         output.WriteRawTag(34);
@@ -4148,8 +4148,8 @@ namespace Bitub.Dto.Scene {
       if (Name.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
       }
-      if (UnitsPerMeter != 0D) {
-        size += 1 + 8;
+      if (UnitsPerMeter != 0F) {
+        size += 1 + 4;
       }
       if (stamp_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Stamp);
@@ -4177,7 +4177,7 @@ namespace Bitub.Dto.Scene {
       if (other.Name.Length != 0) {
         Name = other.Name;
       }
-      if (other.UnitsPerMeter != 0D) {
+      if (other.UnitsPerMeter != 0F) {
         UnitsPerMeter = other.UnitsPerMeter;
       }
       if (other.stamp_ != null) {
@@ -4211,8 +4211,8 @@ namespace Bitub.Dto.Scene {
             Name = input.ReadString();
             break;
           }
-          case 25: {
-            UnitsPerMeter = input.ReadDouble();
+          case 29: {
+            UnitsPerMeter = input.ReadFloat();
             break;
           }
           case 34: {

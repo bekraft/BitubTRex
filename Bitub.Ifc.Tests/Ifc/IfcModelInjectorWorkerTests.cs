@@ -18,15 +18,9 @@ using System.Xml.Linq;
 namespace Bitub.Ifc.Tests
 {
     [TestClass]
-    public class IfcModelInjectorWorkerTests : BaseTest<IfcModelInjectorWorkerTests>
+    public class IfcModelInjectorWorkerTests : BaseTests<IfcModelInjectorWorkerTests>
     {
         private readonly IEnumerable<XName> CopyType = new XName[] { typeof(IfcSlab).XLabel() };
-
-        [TestInitialize]
-        public void StartUp()
-        {
-            StartUpLogging();
-        }
 
         [TestMethod]
         [DeploymentItem(@"Resources\Ifc4-Storey-With-4Walls.ifc")]
@@ -43,7 +37,7 @@ namespace Bitub.Ifc.Tests
 
                 Assert.AreEqual(container, worker.ContainerCandidate.FirstOrDefault());
                 Assert.AreEqual(IfcModelInjectorMode.SingletonContainer, worker.InjectorMode);
-                worker.RunModelMerge( (i,s) => TestLogger.LogInformation($"... at ${i} (${s ?? ""})"));
+                worker.RunModelMerge( (i,s) => logger.LogInformation($"... at ${i} (${s ?? ""})"));
 
                 var inserted = targetStore.Instances.OfType<IfcSlab>().FirstOrDefault();
                 Assert.IsNotNull(inserted);

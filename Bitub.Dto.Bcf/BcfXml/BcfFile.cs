@@ -60,7 +60,12 @@ namespace Bitub.Dto.BcfXml
 
         public static BcfFile ReadFrom(string bcfArchiveName)
         {
-            return new BcfFile(new ZipArchive(new FileStream(bcfArchiveName, FileMode.Open), ZipArchiveMode.Read));
+            return ReadFrom(new FileStream(bcfArchiveName, FileMode.Open));
+        }
+
+        public static BcfFile ReadFrom(Stream fileStream)
+        {
+            return new BcfFile(new ZipArchive(fileStream, ZipArchiveMode.Read));
         }
 
         public static BcfFile NewBcfArchive(string bcfArchiveName, BcfProjectExtension projectExtension, string version = "2.1")
