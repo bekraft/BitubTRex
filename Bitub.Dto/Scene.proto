@@ -1,7 +1,7 @@
 ﻿syntax = "proto3";
 package Bitub.Dto.Scene;
 
-// Version 1.0
+// Version 1.1
 import "Common.proto";
 import "Classify.proto";
 import "Spatial.proto";
