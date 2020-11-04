@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace Bitub.Dto
 {
@@ -24,7 +23,17 @@ namespace Bitub.Dto
             }
         }
 
-        public static Qualifier ToTrimmedNamed(this Qualifier qualifier, int startFrag, int countFrags = int.MaxValue)
+        public static bool IsEqualTo(this Qualifier qualifier, Qualifier other, StringComparison stringComparison)
+        {
+            return QualifierCaseEqualityComparer.Equals(qualifier, other, stringComparison);
+        }
+
+        public static Qualifier ToTrimmedLength(this Qualifier qualifier, int countFrags)
+        {
+            return ToTrimmed(qualifier, 0, countFrags);
+        }
+
+        public static Qualifier ToTrimmed(this Qualifier qualifier, int startFrag, int countFrags = int.MaxValue)
         {
             if (null == qualifier)
                 return null;
@@ -81,7 +90,7 @@ namespace Bitub.Dto
                 case int.MinValue:
                     return new Qualifier();
                 default:
-                    return qualifier.ToTrimmedNamed(0, fragmentLength);
+                    return qualifier.ToTrimmed(0, fragmentLength);
             }
         }
 
@@ -102,7 +111,7 @@ namespace Bitub.Dto
                 default:
                     if (fragmentLength == supQualifier.Named.Frags.Count)
                         // Only if super qualifier is completely covered by sub qualifier
-                        return qualifier.ToTrimmedNamed(supQualifier.Named.Frags.Count);
+                        return qualifier.ToTrimmed(supQualifier.Named.Frags.Count);
                     else
                         return new Qualifier();
             }
