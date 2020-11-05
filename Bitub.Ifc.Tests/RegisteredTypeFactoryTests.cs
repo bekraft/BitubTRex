@@ -9,7 +9,6 @@ using Xbim.Ifc4.Interfaces;
 
 using Xbim.IO;
 
-using Bitub.Ifc;
 using System.Xml.Linq;
 
 namespace Bitub.Ifc.Tests
@@ -18,21 +17,21 @@ namespace Bitub.Ifc.Tests
     public class RegisteredTypeFactoryTests : BaseTests<RegisteredTypeFactoryTests>
     {
         [TestMethod]
-        public void IfcXLabeledTests()
+        public void ToXNameTests()
         {
             using (var store = IfcStore.Create(XbimSchemaVersion.Ifc4, XbimStoreType.InMemoryModel))
             using (var tx = store.BeginTransaction())
             {
                 var wall = store.Instances.New<Xbim.Ifc4.SharedBldgElements.IfcWall>();
                 XName assertedName = "{IFC4}IFCWALL";
-                Assert.IsTrue(assertedName == wall.XLabel());
-                Assert.AreSame(assertedName, wall.XLabel());
-                Assert.IsFalse(wall.GetType().IsSubclassOf(typeof(IIfcWall)));
+                Assert.AreEqual(assertedName, wall.ToXName());
+                Assert.IsTrue(typeof(IIfcWall).IsAssignableFrom(wall.GetType()));
+                tx.Commit();
             }
         }
 
         [TestMethod]
-        public void RegisteredTypeScopeTests()
+        public void ToIfcWallScopeTests()
         {
             var rtf = new RegisteredTypeFactory(typeof(Xbim.Ifc4.EntityFactoryIfc4).Assembly, typeof(Xbim.Ifc2x3.EntityFactoryIfc2x3).Assembly);
             var wallScope = rtf.GetScopeOf<IIfcWall>();

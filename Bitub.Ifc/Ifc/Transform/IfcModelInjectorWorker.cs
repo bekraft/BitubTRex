@@ -182,7 +182,7 @@ namespace Bitub.Ifc.Transform
                         return false;
                     }
 
-                    if (CopyExpressType.Contains(i.XLabel().LocalName))
+                    if (CopyExpressType.Contains(i.ToXName().LocalName))
                     {
                         var newProduct = s.InsertCopy(i, HandleMapOf(i), PropertyTransform, true, false);
 

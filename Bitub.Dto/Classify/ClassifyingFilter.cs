@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Bitub.Dto;
-
-namespace Bitub.Ifc.Classify
+namespace Bitub.Dto.Classify
 {
     public enum FilterMatchingType
     {

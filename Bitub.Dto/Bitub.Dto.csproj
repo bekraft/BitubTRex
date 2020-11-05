@@ -97,7 +97,8 @@
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Message Text="Building $(Version)" Importance="High" />
-    <Message Text="==&gt; Including from protobuf sources PROTOBUF_SRC=&quot;$(PROTOBUF_SRC)&quot;" Importance="High" />
+    <Message Text="Including from protobuf sources PROTOBUF_SRC=&quot;$(PROTOBUF_SRC)&quot;" Importance="High" />
+    <Exec Command="if not exist  &quot;$(ProjectDir)Generated&quot; mkdir &quot;$(ProjectDir)Generated&quot;" />
     <Exec Command="$(Protoc) -I=&quot;$(PROTOBUF_SRC)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Common.proto&quot;" />
     <Exec Command="$(Protoc) -I=&quot;$(PROTOBUF_SRC)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Spatial.proto&quot;" />
     <Exec Command="$(Protoc) -I=&quot;$(PROTOBUF_SRC)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Classify.proto&quot;" />

@@ -8,6 +8,7 @@ using Bitub.Dto.Classify;
 
 using Xbim.Common;
 using Xbim.Ifc4.Interfaces;
+using Xbim.Ifc2x3;
 
 namespace Bitub.Ifc.Classify
 {

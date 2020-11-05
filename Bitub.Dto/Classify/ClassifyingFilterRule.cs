@@ -1,8 +1,7 @@
 ﻿using System;
+using System.Net.Sockets;
 
-using Bitub.Dto;
-
-namespace Bitub.Ifc.Classify
+namespace Bitub.Dto.Classify
 {
     public enum FilterOrderType
     {
@@ -22,22 +21,33 @@ namespace Bitub.Ifc.Classify
     /// </summary>
     public class ClassifyingFilterRule
     {
+        protected ClassifyingFilter includeFilter;
+        protected ClassifyingFilter excludeFilter;
+
         public ClassifyingFilterRule(FilterOrderType filterOrderType)
         {
             OrderType = filterOrderType;
         }
 
-        public FilterOrderType OrderType { get; private set; }
+        public FilterOrderType OrderType { get; protected set; }
 
         /// <summary>
         /// The inclusion filter. If given, include all matches in result.
         /// </summary>
-        public ClassifyingFilter Include { get; set; }
+        public ClassifyingFilter Include 
+        {
+            get => includeFilter;
+            protected set => includeFilter = value; 
+        }
 
         /// <summary>
         /// The exclusion filter. If given, exclude all matches from result.
         /// </summary>
-        public ClassifyingFilter Exclude { get; set; }
+        public ClassifyingFilter Exclude 
+        {
+            get => excludeFilter;
+            protected set => excludeFilter = value; 
+        }
 
         public bool IsAcceptedBy(Classifier specimen)
         {

@@ -1,11 +1,29 @@
 ﻿using System.Linq;
+using System.Xml.Linq;
 
+using Bitub.Dto;
+
+using Xbim.Common;
 using Xbim.Ifc4.Interfaces;
 
 namespace Bitub.Ifc
 {
     public static class IfcEntityExtensions
     {
+        public static XName ToXName(this IPersistEntity e)
+        {
+            return $"{{{e?.Model.SchemaVersion.ToString().ToUpper()}}}{e.ExpressType.Name.ToUpper()}";
+        }
+
+        public static Qualifier ToQualifiedTypeName(this IPersistEntity e)
+        {
+            var q = new Qualifier();
+            q.Named = new Name();
+            q.Named.Frags.Add(e.Model.SchemaVersion.ToString());
+            q.Named.Frags.Add(e.ExpressType.Name);
+            return q;
+        }
+
         public static ApplicationData ToApplicationData(this IIfcApplication ifcApplication)
         {
             return new ApplicationData
