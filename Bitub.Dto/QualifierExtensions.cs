@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace Bitub.Dto
 {
@@ -20,6 +22,50 @@ namespace Bitub.Dto
                     return true;
                 default:
                     throw new NotSupportedException($"State of '{qualifier}' not supported.");
+            }
+        }
+
+        public static string GetLastFragment(this Qualifier qualifier)
+        {
+            switch (qualifier.GuidOrNameCase)
+            {
+                case Qualifier.GuidOrNameOneofCase.Named:
+                    return qualifier.Named.Frags.Count > 0 ? qualifier.Named.Frags[qualifier.Named.Frags.Count - 1] : null;
+                default:
+                    return null;
+            }
+        }
+
+        public static Qualifier ToHead(this Qualifier qualifier)
+        {
+            switch (qualifier.GuidOrNameCase)
+            {
+                case Qualifier.GuidOrNameOneofCase.Named:
+                    return qualifier.Named.Frags.Take(1).ToArray().ToQualifier();
+                default:
+                    return qualifier;
+            }
+        }
+
+        public static Qualifier ToTail(this Qualifier qualifier)
+        {
+            switch (qualifier.GuidOrNameCase)
+            {
+                case Qualifier.GuidOrNameOneofCase.Named:
+                    return qualifier.Named.Frags.Skip(1).ToArray().ToQualifier();
+                default:
+                    return qualifier;
+            }
+        }
+
+        public static (Qualifier, Qualifier) ToHeadAndTail(this Qualifier qualifier)
+        {
+            switch (qualifier.GuidOrNameCase)
+            {
+                case Qualifier.GuidOrNameOneofCase.Named:
+                    return (qualifier.Named.Frags.Take(1).ToArray().ToQualifier(), qualifier.Named.Frags.Skip(1).ToArray().ToQualifier());
+                default:
+                    return (qualifier, new Qualifier());
             }
         }
 

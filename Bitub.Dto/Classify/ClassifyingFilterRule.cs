@@ -1,35 +1,17 @@
-﻿using System;
-using System.Net.Sockets;
+﻿using System.Linq;
 
 namespace Bitub.Dto.Classify
 {
-    public enum FilterOrderType
-    {
-        /// <summary>
-        /// Applies an optimistic policy: If no include filter is defined, drop only if the exclusion filter matches. Finally if an existing
-        /// inclusion filter does not let the specimen pass, it will be excluded.
-        /// </summary>
-        IncludeBeforeExclude, 
-        /// <summary>
-        /// Applies an restrictive policy: If no exclude filter is defined, include only if the inclusion filter matches.
-        /// </summary>
-        ExcludeBeforeInclude
-    }
-
     /// <summary>
     /// Classifying filter rule given both, inclusion and exclusion filter in combination.
     /// </summary>
     public class ClassifyingFilterRule
     {
+        #region Internals
         protected ClassifyingFilter includeFilter;
         protected ClassifyingFilter excludeFilter;
-
-        public ClassifyingFilterRule(FilterOrderType filterOrderType)
-        {
-            OrderType = filterOrderType;
-        }
-
-        public FilterOrderType OrderType { get; protected set; }
+        protected bool acceptEquivIncludeExclude;
+        #endregion
 
         /// <summary>
         /// The inclusion filter. If given, include all matches in result.
@@ -49,23 +31,54 @@ namespace Bitub.Dto.Classify
             protected set => excludeFilter = value; 
         }
 
-        public bool IsAcceptedBy(Classifier specimen)
+        public bool IsAcceptingEquivIncludeExclude
         {
-            switch (OrderType)
-            {
-                case FilterOrderType.IncludeBeforeExclude:
-                    // If given && if not to be included => deny, otherwise check if to drop by exclusion filter.
-                    return (Include?.IsPassedBy(specimen) ?? true) && !(Exclude?.IsPassedBy(specimen) ?? false);
-                case FilterOrderType.ExcludeBeforeInclude:
-                    // If given && if to be excluded => deny, otherwise check
-                    return !(Exclude?.IsPassedBy(specimen) ?? false) && (Include?.IsPassedBy(specimen) ?? true);
-            }
-            throw new NotImplementedException($"Missing {OrderType}");
+            get => acceptEquivIncludeExclude;
+            protected set => acceptEquivIncludeExclude = value;
         }
 
+        /// <summary>
+        /// Tests a given classifier specimen if it will accepted by the filter
+        /// </summary>
+        /// <param name="specimen">The classifier</param>
+        /// <returns>True or false</returns>
+        public bool IsAcceptedBy(Classifier specimen)
+        {
+            Classifier[] includes = null;
+            bool? isIncludeMatch = Include?.IsPassedBy(specimen, out includes);
+            Classifier[] excludes = null;
+            bool? isExcludeMatch = Exclude?.IsPassedBy(specimen, out excludes);
+
+            if ((isIncludeMatch ?? false) && (isExcludeMatch ?? false))
+            {
+                // Test grades if both have matches
+                var includesSpecialised = excludes?.SelectMany(e => includes?.Where(i => e.IsSuperClassifierOf(i, !acceptEquivIncludeExclude)));
+                return includesSpecialised.Any();
+            }
+            // Use include first and if not defined, exclude as second
+            return (isIncludeMatch ?? true) && !(isExcludeMatch ?? false);
+        }
+
+        /// <summary>
+        /// Tests a given classifier specimen if it will accepted by the filter
+        /// </summary>
+        /// <param name="specimen">The classifier</param>
+        /// <returns>True or false</returns>
         public bool IsAcceptedBy(Qualifier singleSpecimen)
         {
-            throw new NotImplementedException();
+            Classifier[] includes = null;
+            bool? isIncludeMatch = Include?.IsPassedBy(singleSpecimen, out includes);
+            Classifier[] excludes = null;
+            bool? isExcludeMatch = Exclude?.IsPassedBy(singleSpecimen, out excludes);
+
+            if ((isIncludeMatch ?? false) && (isExcludeMatch ?? false))
+            {
+                // Test grades if both have matches
+                var includesSpecialised = excludes?.SelectMany(e => includes?.Where(i => e.IsSuperClassifierOf(i, !acceptEquivIncludeExclude)));
+                return includesSpecialised.Any();
+            }
+            // Use include first and if not defined, exclude as second
+            return (isIncludeMatch ?? true) && !(isExcludeMatch ?? false);
         }
     }
 }

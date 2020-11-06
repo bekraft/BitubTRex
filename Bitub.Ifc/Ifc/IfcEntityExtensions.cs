@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Xml.Linq;
 
 using Bitub.Dto;
 
@@ -10,11 +9,6 @@ namespace Bitub.Ifc
 {
     public static class IfcEntityExtensions
     {
-        public static XName ToXName(this IPersistEntity e)
-        {
-            return $"{{{e?.Model.SchemaVersion.ToString().ToUpper()}}}{e.ExpressType.Name.ToUpper()}";
-        }
-
         public static Qualifier ToQualifiedTypeName(this IPersistEntity e)
         {
             var q = new Qualifier();

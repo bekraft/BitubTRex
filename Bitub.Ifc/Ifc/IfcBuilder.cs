@@ -1,59 +1,71 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xbim.Ifc;
+using System.Reflection;
 
-using Microsoft.Extensions.Logging;
 using Xbim.Common.Step21;
 using Xbim.IO;
 using Xbim.Ifc4.Interfaces;
-using System.Reflection;
-using Xbim.Common;
-using System.Xml.Linq;
+using Xbim.Ifc;
 using Xbim.Common.Geometry;
+
+using Microsoft.Extensions.Logging;
+
+using Bitub.Dto;
 
 namespace Bitub.Ifc
 {
     /// <summary>
     /// Generic Ifc builder bound to an IFC schema version and assembly.
     /// </summary>
-    public abstract class IfcBuilder : RegisteredTypeFactory
+    public abstract class IfcBuilder
     {
-        public readonly IfcStore Store;
-        public readonly ILogger Log;
+        internal static readonly Assembly assemblyXbimIfc4 = typeof(Xbim.Ifc2x3.EntityFactoryIfc2x3).Assembly;
+        internal static readonly Assembly assemblyXbimIfc2x3 = typeof(Xbim.Ifc4.EntityFactoryIfc4).Assembly;
 
-        #region Restricted access
-        private Stack<IIfcObjectDefinition> _ContainerScope;
-        protected IEnumerable<IIfcObjectDefinition> Scopes => _ContainerScope;
+        public readonly IfcStore store;
+        public readonly ILogger log;
+        public readonly Qualifier schema;
+
+        #region Internals
+        private Stack<IIfcObjectDefinition> containerScopes;
+        protected IEnumerable<IIfcObjectDefinition> Scopes { get => containerScopes; }
         #endregion
 
-        public readonly IfcEntityScope<IIfcProduct> IfcProductScope;
-        public readonly IfcEntityScope<IIfcProperty> IfcPropertyScope;
-        public readonly IfcEntityScope<IIfcValue> IfcValueScope;
-        public readonly string IfcTypeSpace;
+        public readonly IfcEntityScope<IIfcProduct> ifcProductScope;
+        public readonly IfcEntityScope<IIfcProperty> ifcPropertyScope;
+        public readonly IfcEntityScope<IIfcValue> ifcValueScope;
+        public readonly AssemblyScope assemblyScope;
 
         /// <summary>
         /// Current owner history entry.
         /// </summary>
         public IIfcOwnerHistory CurrentVersion { get; protected set; }
 
-        protected IfcBuilder(IfcStore aStore, Assembly[] ifcAssemblies, string typeSpace, ILoggerFactory loggerFactory = null) : base(ifcAssemblies) 
+        /// <summary>
+        /// New builder attached to IFC entity assembly given as scope.
+        /// </summary>
+        /// <param name="aStore">A store.</param>
+        /// <param name="scope">The assembly scope</param>
+        /// <param name="spaceName">The assembly space name</param>
+        /// <param name="loggerFactory">The logger factory</param>
+        protected IfcBuilder(IfcStore aStore, AssemblyScope scope, AssemblyName spaceName, ILoggerFactory loggerFactory = null)
         {
             // Principle properties
-            Log = loggerFactory?.CreateLogger<IfcBuilder>();
-            Store = aStore;
-            IfcTypeSpace = typeSpace;
+            log = loggerFactory?.CreateLogger<IfcBuilder>();
+            store = aStore;
+            assemblyScope = scope;
+            schema = aStore.SchemaVersion.ToString().ToQualifier();
+
             // Container stack
-            _ContainerScope = new Stack<IIfcObjectDefinition>();
+            containerScopes = new Stack<IIfcObjectDefinition>();
             // Type scopes
-            IfcProductScope = new IfcEntityScope<IIfcProduct>(this);
-            IfcPropertyScope = new IfcEntityScope<IIfcProperty>(this);
-            IfcValueScope = new IfcEntityScope<IIfcValue>(this);
+            ifcProductScope = new IfcEntityScope<IIfcProduct>(this, spaceName);
+            ifcPropertyScope = new IfcEntityScope<IIfcProperty>(this, spaceName);
+            ifcValueScope = new IfcEntityScope<IIfcValue>(this, spaceName);
 
             // Initialization
-            var project = Store.Instances.OfType<IIfcProject>().FirstOrDefault();
+            var project = store.Instances.OfType<IIfcProject>().FirstOrDefault();
             if (null == project)
             {
                 Wrap(s =>
@@ -66,14 +78,14 @@ namespace Bitub.Ifc
             {
                 Wrap(s => CurrentVersion = NewOwnerHistoryEntry("Adding new data"));
             }
-            _ContainerScope.Push(project);
+            containerScopes.Push(project);
         }
 
         protected void NewContainer(IIfcObjectDefinition container)
         {
             var scope = CurrentScope;
-            _ContainerScope.Push(container);
-            Store.NewDecomposes(scope).RelatedObjects.Add(container);
+            containerScopes.Push(container);
+            store.NewDecomposes(scope).RelatedObjects.Add(container);
         }
 
         /// <summary>
@@ -115,12 +127,15 @@ namespace Bitub.Ifc
         /// <summary>
         /// Current top scope of model hierarchy.
         /// </summary>
-        public IIfcObjectDefinition CurrentScope => _ContainerScope.Peek();
+        public IIfcObjectDefinition CurrentScope
+        {
+            get => containerScopes.Peek();
+        }
 
         /// <summary>
         /// Current top placement in model hierarchy.
         /// </summary>
-        public IIfcObjectPlacement CurrentPlacement => _ContainerScope
+        public IIfcObjectPlacement CurrentPlacement => containerScopes
             .OfType<IIfcProduct>()
             .FirstOrDefault(p => p.ObjectPlacement != null)?
             .ObjectPlacement;
@@ -128,12 +143,18 @@ namespace Bitub.Ifc
         /// <summary>
         /// Returns a collection of concrete product types (which might be an IfcElement)
         /// </summary>
-        public IEnumerable<Type> InstanstiableProducts => IfcProductScope.Implementing<IIfcProduct>();
+        public IEnumerable<Type> InstanstiableProducts
+        {
+            get => ifcProductScope.Implementing<IIfcProduct>();
+        }
 
         /// <summary>
         /// Returns a subset of IfcProduct which is conforming to IfcElement
         /// </summary>
-        public IEnumerable<Type> InstanstiableElements => IfcProductScope.Implementing<IIfcElement>();
+        public IEnumerable<Type> InstanstiableElements
+        {
+            get => ifcProductScope.Implementing<IIfcElement>();
+        }
 
         public string TransactionContext
         {
@@ -148,24 +169,24 @@ namespace Bitub.Ifc
         /// <param name="action">The modification return true, if transaction shall be applied</param>
         public void Wrap(Func<IfcStore,bool> action)
         {
-            using (var txn = Store.BeginTransaction(TransactionContext))
+            using (var txn = store.BeginTransaction(TransactionContext))
             {
                 try
                 {
-                    if (action(Store))
+                    if (action(store))
                     {
                         txn.Commit();
                     }
                     else
                     {
                         txn.RollBack();
-                        Log?.LogWarning($"Detected cancellation of commit '{txn.Name}'");
+                        log?.LogWarning($"Detected cancellation of commit '{txn.Name}'");
                     }
                 }
                 catch(Exception e)
                 {
                     txn.RollBack();
-                    Log?.LogError(e, "Exception caught. Rollback done.");
+                    log?.LogError(e, "Exception caught. Rollback done.");
                 }
             }
         }
@@ -176,17 +197,17 @@ namespace Bitub.Ifc
         /// <param name="action">The modification</param>
         public void Wrap(Action<IfcStore> action)
         {
-            using (var txn = Store.BeginTransaction(TransactionContext))
+            using (var txn = store.BeginTransaction(TransactionContext))
             {
                 try
                 {
-                    action(Store);
+                    action(store);
                     txn.Commit();
                 }
                 catch (Exception e)
                 {
                     txn.RollBack();
-                    Log?.LogError(e, "Exception caught. Rollback done.");
+                    log?.LogError(e, "Exception caught. Rollback done.");
                 }
             }
         }
@@ -216,7 +237,7 @@ namespace Bitub.Ifc
                     }
                     else
                     {
-                        Log.LogWarning($"#{product.EntityLabel} has already a placement #{product.ObjectPlacement.EntityLabel}");
+                        log.LogWarning($"#{product.EntityLabel} has already a placement #{product.ObjectPlacement.EntityLabel}");
                     }
                 }
                 else
@@ -232,7 +253,7 @@ namespace Bitub.Ifc
             IIfcSite site = null;
             Wrap(s =>
             {
-                site = IfcProductScope.NewOf<IIfcSite>();
+                site = ifcProductScope.NewOf<IIfcSite>();
                 site.OwnerHistory = CurrentVersion;
                 site.Name = siteName;
 
@@ -247,7 +268,7 @@ namespace Bitub.Ifc
             IIfcBuilding building = null;
             Wrap(s =>
             {
-                building = IfcProductScope.NewOf<IIfcBuilding>();
+                building = ifcProductScope.NewOf<IIfcBuilding>();
                 building.OwnerHistory = CurrentVersion;
                 building.Name = buildingName;
 
@@ -262,7 +283,7 @@ namespace Bitub.Ifc
             IIfcBuildingStorey storey = null;
             Wrap(s =>
             {
-                storey = IfcProductScope.NewOf<IIfcBuildingStorey>();
+                storey = ifcProductScope.NewOf<IIfcBuildingStorey>();
                 storey.Name = name;
                 storey.OwnerHistory = CurrentVersion;
                 storey.Elevation = elevation;
@@ -279,12 +300,12 @@ namespace Bitub.Ifc
             if (cScope is IIfcSpatialStructureElement e)
             {
                 // If spatial container at head, create containment
-                Store.NewContains(e).RelatedElements.Add(product);
+                store.NewContains(e).RelatedElements.Add(product);
             }
             else
             {
                 // Otherwise create an aggregation relation
-                Store.NewDecomposes(cScope).RelatedObjects.Add(product);
+                store.NewDecomposes(cScope).RelatedObjects.Add(product);
             }
         }
 
@@ -300,7 +321,7 @@ namespace Bitub.Ifc
             P product = default(P);
             Wrap(s =>
             {
-                product = IfcProductScope.NewOf<P>();
+                product = ifcProductScope.NewOf<P>();
                 product.Name = name;
                 product.ObjectPlacement = placement;
                 InitProduct(product);
@@ -311,19 +332,19 @@ namespace Bitub.Ifc
         /// <summary>
         /// New product instance given by type parameter.
         /// </summary>
-        /// <param name="pName">A type label of the product instance</param>
+        /// <param name="productName">A type label of the product instance</param>
         /// <param name="placement">A placement</param>
         /// <param name="name">An optional name</param>
         /// <returns>New stored product</returns>
-        public IIfcProduct NewProduct(XName pName, IIfcLocalPlacement placement = null, string name = null)
+        public IIfcProduct NewProduct(Qualifier productName, IIfcLocalPlacement placement = null, string name = null)
         {
             IIfcProduct product = null;
-            if (Store.SchemaVersion.ToString() != pName.NamespaceName)
-                throw new ArgumentException($"Wrong schema version of pName. Store is a {Store.SchemaVersion}");
+            if (!schema.IsSuperQualifierOf(productName))
+                throw new ArgumentException($"Wrong schema version of pName. Store is a {store.SchemaVersion}");
 
             Wrap(s =>
             {
-                product = IfcProductScope.New(pName.LocalName);
+                product = ifcProductScope.New(productName);
                 product.Name = name;
                 product.ObjectPlacement = placement;
                 InitProduct(product);
@@ -337,7 +358,7 @@ namespace Bitub.Ifc
         /// <param name="p">The new group product</param>
         public void NewScope(IIfcProduct p)
         {
-            if (_ContainerScope.Any(e => e == p))
+            if (containerScopes.Any(e => e == p))
                 throw new ArgumentException($"#{p.EntityLabel} already scoped.");
 
             NewContainer(p);
@@ -349,8 +370,8 @@ namespace Bitub.Ifc
         /// <returns>Dropped container or null, if there's no.</returns>
         public IIfcObjectDefinition DropCurrentScope()
         {
-            if (_ContainerScope.Count > 1)
-                return _ContainerScope.Pop();
+            if (containerScopes.Count > 1)
+                return containerScopes.Pop();
             else
                 return null;
         }
@@ -360,7 +381,7 @@ namespace Bitub.Ifc
             P property = default(P);
             Wrap(s =>
             {
-                property = IfcPropertyScope.NewOf<P>();
+                property = ifcPropertyScope.NewOf<P>();
                 property.Name = propertyName;
                 property.Description = description;
             });
@@ -369,7 +390,7 @@ namespace Bitub.Ifc
 
         public T NewValueType<T>(object value) where T : IIfcValue
         {
-            return IfcValueScope.NewOf<T>(value);
+            return ifcValueScope.NewOf<T>(value);
         }
 
         public IIfcRelDefinesByProperties NewPropertySet(string propertySetName, string description = null, IIfcProduct initialProduct = null)

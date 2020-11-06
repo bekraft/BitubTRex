@@ -8,71 +8,62 @@ using Xbim.Common.Metadata;
 using Xbim.Geometry.Engine.Interop;
 using Xbim.Ifc;
 using Xbim.Ifc4.Interfaces;
-using Xbim.IO;
 using Xbim.ModelGeometry.Scene;
-using Xbim.ModelGeometry.Scene.Extensions;
 
 using Microsoft.Extensions.Logging;
-using System.ComponentModel;
+
 using System.Xml.Linq;
+
+using Bitub.Dto;
 
 namespace Bitub.Ifc.Transform
 {
-    public enum IfcModelInjectorMode
-    {
-        SingletonContainer, CaseSensitiveNameMatchingContainer, NameMatchingContainer, ZValueStoreyMatchingContainer
-    }
-
     public class IfcModelInjectorWorker
     {
+        /*
         #region Private properties
-        private Dictionary<IModel, XbimPlacementTree> Placements { get; set; } = new Dictionary<IModel, XbimPlacementTree>();
-        private Dictionary<IModel, XbimInstanceHandleMap> HandleMaps { get; set; } = new Dictionary<IModel, XbimInstanceHandleMap>();
-        private XbimGeometryEngine _engine;
+        private Dictionary<IModel, XbimPlacementTree> placements = new Dictionary<IModel, XbimPlacementTree>();
+        private Dictionary<IModel, XbimInstanceHandleMap> handles = new Dictionary<IModel, XbimInstanceHandleMap>();
+        private XbimGeometryEngine engine;
         #endregion
 
-        /// <summary>
-        /// New Model Injector Package. 
-        /// </summary>
-        /// <param name="intoModel">The merge-into model instance</param>
-        /// <param name="copyTypes">The type enumeration to copy over</param>
-        /// <param name="injectModels">The models to query & copy</param>
-        /// <param name="singleton">The container (or null by default indicating to find the first occurance)</param>
+
+        protected HashSet<Qualifier> CopyExpressType { get; private set; }
+        protected IEnumerable<IfcStore> Models { get; private set; }
+
+        public bool CopyPropertySets { get; set; } = true;
+
         public IfcModelInjectorWorker(IfcStore intoModel, IEnumerable<XName> copyTypes,
             IEnumerable<IfcStore> injectModels, IIfcSpatialStructureElement singleton = null)
         {
             Builder = IfcBuilder.WrapStore(intoModel);
-            CopyExpressType = new HashSet<XName>(copyTypes.Select(x => (XName)x.LocalName));
+            CopyExpressType = new HashSet<Qualifier>(copyTypes.Select(x => (XName)x.LocalName));
             Models = injectModels.ToArray();
 
             if (null == singleton)
                 ContainerCandidate = new IIfcSpatialStructureElement[] { intoModel.Instances.OfType<IIfcSpatialStructureElement>().FirstOrDefault() };
             else
                 ContainerCandidate = new IIfcSpatialStructureElement[] { singleton };
-
-            InjectorMode = IfcModelInjectorMode.SingletonContainer;
         }
 
         public ILogger Logger { get; set; }
 
         public IfcBuilder Builder { get; private set; }
 
-        public IfcModelInjectorMode InjectorMode { get; private set; }
-
         public IEnumerable<IIfcSpatialStructureElement> ContainerCandidate { get; private set; }
 
         protected XbimGeometryEngine Engine
         {
-            get { return _engine ?? (_engine = new XbimGeometryEngine()); }
+            get { return engine ?? (engine = new XbimGeometryEngine()); }
         }
 
         protected XbimMatrix3D PlacementOf(IIfcProduct p)
         {
             XbimPlacementTree tree;
-            if (!Placements.TryGetValue(p.Model, out tree))
+            if (!placements.TryGetValue(p.Model, out tree))
             {
                 tree = new XbimPlacementTree(p.Model, false);
-                Placements.Add(p.Model, tree);
+                placements.Add(p.Model, tree);
             }
             return XbimPlacementTree.GetTransform(p, tree, Engine);
         }
@@ -80,26 +71,13 @@ namespace Bitub.Ifc.Transform
         protected XbimInstanceHandleMap HandleMapOf(IPersistEntity p)
         {
             XbimInstanceHandleMap map;
-            if (!HandleMaps.TryGetValue(p.Model, out map))
+            if (!handles.TryGetValue(p.Model, out map))
             {
                 map = new XbimInstanceHandleMap(p.Model, Builder.Store);
-                HandleMaps.Add(p.Model, map);
+                handles.Add(p.Model, map);
             }
             return map;
         }
-
-        public bool AppendIfcProductType(Type t)
-        {
-            if (!t.IsSubclassOf(typeof(IIfcProduct)))
-                throw new ArgumentException($"Expecting sub-classes of IfcProduct");
-
-            return CopyExpressType.Add(t.XLabel().LocalName);
-        }
-
-        protected HashSet<XName> CopyExpressType { get; private set; }
-        protected IEnumerable<IfcStore> Models { get; private set; }
-
-        public bool CopyPropertySets { get; set; } = true;
 
         public IEnumerable<IIfcProduct> InstanceCandidates => Models
             .SelectMany(m => m.Instances)
@@ -118,48 +96,6 @@ namespace Bitub.Ifc.Transform
             return property.PropertyInfo.GetValue(parentObject, null);
         }
 
-        private IIfcSpatialStructureElement FindContainer(IIfcProduct injected)
-        {
-            switch (InjectorMode)
-            {
-                case IfcModelInjectorMode.SingletonContainer:
-                    return ContainerCandidate.FirstOrDefault();
-                case IfcModelInjectorMode.NameMatchingContainer:
-                case IfcModelInjectorMode.CaseSensitiveNameMatchingContainer:
-                case IfcModelInjectorMode.ZValueStoreyMatchingContainer:
-                    var msg = $"Missing implementation for {InjectorMode}";
-                    Logger?.LogError(msg);
-                    throw new NotImplementedException(msg);
-            }
-            throw new ArgumentException($"Unhandled injector mode {InjectorMode}");
-        }
-
-        public BackgroundWorker RunAsync(RunWorkerCompletedEventHandler completionHander = null, ProgressChangedEventHandler progressChanged = null)
-        {
-            var backgroundWorker = new BackgroundWorker();
-            backgroundWorker.DoWork += delegate (object sender, DoWorkEventArgs args)
-            {
-                var bw = sender as BackgroundWorker;
-                var miw = args.Argument as IfcModelInjectorWorker;
-                miw.RunModelMerge(bw.ReportProgress);
-                args.Result = miw;
-            };
-            backgroundWorker.ProgressChanged += progressChanged;
-            backgroundWorker.RunWorkerCompleted += delegate (object sender, RunWorkerCompletedEventArgs args)
-            {
-                var miw = args.Result as IfcModelInjectorWorker;
-                Logger?.LogInformation($"Model ingest '{miw.Builder.Store.FileName}' done.");
-            };
-            backgroundWorker.RunWorkerCompleted += completionHander;
-            backgroundWorker.RunWorkerAsync(this);
-            return backgroundWorker;
-        }
-
-        /// <summary>
-        /// Runs the model ingest & merge procedure.
-        /// </summary>
-        /// <param name="progressAction">The action to take on progress</param>
-        /// <param name="cancellationPending">The indicator of a pending cancel</param>
         public void RunModelMerge(ReportProgressDelegate progressAction = null, Func<bool> cancellationPending = null)
         {
             var candidateInstances = Models.SelectMany(m => m.Instances).OfType<IIfcProduct>();
@@ -182,7 +118,7 @@ namespace Bitub.Ifc.Transform
                         return false;
                     }
 
-                    if (CopyExpressType.Contains(i.ToXName().LocalName))
+                    if (CopyExpressType.Contains(i.ToQualifiedTypeName().GetLastFragment()))
                     {
                         var newProduct = s.InsertCopy(i, HandleMapOf(i), PropertyTransform, true, false);
 
@@ -223,5 +159,6 @@ namespace Bitub.Ifc.Transform
                 return true;
             });
         }
+        */
     }
 }

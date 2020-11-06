@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace Bitub.Dto
@@ -91,8 +92,7 @@ namespace Bitub.Dto
             return name;
         }
 
-        public static string ToLabel(this Name name, 
-            string separator = ".", int fromStart = 0, int fromEnd = 0)
+        public static string ToLabel(this Name name, string separator = ".", int fromStart = 0, int fromEnd = 0)
         {
             return string.Join(separator, name.Frags
                         .Skip(fromStart)
@@ -109,8 +109,14 @@ namespace Bitub.Dto
 
         public static Name ToName(this Type t)
         {
+            return ToName(t, null);
+        }
+
+        public static Name ToName(this Type t, Regex replacePattern, string replaceBy = "")
+        {
             var named = new Name();
-            named.Frags.Add(t.Name);
+            var qualifiedName = null != replacePattern ? replacePattern.Replace(t.FullName, replaceBy) : t.FullName;
+            qualifiedName.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries).ForEach(f => named.Frags.Add(f));
             return named;
         }
 
@@ -131,9 +137,14 @@ namespace Bitub.Dto
 
         public static Qualifier ToQualifier(this Type t)
         {
+            return ToQualifier(t, null);
+        }
+
+        public static Qualifier ToQualifier(this Type t, Regex replacePattern, string replaceBy = "")
+        {
             return new Qualifier
             {
-                Named = t.ToName()
+                Named = t.ToName(replacePattern, replaceBy)
             };
         }
 

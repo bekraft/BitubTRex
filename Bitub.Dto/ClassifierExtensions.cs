@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bitub.Dto
 {
@@ -125,13 +123,21 @@ namespace Bitub.Dto
         }
 
         /// <summary>
+        /// The grad of classifier concept.
+        /// </summary>
+        /// <param name="classifier">A classifier</param>
+        /// <returns>Some value greater or equal than 0</returns>
+        public static int Grad(this Classifier classifier) => classifier.Path.Count;
+
+        /// <summary>
         /// Tests whether the classifier in context is a super classifier of the given sub classifier.
         /// </summary>
         /// <param name="supClassifier">An suggested super classifier</param>
+        /// <param name="strictSuper">A flag indicating whether to include equiv case or strict super, too</param>
         /// <param name="subClassifier">An expected sub classifier</param>
         /// <param name="comparisonType">A method of name comparision</param>
         /// <returns>True, if assumption holds</returns>
-        public static bool IsSuperClassifierOf(this Classifier supClassifier, Classifier subClassifier, StringComparison comparisonType = StringComparison.Ordinal)
+        public static bool IsSuperClassifierOf(this Classifier supClassifier, Classifier subClassifier, bool strictSuper, StringComparison comparisonType = StringComparison.Ordinal)
         {
             // Consequitely exclusion by edge cases
             if (supClassifier.Path.Count == 0 || subClassifier.Path.Count == 0)
@@ -146,8 +152,7 @@ namespace Bitub.Dto
                     return false;
             }
             // Only true, if super classifier completely matches
-            return true;
-
+            return !strictSuper || (supClassifier.Path.Count < subClassifier.Path.Count);
         }
 
         /// <summary>

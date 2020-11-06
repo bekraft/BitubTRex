@@ -20,19 +20,19 @@ namespace Bitub.Ifc
     public class Ifc4Builder : IfcBuilder
     {
         public Ifc4Builder(IfcStore aStore, ILoggerFactory loggerFactory = null) 
-            : base(aStore, new Assembly[] { typeof(Xbim.Ifc4.EntityFactoryIfc4).Assembly }, "Xbim.Ifc4", loggerFactory)
+            : base(aStore, new AssemblyScope(typeof(Xbim.Ifc4.EntityFactoryIfc4).Assembly), assemblyXbimIfc4.GetName(), loggerFactory)
         {
         }
 
         protected override IIfcProject InitProject()
         {
-            IfcProject project = Store.Instances.OfType<IfcProject>().FirstOrDefault();
+            IfcProject project = store.Instances.OfType<IfcProject>().FirstOrDefault();
             if (null == project)
-                project = Store.Instances.New<IfcProject>();
+                project = store.Instances.New<IfcProject>();
 
             ChangeOrNewLengthUnit(IfcSIUnitName.METRE);
             if (null == project.ModelContext)
-                project.RepresentationContexts.Add(Store.NewIfc4GeometricContext("Body", "Model"));
+                project.RepresentationContexts.Add(store.NewIfc4GeometricContext("Body", "Model"));
             return project;
         }
 
@@ -43,22 +43,22 @@ namespace Bitub.Ifc
 
         private IfcOwnerHistory NewOwnerHistoryEntry(string version, IfcChangeActionEnum change)
         {
-            IfcOwnerHistory newVersion = Store.NewIfc4OwnerHistoryEntry(version, change);            
+            IfcOwnerHistory newVersion = store.NewIfc4OwnerHistoryEntry(version, change);            
             return newVersion;
         }
 
         protected IfcSIUnit ChangeOrNewLengthUnit(IfcSIUnitName name, IfcSIPrefix? prefix = null)
         {
-            var project = Store.Instances.OfType<IfcProject>().First();
+            var project = store.Instances.OfType<IfcProject>().First();
             var assigment = project.UnitsInContext;
             if (null == assigment)
-                assigment = Store.NewIfc4UnitAssignment(IfcUnitEnum.LENGTHUNIT, name, prefix);
+                assigment = store.NewIfc4UnitAssignment(IfcUnitEnum.LENGTHUNIT, name, prefix);
 
             // Test for existing
             var unit = assigment.Units.Where(u => (u as IfcSIUnit)?.UnitType == IfcUnitEnum.LENGTHUNIT).FirstOrDefault() as IfcSIUnit;
             if (null == unit)
             {
-                unit = Store.Instances.New<IfcSIUnit>(u => { u.UnitType = IfcUnitEnum.LENGTHUNIT; });
+                unit = store.Instances.New<IfcSIUnit>(u => { u.UnitType = IfcUnitEnum.LENGTHUNIT; });
                 assigment.Units.Add(unit);
             }
                 
@@ -73,7 +73,7 @@ namespace Bitub.Ifc
                                                                  string representationContext = "Model",
                                                                  string representationContextId = "Body")
         {
-            if (Store != product.Model || Store != representationItem.Model)
+            if (store != product.Model || store != representationItem.Model)
                 throw new ArgumentException("Model mismatch");
 
             IfcShapeRepresentation shapeRepresentation = null;
@@ -109,7 +109,7 @@ namespace Bitub.Ifc
                     context = contexts.FirstOrDefault();
 
                 if (null == context)
-                    context = Store.NewIfc4GeometricContext(representationContextId, representationContext);
+                    context = store.NewIfc4GeometricContext(representationContextId, representationContext);
 
                 shapeRepresentation.ContextOfItems = context;
                 shapeRepresentation.Items.Add(representationItem);

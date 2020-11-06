@@ -13,6 +13,7 @@ using IfcSIPrefix = Xbim.Ifc2x3.MeasureResource.IfcSIPrefix;
 using IfcUnitEnum = Xbim.Ifc2x3.MeasureResource.IfcUnitEnum;
 
 using System.Linq;
+using System.Reflection;
 
 namespace Bitub.Ifc
 {
@@ -22,19 +23,19 @@ namespace Bitub.Ifc
     public class Ifc2x3Builder : IfcBuilder
     {
         public Ifc2x3Builder(IfcStore aStore, ILoggerFactory loggerFactory = null)
-            : base(aStore, new System.Reflection.Assembly[]{ typeof(Xbim.Ifc2x3.EntityFactoryIfc2x3).Assembly, typeof(Xbim.Ifc4.EntityFactoryIfc4).Assembly }, "Xbim.Ifc2x3", loggerFactory)
+            : base(aStore, new AssemblyScope(assemblyXbimIfc2x3, assemblyXbimIfc4), assemblyXbimIfc2x3.GetName(), loggerFactory)
         {
         }
 
         protected override IIfcProject InitProject()
         {
-            IfcProject project = Store.Instances.OfType<IfcProject>().FirstOrDefault();
+            IfcProject project = store.Instances.OfType<IfcProject>().FirstOrDefault();
             if (null == project)
-                project = Store.Instances.New<IfcProject>();
+                project = store.Instances.New<IfcProject>();
 
             ChangeOrNewLengthUnit(IfcSIUnitName.METRE);
             if (null == project.ModelContext)
-                project.RepresentationContexts.Add(Store.NewIfc2x3GeometricContext("Body", "Model"));
+                project.RepresentationContexts.Add(store.NewIfc2x3GeometricContext("Body", "Model"));
             return project;
         }
 
@@ -45,22 +46,22 @@ namespace Bitub.Ifc
 
         private IfcOwnerHistory NewOwnerHistoryEntry(string version, IfcChangeActionEnum change)
         {
-            IfcOwnerHistory newVersion = Store.NewIfc2x3OwnerHistoryEntry(version, change);
+            IfcOwnerHistory newVersion = store.NewIfc2x3OwnerHistoryEntry(version, change);
             return newVersion;
         }
 
         protected IfcSIUnit ChangeOrNewLengthUnit(IfcSIUnitName name, IfcSIPrefix? prefix = null)
         {
-            var project = Store.Instances.OfType<IfcProject>().First();
+            var project = store.Instances.OfType<IfcProject>().First();
             var assigment = project.UnitsInContext;
             if (null == assigment)
-                assigment = Store.NewIfc2x3UnitAssignment(IfcUnitEnum.LENGTHUNIT, name, prefix);
+                assigment = store.NewIfc2x3UnitAssignment(IfcUnitEnum.LENGTHUNIT, name, prefix);
 
             // Test for existing
             var unit = assigment.Units.Where(u => (u as IfcSIUnit)?.UnitType == IfcUnitEnum.LENGTHUNIT).FirstOrDefault() as IfcSIUnit;
             if (null == unit)
             {
-                unit = Store.Instances.New<IfcSIUnit>(u => { u.UnitType = IfcUnitEnum.LENGTHUNIT; });
+                unit = store.Instances.New<IfcSIUnit>(u => { u.UnitType = IfcUnitEnum.LENGTHUNIT; });
                 assigment.Units.Add(unit);
             }
 

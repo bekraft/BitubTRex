@@ -10,16 +10,16 @@ namespace Bitub.Dto
     /// </summary>
     public class QualifierCaseEqualityComparer : IEqualityComparer<Qualifier>
     {
-        public readonly StringComparison stringComparison;
+        public readonly StringComparison comparisionType;
 
-        public QualifierCaseEqualityComparer(StringComparison stringComparison)
+        public QualifierCaseEqualityComparer(StringComparison comparisionType)
         {
-            this.stringComparison = stringComparison;
+            this.comparisionType = comparisionType;
         }
 
         public bool Equals(Qualifier x, Qualifier y)
         {
-            return Equals(x, y, stringComparison);
+            return Equals(x, y, comparisionType);
         }
 
         public static bool Equals(Qualifier x, Qualifier y, StringComparison stringComparison)
