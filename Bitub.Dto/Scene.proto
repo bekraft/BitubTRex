@@ -1,9 +1,9 @@
 ﻿syntax = "proto3";
 package Bitub.Dto.Scene;
 
-// Version 1.1
+// Version 1.2
 import "Common.proto";
-import "Classify.proto";
+import "Concept.proto";
 import "Spatial.proto";
 import "google/protobuf/timestamp.proto";
 
@@ -130,7 +130,7 @@ message Component {
 	repeated Classifier concepts = 6;	
 	repeated GlobalUniqueId children = 7;
 	repeated Representation representations = 8;
-	repeated Bitub.Dto.Classify.Feature features = 9;
+	repeated Bitub.Dto.Concept.FeatureConcept features = 9;
 }
 
 // Material 

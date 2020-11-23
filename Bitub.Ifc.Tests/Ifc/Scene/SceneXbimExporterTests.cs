@@ -17,7 +17,7 @@ namespace Bitub.Ifc.Scene.Tests
     [TestClass]
     public class SceneXbimExporterTests : BaseTests<SceneXbimExporterTests>
     {
-        private async Task TestIfcModelExport(string fileName, IfcSceneExportSettings settings)
+        private async Task DoIfcModelExport(string fileName, IfcSceneExportSettings settings)
         {
             IfcSceneExportSummary result;
             using (var store = IfcStore.Open(fileName))
@@ -58,7 +58,7 @@ namespace Bitub.Ifc.Scene.Tests
         [DeploymentItem(@"Resources\Ifc2x3-Slab-BooleanResult.ifc")]
         public async Task TestBooleanResultCorrectionQuaternion()
         {
-            await TestIfcModelExport(
+            await DoIfcModelExport(
                 @"Resources\Ifc2x3-Slab-BooleanResult.ifc",
                 new IfcSceneExportSettings { Transforming = SceneTransformationStrategy.Quaternion });
         }
@@ -67,16 +67,23 @@ namespace Bitub.Ifc.Scene.Tests
         [DeploymentItem(@"Resources\Ifc4-SampleHouse.ifc")]
         public async Task TestSampleHouseNoCorrectionQuaternion()
         {
-            await TestIfcModelExport(
-                @"Resources\Ifc4-SampleHouse.ifc", 
-                new IfcSceneExportSettings { Transforming = SceneTransformationStrategy.Quaternion });
+            var filter = new Dto.Concept.CanonicalFilter(Dto.Concept.FilterMatchingType.SubOrEquiv, System.StringComparison.OrdinalIgnoreCase);
+            filter.Filter.Add(new string[] { "Other", "Category" }.ToQualifier().ToClassifier());
+
+            await DoIfcModelExport(
+                @"Resources\Ifc4-SampleHouse.ifc",
+                new IfcSceneExportSettings
+                {
+                    Transforming = SceneTransformationStrategy.Quaternion,
+                    FeatureToClassifierFilter = filter
+                });
         }
 
         [TestMethod]
         [DeploymentItem(@"Resources\Ifc4-Storey-With-4Walls.ifc")]
         public async Task TestStoreyWithWallsNoCorrectionQuaternion()
         {
-            await TestIfcModelExport(
+            await DoIfcModelExport(
                 @"Resources\Ifc4-Storey-With-4Walls.ifc",
                 new IfcSceneExportSettings { Transforming = SceneTransformationStrategy.Quaternion });
         }
@@ -85,7 +92,7 @@ namespace Bitub.Ifc.Scene.Tests
         [DeploymentItem(@"Resources\Ifc4-Rotated-IfcSite-1st-floor.ifc")]
         public async Task TestSlabIfcSiteRotatedMostExtendedRegionCorrectionQuaternion()
         {
-            await TestIfcModelExport(
+            await DoIfcModelExport(
                 @"Resources\Ifc4-Rotated-IfcSite-1st-floor.ifc",
                 new IfcSceneExportSettings 
                 { 
@@ -98,7 +105,7 @@ namespace Bitub.Ifc.Scene.Tests
         [DeploymentItem(@"Resources\Ifc4-Base-Groundfloor.ifc")]
         public async Task TestWallsMostExtendedRegionCorrectionQuaternion()
         {
-            await TestIfcModelExport(
+            await DoIfcModelExport(
                 @"Resources\Ifc4-Base-Groundfloor.ifc",
                 new IfcSceneExportSettings
                 {
@@ -111,7 +118,7 @@ namespace Bitub.Ifc.Scene.Tests
         [DeploymentItem(@"Resources\Ifc4-Rotated-1st-floor.ifc")]
         public async Task TestSlabMeanTranslationCorrectionMatrix()
         {
-            await TestIfcModelExport(
+            await DoIfcModelExport(
                 @"Resources\Ifc4-Rotated-1st-floor.ifc",
                 new IfcSceneExportSettings
                 {
@@ -124,7 +131,7 @@ namespace Bitub.Ifc.Scene.Tests
         [DeploymentItem(@"Resources\Ifc4-Multi-Body-House.ifc")]
         public async Task TestMultiBodyHouseTranslationCorrectionQuaternion()
         {
-            await TestIfcModelExport(
+            await DoIfcModelExport(
                 @"Resources\Ifc4-Multi-Body-House.ifc",
                 new IfcSceneExportSettings
                 {

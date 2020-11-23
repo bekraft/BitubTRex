@@ -1,8 +1,10 @@
 ﻿using System.IO;
 using System.Xml.Serialization;
+
 using Bitub.Dto;
 using Bitub.Dto.Scene;
 using Bitub.Dto.Spatial;
+using Bitub.Dto.Concept;
 
 namespace Bitub.Ifc.Scene
 {
@@ -58,15 +60,19 @@ namespace Bitub.Ifc.Scene
         public Qualifier[] ClassifyByPropertyPath { get; set; } = new Qualifier[] { };
 
         /// <summary>
-        /// The pre-classification function to group products into components. By default each product is unique.
-        /// </summary>
-        [XmlIgnore]
-        public XbimEntityQualifierDelegate[] UserProductQualifier { get; set; } = new XbimEntityQualifierDelegate[] { };
-
-        /// <summary>
         /// The representation contexts to transfer.
         /// </summary>
         public SceneContext[] UserRepresentationContext { get; set; } = new SceneContext[] { new SceneContext { Name = "Body" } };
+
+        /// <summary>
+        /// If set passing features with <see cref="DataOp.Equals"/> assignement will be set as classifier.
+        /// </summary>
+        public CanonicalFilter FeatureToClassifierFilter { get; set; }
+
+        /// <summary>
+        /// If set and a feature is accepted it will be attached to the scene object.
+        /// </summary>
+        public CanonicalFilterRule FeatureFilterRule { get; set; }
 
         public IfcSceneExportSettings()
         {

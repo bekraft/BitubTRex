@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using NUnit.Framework;
 
 using System.Linq;
 
@@ -7,7 +7,6 @@ using Bitub.Dto.Tests;
 
 namespace Bitub.Dto.Scene.Tests
 {
-    [TestClass]
     public class FacetMeshTests : BaseTests<FacetMeshTests>
     {
         string jsonPointArray = "{ \"xyz\": [ 0, 0, 2.5, 2.25, 0, 0, 2.25, 0, 2.5, 0, 0, 0, 2.25, 0.25, 0, 2.25, 0.25, 2.5, 0, 0.25, 2.5, 0, 0.25, 0 ] }";
@@ -15,7 +14,7 @@ namespace Bitub.Dto.Scene.Tests
 
         const uint SHIFT = 1000;
 
-        [TestInitialize]
+        [SetUp]
         public void StartUp()
         {
             InternallySetup();
@@ -61,7 +60,7 @@ namespace Bitub.Dto.Scene.Tests
             Assert.AreEqual(12, facets.Count, "12 facets");
         }
 
-        [TestMethod]
+        [Test]
         public void EnumerateFacetStarsFirstWins()
         {
             var ptArray = PtArray.Parser.ParseJson(jsonPointArray);
@@ -69,7 +68,7 @@ namespace Bitub.Dto.Scene.Tests
             TestRunWith(ptArray, body, FacetStarVisitor.InvestigationStrategy.FirstWins);
         }
 
-        [TestMethod]
+        [Test]
         public void EnumerateFacetStarsSameFaceFirst()
         {
             var ptArray = PtArray.Parser.ParseJson(jsonPointArray);

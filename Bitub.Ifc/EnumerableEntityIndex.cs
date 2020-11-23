@@ -1,17 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xbim.Common;
 
 namespace Bitub.Ifc
 {
-    public interface IEnumerableEntityIndex<T>
-    {
-        IEnumerable<EntityIndex<T>> FlattenEntityIndex();
-    }
-
     public class EntityIndex<T>
     {
         private LazyUnfold unfoldProvider = (t => Enumerable.Empty<EntityIndex<T>>());

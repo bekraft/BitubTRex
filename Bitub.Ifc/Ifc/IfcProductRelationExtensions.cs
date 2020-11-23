@@ -66,7 +66,7 @@ namespace Bitub.Ifc
                 return productSupers;
         }
 
-        public static IEnumerable<T> PropertiesAll<T>(this IIfcProduct p) where T : IIfcProperty
+        public static IEnumerable<T> PropertiesAll<T>(this IIfcObject p) where T : IIfcProperty
         {
             return p.IsDefinedBy.SelectMany(r =>
             {
@@ -89,7 +89,12 @@ namespace Bitub.Ifc
                 return Enumerable.Empty<T>();
         }
 
-        public static IEnumerable<Tuple<string, T[]>> PropertiesSets<T>(this IIfcProduct p) where T : IIfcProperty
+        public static IEnumerable<T> PropertySets<T>(this IIfcObject o) where T : IIfcPropertySetDefinition
+        {
+            return o.IsDefinedBy.SelectMany(r => r.PropertySet<T>());
+        }
+
+        public static IEnumerable<Tuple<string, T[]>> PropertiesSets<T>(this IIfcObject p) where T : IIfcProperty
         {
             return p.IsDefinedBy.SelectMany(r =>
             {

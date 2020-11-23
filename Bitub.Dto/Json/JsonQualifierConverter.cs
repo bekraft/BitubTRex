@@ -61,12 +61,12 @@ namespace Bitub.Dto.Json
 
                         break;
                     case JsonTokenType.String:
-                        switch (id.NumericalOrStringCase)
+                        switch (id.GuidOrStringCase)
                         {
-                            case GlobalUniqueId.NumericalOrStringOneofCase.Base64:
+                            case GlobalUniqueId.GuidOrStringOneofCase.Base64:
                                 id.Base64 = reader.GetString();
                                 break;
-                            case GlobalUniqueId.NumericalOrStringOneofCase.Guid:
+                            case GlobalUniqueId.GuidOrStringOneofCase.Guid:
                                 id.Guid.Raw = reader.GetBytesFromBase64().ToByteString();
                                 break;
                         }
@@ -101,13 +101,13 @@ namespace Bitub.Dto.Json
             {
                 case Qualifier.GuidOrNameOneofCase.Anonymous:
                     writer.WriteStartObject();                    
-                    switch (value.Anonymous.NumericalOrStringCase)
+                    switch (value.Anonymous.GuidOrStringCase)
                     {
-                        case GlobalUniqueId.NumericalOrStringOneofCase.Base64:
+                        case GlobalUniqueId.GuidOrStringOneofCase.Base64:
                             writer.WritePropertyName(namingPolicy.ConvertName(nameof(GlobalUniqueId.Base64)));
                             writer.WriteStringValue(value.Anonymous.Base64);
                             break;
-                        case GlobalUniqueId.NumericalOrStringOneofCase.Guid:
+                        case GlobalUniqueId.GuidOrStringOneofCase.Guid:
                             writer.WritePropertyName(namingPolicy.ConvertName(nameof(GlobalUniqueId.Guid)));
                             writer.WriteBase64StringValue(value.Anonymous.Guid.Raw.ToByteArray());
                             break;

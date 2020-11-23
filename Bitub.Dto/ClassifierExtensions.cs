@@ -84,29 +84,30 @@ namespace Bitub.Dto
         }
         
         /// <summary>
-        /// Test the classifier whether it is a sub or super
+        /// Test the classifier whether it is a general match somewhere in the other classifier.
         /// </summary>
-        /// <param name="classifier"></param>
-        /// <param name="other"></param>
-        /// <param name="comparisonType"></param>
-        /// <returns></returns>
+        /// <param name="classifier">The context classifier</param>
+        /// <param name="other">The other classifier</param>
+        /// <param name="comparisonType">Type of fragment matching</param>
+        /// <returns>True, if there's a match</returns>
         public static bool IsMatching(this Classifier classifier, Classifier other, StringComparison comparisonType = StringComparison.Ordinal)
         {
             // Consequitely exclusion by edge cases
             if (classifier.Path.Count == 0 || other.Path.Count == 0)
                 return false;
-            else if (other.Path.Count > classifier.Path.Count)
+            else if (other.Path.Count < classifier.Path.Count)
+                // other is only a sub set, so no match can exist
                 return false;
             else if (other.Path.Count == classifier.Path.Count)
                 return IsEquivTo(classifier, other, comparisonType);
 
-            // Test most expensive case, other path length is less than context classifier
+            // Test most expensive case, context path length is less than other classifier
             int j = 0;
-            for (int i=0; i<classifier.Path.Count; i++)
+            for (int i = 0; i < other.Path.Count; i++)
             {
-                if (j < other.Path.Count)
+                if (j < classifier.Path.Count)
                 {
-                    if (classifier.Path[i].IsEqualTo(other.Path[j], comparisonType))
+                    if (classifier.Path[j].IsEqualTo(other.Path[i], comparisonType))
                         // Scan for next path fragment
                         j++;
                     else if (j > 0)
@@ -118,8 +119,8 @@ namespace Bitub.Dto
                     break;
                 }
             }
-            // Only true, if other completely matches
-            return j == other.Path.Count;
+            // Only true, if context completely matches
+            return j == classifier.Path.Count;
         }
 
         /// <summary>

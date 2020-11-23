@@ -57,9 +57,14 @@ namespace Bitub.Ifc
             return t.ToQualifier(typeReplacePattern, typeReplaceBy);
         }
 
-        public IEnumerable<Qualifier> Implementations
+        public IEnumerable<Qualifier> TypeQualifiers
         {
             get => typeRegistry.Keys;
+        }
+
+        public IEnumerable<Type> Types
+        {
+            get => typeRegistry.Values;
         }
 
         /// <summary>

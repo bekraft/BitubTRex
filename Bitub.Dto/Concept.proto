@@ -1,0 +1,108 @@
+﻿syntax = "proto3";
+package Bitub.Dto.Concept;
+
+import "Common.proto";
+import "google/protobuf/timestamp.proto";
+
+// Version 1.2
+// Unified version of TRex and Classify
+option csharp_namespace = "Bitub.Dto.Concept";
+option java_package = "bitub.dto";
+
+message Ontology {
+	repeated Classifier classifiers = 1;
+}
+
+message ConceptSpace {
+	Qualifier canonical = 1;
+	repeated Concept concepts = 2;
+}
+
+// A domain concept
+message Concept {
+	Qualifier canonical = 1;
+	string description = 2;
+	repeated Qualifier subsumes = 3;
+	repeated string tags = 4;
+}
+
+// A concept template based on features
+message FeatureConcept {
+	Qualifier canonical = 1;
+	ConceptOp op = 2;
+	repeated Feature features = 3;
+}
+
+// The concept quantification operator
+enum ConceptOp {
+	AllOf = 0; // conjunction
+	OneOf = 1; // existential
+}
+
+// A feature is either data concept or role filler reference
+message Feature {
+	oneof dataOrFiller {
+		DataConcept data = 3;
+		Qualifier filler = 4;
+	}
+}
+
+// A feature data concept
+message DataConcept {
+	DataType type = 1;
+	DataUnitSI unit = 2;
+	DataUnitPrefix unitPrefix = 3;
+	DataOp op = 4;
+	oneof dataValue {
+		double digit = 5;
+		string value = 7;
+		google.protobuf.Timestamp timeStamp = 8;
+		Logical logical = 9;
+		GlobalUniqueId guid = 10;
+	}
+}
+
+// The semantic data type
+enum DataType {
+	UNDEFINED = 0;
+	LABEL = 1;
+	GUID = 2;
+	ID = 3;
+	DECIMAL = 4;
+	INTEGER = 5;
+	TEXT = 6;
+	ENUM = 7;
+	BOOLEAN = 8;
+	LOGICAL = 9;
+	TIMESTAMP = 10;
+}
+
+// SI Unit
+enum DataUnitSI {
+	NONE = 0;
+	METER = 1;
+	KILOGRAM = 2;
+	SECOND = 3;
+}
+
+// Unit's prefix
+enum DataUnitPrefix {
+	UNIT = 0;
+	NANO = -9;
+	MICRO = -6;
+	MILLI = -3;
+	DECI = 1;
+	CENTI = 2;
+	KILO = 3;
+	MEGA = 6;
+	GIGA = 9;
+}
+
+// The feature data operator
+enum DataOp {
+	Equals = 0;
+	Less = 1;
+	LessThanEquals = 2;
+	Greater = 3;
+	GreaterThanEquals = 4;
+}

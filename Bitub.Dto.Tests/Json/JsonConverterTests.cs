@@ -1,5 +1,4 @@
-﻿using Bitub.Dto.Json;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using NUnit.Framework;
 
 using System;
 using System.Collections.Generic;
@@ -8,21 +7,22 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
+using Bitub.Dto.Json;
+
 namespace Bitub.Dto.Tests.Json
 {
-    [TestClass]
     public class JsonConverterTests
     {
         protected JsonSerializerOptions jsonTestOptions;        
 
-        [TestInitialize]
+        [SetUp]
         public void Setup()
         {
             jsonTestOptions = new JsonSerializerOptions();
             jsonTestOptions.Converters.Add(new JsonQualifierConverter(JsonNamingPolicy.CamelCase));
         }
 
-        [TestMethod]
+        [Test]
         public void NamedQualifierConverterTests()
         {
             var namedQualifier = new[] { "A", "test" }.ToQualifier();
@@ -33,7 +33,7 @@ namespace Bitub.Dto.Tests.Json
             Assert.AreEqual(namedQualifier, result);
         }
 
-        [TestMethod]
+        [Test]
         public void GuidQualifierConverterTests()
         {
             var guidQualifier = System.Guid.NewGuid().ToQualifier();
@@ -44,7 +44,7 @@ namespace Bitub.Dto.Tests.Json
             Assert.AreEqual(guidQualifier, result);
         }
 
-        [TestMethod]
+        [Test]
         public void Bas64QualifierConverterTests()
         {
             // TODO

@@ -1,6 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using NUnit.Framework;
 
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,17 +9,16 @@ using System.Threading.Tasks;
 
 namespace Bitub.Dto.Tests
 {
-    [TestClass]
     public class CommonTests : BaseTests<CommonTests>
     {
-        [TestInitialize]
+        [SetUp]
         public void StartUp()
         {
             InternallySetup();
         }
 
-        [TestMethod]
-        public void QualifierLogicTests()
+        [Test]
+        public void QualifierLogic()
         {
             var nq1 = new string[] { "A", "Test1" }.ToQualifier();
             var nq2 = new string[] { "A" }.ToQualifier();
@@ -43,8 +43,8 @@ namespace Bitub.Dto.Tests
             Assert.AreEqual("A", q2.Named.Frags[0]);
         }
 
-        [TestMethod]
-        public void ClassifierLogicTests()
+        [Test]
+        public void ClassifierLogic()
         {
             var nc1 = new string[] { "A", "Test1" }.ToQualifier().ToClassifier();
             var nq2 = new string[] { "A" }.ToQualifier();
@@ -53,6 +53,25 @@ namespace Bitub.Dto.Tests
             var q1 = nc1.ToSubQualifiers(nq2).ToArray();
             Assert.AreEqual(1, q1.Length);
             Assert.AreEqual(nq3, q1[0]);
+        }
+
+        [Test]
+        public void QualifierXmlRoundtrip()
+        {
+            var named = new string[] { "A", "Test1" }.ToQualifier();
+            var anonymous = System.Guid.NewGuid().ToQualifier();
+
+            var xmlNamed = WriteToXmlStream(named, (o, writer) => writer.WriteOuterXml(o, XmlSerializingExtensions.WriteToXml));
+            Assert.IsTrue(xmlNamed.Length > 0);
+
+            Qualifier readNamed = ReadFromXmlStream<Qualifier>(xmlNamed, XmlSerializingExtensions.ReadFromXml);
+            Assert.AreEqual(named, readNamed);
+        }
+
+        [Test]
+        public void ClassifierXmlRoundtrip()
+        {
+            throw new NotImplementedException();
         }
     }
 }

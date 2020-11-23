@@ -1,9 +1,16 @@
 ﻿syntax = "proto3";
 package Bitub.Dto;
 
-// Version 1.0
+// Version 1.1
 option csharp_namespace = "Bitub.Dto";
 option java_package = "bitub.dto";
+
+// Logical information, which might be unknown.
+message Logical {
+	oneof flag {
+		bool known = 1;
+	}
+}
 
 // Raw GUID
 message Guid {
@@ -12,7 +19,7 @@ message Guid {
 
 // Global Unique ID is either binary or base64 representation
 message GlobalUniqueId {
-	oneof numericalOrString {
+	oneof guidOrString {
 		 Guid guid = 1;
 		 string base64 = 2;
 	}

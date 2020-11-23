@@ -13,7 +13,6 @@ using IfcSIPrefix = Xbim.Ifc2x3.MeasureResource.IfcSIPrefix;
 using IfcUnitEnum = Xbim.Ifc2x3.MeasureResource.IfcUnitEnum;
 
 using System.Linq;
-using System.Reflection;
 
 namespace Bitub.Ifc
 {
@@ -23,7 +22,7 @@ namespace Bitub.Ifc
     public class Ifc2x3Builder : IfcBuilder
     {
         public Ifc2x3Builder(IfcStore aStore, ILoggerFactory loggerFactory = null)
-            : base(aStore, new AssemblyScope(assemblyXbimIfc2x3, assemblyXbimIfc4), assemblyXbimIfc2x3.GetName(), loggerFactory)
+            : base(aStore, new AssemblyScope(IfcEntityExtensions.XbimIfc2x3Assembly, IfcEntityExtensions.XbimIfc4Assembly), IfcEntityExtensions.XbimIfc2x3Assembly.GetName(), loggerFactory)
         {
         }
 

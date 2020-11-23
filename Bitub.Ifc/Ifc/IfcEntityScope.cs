@@ -49,7 +49,7 @@ namespace Bitub.Ifc
         public E NewOf<E>(Action<E> mod = null) where E : T, Xbim.Common.IPersistEntity
         {
             E result = (E)builder.store.Instances.New(Implementing<E>().First());
-            mod?.Invoke(result);
+            mod?.Invoke(result);            
             return result;
         }
     }

@@ -151,7 +151,7 @@ namespace Bitub.Dto.BcfXml
         public IEnumerable<BcfIssue> Issues
         {
             get => _zip.Entries
-                .ToLookup(e => BcfIssue.GuidRegex.Match(e.FullName)?.Value)
+                .ToLookup(e => CommonExtensions.guidRegExpression.Match(e.FullName)?.Value)
                 .Where(g => !string.IsNullOrWhiteSpace(g.Key))
                 .Select(g => ReadBcfIssue(g.Key, g.Select(e => e.FullName).ToArray()));
         }

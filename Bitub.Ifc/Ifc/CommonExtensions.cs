@@ -1,46 +1,51 @@
-﻿using System;
-
-using Xbim.Common;
-using Xbim.Ifc4.UtilityResource;
-
-using Bitub.Dto;
+﻿using Bitub.Dto;
 
 namespace Bitub.Ifc
 {
-    /// <summary>
-    /// A IFC product classificator.
-    /// </summary>
-    /// <param name="p">The product</param>
-    /// <returns>A qualification</returns>
-    public delegate Qualifier XbimEntityQualifierDelegate(IPersistEntity p);
-
     public static class CommonExtensions
     {
         /// <summary>
-        /// Default entity classifier based on IFC schema version and <see cref="IPersistEntity.ExpressType"/>
-        /// </summary>
-        public static XbimEntityQualifierDelegate DefaultXbimEntityQualifier = (p) =>
-        {
-            var named = new Name();
-            named.Frags.Add(p.Model.SchemaVersion.ToString());
-            named.Frags.Add(p.ExpressType.ExpressName);
-            return named.ToQualifier();
-        };
-
-        /// <summary>
-        /// Casts the current GUID to a <see cref="GlobalUniqueId"/>
+        /// Casts the current GUID to a internal <see cref="GlobalUniqueId"/> select.
         /// </summary>
         /// <param name="id">The IFC GUID</param>
-        /// <param name="asGuid">Whether to cast to GUID</param>
+        /// <param name="asGuid">Whether to cast to a GUID or to re-use the bas64 representation</param>
         /// <returns></returns>
-        public static GlobalUniqueId ToGlobalUniqueId(this IfcGloballyUniqueId id, bool asGuid = false)
+        public static GlobalUniqueId ToGlobalUniqueId(this Xbim.Ifc4.UtilityResource.IfcGloballyUniqueId id, bool asGuid = false)
         {
             if (asGuid)
             {
-                var guid = IfcGloballyUniqueId.ConvertFromBase64(id);
+                var guid = Xbim.Ifc4.UtilityResource.IfcGloballyUniqueId.ConvertFromBase64(id);
                 return new GlobalUniqueId
                 {
-                    Guid = new Bitub.Dto.Guid
+                    Guid = new Guid
+                    {
+                        Raw = Google.Protobuf.ByteString.CopyFrom(guid.ToByteArray())
+                    }
+                };
+            }
+            else
+            {
+                return new GlobalUniqueId
+                {
+                    Base64 = id
+                };
+            }
+        }
+
+        /// <summary>
+        /// Casts the current GUID to a internal <see cref="GlobalUniqueId"/> select.
+        /// </summary>
+        /// <param name="id">The IFC GUID</param>
+        /// <param name="asGuid">Whether to cast to a GUID or to re-use the bas64 representation</param>
+        /// <returns></returns>
+        public static GlobalUniqueId ToGlobalUniqueId(this Xbim.Ifc2x3.UtilityResource.IfcGloballyUniqueId id, bool asGuid = false)
+        {
+            if (asGuid)
+            {
+                var guid = Xbim.Ifc2x3.UtilityResource.IfcGloballyUniqueId.ConvertFromBase64(id);
+                return new GlobalUniqueId
+                {
+                    Guid = new Guid
                     {
                         Raw = Google.Protobuf.ByteString.CopyFrom(guid.ToByteArray())
                     }

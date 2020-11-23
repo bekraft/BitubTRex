@@ -14,7 +14,9 @@ using Bitub.Dto.Scene;
 
 using Component = Bitub.Dto.Scene.Component;
 using System.Threading.Tasks;
-using Bitub.Dto.Classify;
+
+using Bitub.Ifc.Concept;
+using Bitub.Dto.Concept;
 
 namespace Bitub.Ifc.Scene
 {
@@ -87,6 +89,7 @@ namespace Bitub.Ifc.Scene
             Logger?.LogInformation("Starting model tesselation of {0}", model.Header.Name);
             // Retrieve enumeration of components having a geomety within given contexts            
             var sceneRepresentations = TesselatorInstance.Tesselate(model, summary, progressing);
+            var ifcClassifierMap = model.SchemaVersion.ToImplementingClassification<IIfcProduct>();
 
             Logger?.LogInformation("Starting model export of {0}", model.Header.Name);
             // Run transfer and log parents
@@ -105,7 +108,7 @@ namespace Bitub.Ifc.Scene
                 if (!summary.ComponentCache.TryGetValue(p.EntityLabel, out c))
                 {
                     int? optParent;
-                    c = CreateComponent(p, Enumerable.Empty<Classifier>(), out optParent);
+                    c = CreateComponent(p, out optParent, ifcClassifierMap[p.GetType()]);
                     summary.ComponentCache.Add(p.EntityLabel, c);
                     summary.Scene.Components.Add(c);
 
@@ -137,7 +140,7 @@ namespace Bitub.Ifc.Scene
                     if (!summary.ComponentCache.TryGetValue(product.EntityLabel, out c))
                     {
                         int? optParent;
-                        c = CreateComponent(product, Enumerable.Empty<Classifier>(), out optParent);
+                        c = CreateComponent(product, out optParent, ifcClassifierMap[product.GetType()]);
                         summary.ComponentCache.Add(product.EntityLabel, c);                       
 
                         if (optParent.HasValue && !summary.ComponentCache.ContainsKey(optParent.Value))
@@ -193,7 +196,7 @@ namespace Bitub.Ifc.Scene
         }
 
         // Creates a new component descriptor
-        private Component CreateComponent(IIfcProduct product, IEnumerable<Classifier> concepts, out int? optParentLabel)
+        private Component CreateComponent(IIfcProduct product, out int? optParentLabel, params Classifier[] ifcClassifier)
         {
             var parent = product.Parent<IIfcProduct>().FirstOrDefault();
             var component = new Component
@@ -204,18 +207,37 @@ namespace Bitub.Ifc.Scene
                 Name = product.Name ?? "",
             };
 
-            // Add IFC express type by default
-            component.Concepts.Add(CommonExtensions.DefaultXbimEntityQualifier(product).ToClassifier());
+            // Add IFC express types inheritance by default
+            component.Concepts.AddRange(ifcClassifier);
 
-            // Add additiona user qualifiers
-            foreach (var userProductQualifier in Settings.UserProductQualifier)
-                component.Concepts.Add(userProductQualifier(product).ToClassifier());
+            if (null != Settings.FeatureToClassifierFilter)
+            {
+                foreach (var featureConcept in product.ToFeatures<IIfcSimpleProperty>(Settings.FeatureToClassifierFilter))
+                    component.Concepts.Add(FeatureToClassifier(featureConcept));
+            }
 
-            component.Concepts.AddRange(concepts);
+            if (null != Settings.FeatureFilterRule)
+            {
+                component.Features.AddRange(Enumerable
+                    // Add all, id, name and additional features
+                    .Concat(product.ToBaseFeatures(), product.ToFeatures<IIfcSimpleProperty>())
+                    // And filter by rule
+                    .Where(f => Settings.FeatureFilterRule.IsAcceptedBy(f.Canonical)));                
+            }
 
             component.Children.AddRange(product.Children<IIfcProduct>().Select(p => p.GlobalId.ToGlobalUniqueId()));
             optParentLabel = parent?.EntityLabel;
             return component;
+        }
+
+        private Classifier FeatureToClassifier(FeatureConcept featureConcept, string separator = ";")
+        {
+            var dataFragment = string.Join(separator, featureConcept.Features
+                .Where(f => f.Data?.Op == DataOp.Equals)
+                .Select(f => f.ToAnyValue()?.ToString())
+                .Where(s => null != s));
+
+            return featureConcept.Canonical.Append(dataFragment).ToClassifier();
         }
     }
 }

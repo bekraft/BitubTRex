@@ -1,20 +1,28 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Reflection;
+using System.Collections.Generic;
 
 using Bitub.Dto;
+using Bitub.Ifc.Concept;
 
 using Xbim.Common;
+using Xbim.Common.Metadata;
 using Xbim.Ifc4.Interfaces;
 
 namespace Bitub.Ifc
 {
     public static class IfcEntityExtensions
     {
-        public static Qualifier ToQualifiedTypeName(this IPersistEntity e)
+        internal static readonly Assembly XbimIfc4Assembly = typeof(Xbim.Ifc4.EntityFactoryIfc4).Assembly;
+        internal static readonly Assembly XbimIfc2x3Assembly = typeof(Xbim.Ifc2x3.EntityFactoryIfc2x3).Assembly;
+
+        public static Qualifier ToQualifiedName(this IPersistEntity instance)
         {
             var q = new Qualifier();
             q.Named = new Name();
-            q.Named.Frags.Add(e.Model.SchemaVersion.ToString());
-            q.Named.Frags.Add(e.ExpressType.Name);
+            q.Named.Frags.Add(instance.Model.SchemaVersion.ToString());
+            q.Named.Frags.Add(instance.ExpressType.Name);
             return q;
         }
 

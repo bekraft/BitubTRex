@@ -12,7 +12,6 @@ namespace Bitub.Dto.BcfXml
         public static string DefaultBcfvFileNamePerIDPattern = "Viewpoint_{0}";
         public static string DefaultSnapshotFileNamePerIDPattern = "Snapshot_{0}";
         public static BcfBitmapFormat DefaultSnapshotFormat = BcfBitmapFormat.PNG;
-        public static readonly Regex GuidRegex = new Regex(@"^[{(]?[0-9A-F]{8}[-]?([0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public (BcfViewpoint, BcfVisualizationInfo)[] Viewpoints { get; private set; }
 

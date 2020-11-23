@@ -20,7 +20,7 @@ namespace Bitub.Ifc
     public class Ifc4Builder : IfcBuilder
     {
         public Ifc4Builder(IfcStore aStore, ILoggerFactory loggerFactory = null) 
-            : base(aStore, new AssemblyScope(typeof(Xbim.Ifc4.EntityFactoryIfc4).Assembly), assemblyXbimIfc4.GetName(), loggerFactory)
+            : base(aStore, new AssemblyScope(typeof(Xbim.Ifc4.EntityFactoryIfc4).Assembly), IfcEntityExtensions.XbimIfc4Assembly.GetName(), loggerFactory)
         {
         }
 

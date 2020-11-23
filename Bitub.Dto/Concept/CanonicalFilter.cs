@@ -1,8 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
-namespace Bitub.Dto.Classify
+using Bitub.Dto;
+
+namespace Bitub.Dto.Concept
 {
     public enum FilterMatchingType
     {
@@ -35,11 +40,11 @@ namespace Bitub.Dto.Classify
     /// <summary>
     /// Classifying filter given a sequence of filter classifiers, a matching type and name comparison type.
     /// </summary>
-    public class ClassifyingFilter
+    public class CanonicalFilter : IXmlSerializable
     {
-        public readonly StringComparison stringComparison;
+        public StringComparison StringComparison { get; private set; }
 
-        public ClassifyingFilter(FilterMatchingType filterMatchingType, StringComparison stringComparison)
+        public CanonicalFilter(FilterMatchingType filterMatchingType, StringComparison stringComparison)
         {
             MatchingType = filterMatchingType;
         }
@@ -47,6 +52,11 @@ namespace Bitub.Dto.Classify
         public FilterMatchingType MatchingType { get; private set; }
 
         public List<Classifier> Filter { get; set; } = new List<Classifier>();
+
+        public XmlSchema GetSchema()
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Tests classifier againts filter.
@@ -67,19 +77,19 @@ namespace Bitub.Dto.Classify
                 {
                     case FilterMatchingType.Exists:
                         // Means sub or super in terms of classifier                    
-                        matches = Filter.Where(c => c.IsMatching(specimen, stringComparison)).ToArray();
+                        matches = Filter.Where(c => c.IsMatching(specimen, StringComparison)).ToArray();
                         break;
                     case FilterMatchingType.Sub:
-                        matches = Filter.Where(c => c.IsSuperClassifierOf(specimen, true, stringComparison)).ToArray();
+                        matches = Filter.Where(c => c.IsSuperClassifierOf(specimen, true, StringComparison)).ToArray();
                         break;
                     case FilterMatchingType.SubOrEquiv:
-                        matches = Filter.Where(c => c.IsSuperClassifierOf(specimen, false, stringComparison)).ToArray();
+                        matches = Filter.Where(c => c.IsSuperClassifierOf(specimen, false, StringComparison)).ToArray();
                         break;
                     case FilterMatchingType.Super:
-                        matches = Filter.Where(c => specimen.IsSuperClassifierOf(c, true, stringComparison)).ToArray();
+                        matches = Filter.Where(c => specimen.IsSuperClassifierOf(c, true, StringComparison)).ToArray();
                         break;
                     case FilterMatchingType.SuperOrEquiv:
-                        matches = Filter.Where(c => specimen.IsSuperClassifierOf(c, false, stringComparison)).ToArray();
+                        matches = Filter.Where(c => specimen.IsSuperClassifierOf(c, false, StringComparison)).ToArray();
                         break;
                     case FilterMatchingType.Equiv:
                         matches = Filter.Where(c => c.IsEquivTo(specimen)).ToArray();
@@ -110,12 +120,14 @@ namespace Bitub.Dto.Classify
                 switch (MatchingType)
                 {
                     case FilterMatchingType.Exists:
-                        matches = Filter.Where(c => c.IsMatching(singleSpecimen, stringComparison)).ToArray();
+                        matches = Filter.Where(c => c.IsMatching(singleSpecimen, StringComparison)).ToArray();
                         break;
                     case FilterMatchingType.Sub:
+                    case FilterMatchingType.SubOrEquiv:
                         matches = Filter.Where(c => c.Path.Any(q => q.IsSuperQualifierOf(singleSpecimen))).ToArray();
                         break;
                     case FilterMatchingType.Super:
+                    case FilterMatchingType.SuperOrEquiv:
                         matches = Filter.Where(c => c.Path.Any(q => singleSpecimen.IsSuperQualifierOf(q))).ToArray();
                         break;
                     case FilterMatchingType.Equiv:
@@ -127,6 +139,57 @@ namespace Bitub.Dto.Classify
             }
 
             return matches.Length > 0;
+        }
+
+        public void ReadXml(XmlReader reader)
+        {
+            Filter = new List<Classifier>();
+            bool hasEntered = false;
+            do
+            {
+                switch (reader.NodeType)
+                {
+                    case XmlNodeType.Element:
+                        if (typeof(CanonicalFilter).Name.Equals(reader.Name))
+                        {
+                            var strComparisonType = reader.GetAttribute(nameof(StringComparison));
+                            StringComparison parsedType;
+                            if (!Enum.TryParse(strComparisonType, out parsedType))
+                                throw new XmlException($"Unknown comparison type '{strComparisonType}'");
+
+                            StringComparison = parsedType;
+                            hasEntered = true;
+                        }
+                        else if (hasEntered)
+                        {
+                            var newClassifier = new Classifier();
+                            reader = newClassifier.ReadFromXml(reader);
+                            Filter.Add(newClassifier);
+                        }
+                        else
+                            throw new XmlException($"Unexpected element '{reader.Name}'");
+
+                        break;
+                    case XmlNodeType.EndElement:
+                        if (!hasEntered)
+                            throw new XmlException($"Structural assertion exception. Not entered {typeof(Qualifier).Name}.");
+
+                        reader.ReadEndElement();
+                        return;
+                }
+            } while (reader.Read());
+
+            throw new XmlException("Unexpected end of XML reader");
+        }
+
+        public void WriteXml(XmlWriter writer)
+        {
+            writer.WriteAttributeString(nameof(StringComparison), StringComparison.ToString());
+            if (null != Filter)
+            {
+                foreach (var entry in Filter)
+                    entry.WriteToXml(writer);
+            }
         }
     }
 }

@@ -84,6 +84,7 @@ message PropertyValue {
         double digit = 5;
         string serial = 6;
         GlobalUniqueId id = 7;
+        bool flag = 8;
     }
 }
 

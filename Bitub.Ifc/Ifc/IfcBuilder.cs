@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-using Xbim.Common.Step21;
 using Xbim.IO;
+
 using Xbim.Ifc4.Interfaces;
 using Xbim.Ifc;
+
+using Xbim.Common;
+using Xbim.Common.Step21;
 using Xbim.Common.Geometry;
 
 using Microsoft.Extensions.Logging;
@@ -20,9 +23,6 @@ namespace Bitub.Ifc
     /// </summary>
     public abstract class IfcBuilder
     {
-        internal static readonly Assembly assemblyXbimIfc4 = typeof(Xbim.Ifc2x3.EntityFactoryIfc2x3).Assembly;
-        internal static readonly Assembly assemblyXbimIfc2x3 = typeof(Xbim.Ifc4.EntityFactoryIfc4).Assembly;
-
         public readonly IfcStore store;
         public readonly ILogger log;
         public readonly Qualifier schema;

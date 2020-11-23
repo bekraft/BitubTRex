@@ -1,12 +1,44 @@
 ﻿using System;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace Bitub.Dto
 {
     public static class QualifierExtensions
     {
+        public static Qualifier Append(this Qualifier qualifier, string fragment)
+        {
+            switch (qualifier.GuidOrNameCase)
+            {
+                case Qualifier.GuidOrNameOneofCase.Named:
+                    var q = new Qualifier(qualifier);
+                    q.Named.Frags.Add(fragment);
+                    return q;
+                case Qualifier.GuidOrNameOneofCase.None:
+                    var name = new Name();
+                    name.Frags.Add(fragment);
+                    return new Qualifier { Named = name };
+                default:
+                    throw new NotSupportedException($"Cannot append '{fragment}' to qualifier of type '{qualifier.GuidOrNameCase}'");
+            }
+        }
+
+        public static Qualifier Prepend(this Qualifier qualifier, string fragment)
+        {
+            switch (qualifier.GuidOrNameCase)
+            {
+                case Qualifier.GuidOrNameOneofCase.Named:
+                    var q = new Qualifier(qualifier);
+                    q.Named.Frags.Insert(0, fragment);
+                    return q;
+                case Qualifier.GuidOrNameOneofCase.None:
+                    var name = new Name();
+                    name.Frags.Add(fragment);
+                    return new Qualifier { Named = name };
+                default:
+                    throw new NotSupportedException($"Cannot prepend '{fragment}' to qualifier of type '{qualifier.GuidOrNameCase}'");
+            }
+        }
+
         public static bool IsEmpty(this Qualifier qualifier)
         {
             if (null == qualifier)
@@ -201,11 +233,11 @@ namespace Bitub.Dto
             switch (c.GuidOrNameCase)
             {
                 case Qualifier.GuidOrNameOneofCase.Anonymous:
-                    switch(c.Anonymous.NumericalOrStringCase)
+                    switch(c.Anonymous.GuidOrStringCase)
                     {
-                        case GlobalUniqueId.NumericalOrStringOneofCase.Guid:
+                        case GlobalUniqueId.GuidOrStringOneofCase.Guid:
                             return new System.Guid(c.Anonymous.Guid.Raw.ToByteArray()).ToString();
-                        case GlobalUniqueId.NumericalOrStringOneofCase.Base64:
+                        case GlobalUniqueId.GuidOrStringOneofCase.Base64:
                             return c.Anonymous.ToBase64String();
                     }
                     return null;

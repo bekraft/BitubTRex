@@ -1,22 +1,22 @@
 ﻿using System.Linq;
 
-namespace Bitub.Dto.Classify
+namespace Bitub.Dto.Concept
 {
     /// <summary>
     /// Classifying filter rule given both, inclusion and exclusion filter in combination.
     /// </summary>
-    public class ClassifyingFilterRule
+    public class CanonicalFilterRule
     {
         #region Internals
-        protected ClassifyingFilter includeFilter;
-        protected ClassifyingFilter excludeFilter;
+        protected CanonicalFilter includeFilter;
+        protected CanonicalFilter excludeFilter;
         protected bool acceptEquivIncludeExclude;
         #endregion
 
         /// <summary>
         /// The inclusion filter. If given, include all matches in result.
         /// </summary>
-        public ClassifyingFilter Include 
+        public CanonicalFilter Include 
         {
             get => includeFilter;
             protected set => includeFilter = value; 
@@ -25,7 +25,7 @@ namespace Bitub.Dto.Classify
         /// <summary>
         /// The exclusion filter. If given, exclude all matches from result.
         /// </summary>
-        public ClassifyingFilter Exclude 
+        public CanonicalFilter Exclude 
         {
             get => excludeFilter;
             protected set => excludeFilter = value; 
