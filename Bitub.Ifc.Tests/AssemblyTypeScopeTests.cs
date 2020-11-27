@@ -2,15 +2,18 @@
 
 using System.Linq;
 
-using Xbim.Common.Step21;
-
 using Xbim.Ifc;
 using Xbim.Ifc4.Interfaces;
 
 using Xbim.IO;
 
+using Xbim.Common;
+using Xbim.Common.Metadata;
+using Xbim.Common.Step21;
+
 using Bitub.Dto;
 using Bitub.Ifc;
+using Bitub.Ifc.Concept;
 
 namespace Bitub.Ifc.Tests
 {
@@ -18,31 +21,30 @@ namespace Bitub.Ifc.Tests
     public class AssemblyTypeScopeTests : BaseTests<AssemblyTypeScopeTests>
     {
         [TestMethod]
-        public void QualifiedTypeNameTest()
+        public void Ifc4IfcWallTest()
         {
             using (var store = IfcStore.Create(XbimSchemaVersion.Ifc4, XbimStoreType.InMemoryModel))
             using (var tx = store.BeginTransaction())
             {
                 var wall = store.Instances.New<Xbim.Ifc4.SharedBldgElements.IfcWall>();
-                var assertedName = new[] { "IFC4", "IFCWALL" }.ToQualifier();
-                //Assert.AreEqual(assertedName, wall.ToQualifiedTypeName());
-                Assert.IsTrue(typeof(IIfcWall).IsAssignableFrom(wall.GetType()));
+                var assertedName = new[] { "Ifc4", "IfcWall" }.ToQualifier();
+                Assert.AreEqual(assertedName, wall.ToQualifiedName());
                 tx.Commit();
             }
         }
 
         [TestMethod]
-        public void AssemblyScopeTest()
+        public void Ifc2x3AssemblyTest()
         {
-            var rtf = new AssemblyScope(typeof(Xbim.Ifc4.EntityFactoryIfc4).Assembly, typeof(Xbim.Ifc2x3.EntityFactoryIfc2x3).Assembly);
-            var wallScope = rtf.GetScopeOf<IIfcWall>();
+            var ifc2x3 = IfcAssemblyScope.Ifc2x3;
+            var wallScope = ifc2x3.GetScopeOf<IIfcWall>();
+            var wallExpressTypes = ifc2x3.metadata.ExpressTypesImplementing(typeof(IIfcWall));
 
-            IsSameArrayElements(new string[] { "Xbim.Ifc4", "Xbim.Ifc2x3" }, rtf.SpaceNames.ToArray());
-            Assert.AreEqual(2, rtf.SpaceNames.Count());
-            //Assert.AreEqual(5, wallScope.Implementations.Count());
+            Assert.AreEqual(wallScope.Types.Count(), wallExpressTypes.Count());
+            var fromScope = wallScope.TypeQualifiers.ToArray();
+            var fromMetadata = wallExpressTypes.Select(e => XbimSchemaVersion.Ifc2X3.ToQualifiedName(e)).ToArray();
 
-            var wallScopeIfc4 = rtf.GetScopeOf<IIfcWall>("Xbim.Ifc4");
-            //Assert.AreEqual(3, wallScopeIfc4.Implementations.Count());
+            Assert.IsTrue(Enumerable.SequenceEqual(fromScope, fromMetadata));
         }
     }
 }

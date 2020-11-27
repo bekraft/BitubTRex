@@ -8,10 +8,15 @@ namespace Bitub.Dto.Concept
     public class CanonicalFilterRule
     {
         #region Internals
-        protected CanonicalFilter includeFilter;
-        protected CanonicalFilter excludeFilter;
-        protected bool acceptEquivIncludeExclude;
+        private CanonicalFilter includeFilter;
+        private CanonicalFilter excludeFilter;
+        private bool acceptEquivIncludeExclude;
         #endregion
+
+        public CanonicalFilterRule()
+        {
+            acceptEquivIncludeExclude = true;
+        }
 
         /// <summary>
         /// The inclusion filter. If given, include all matches in result.
@@ -19,7 +24,7 @@ namespace Bitub.Dto.Concept
         public CanonicalFilter Include 
         {
             get => includeFilter;
-            protected set => includeFilter = value; 
+            set => includeFilter = value; 
         }
 
         /// <summary>
@@ -28,13 +33,13 @@ namespace Bitub.Dto.Concept
         public CanonicalFilter Exclude 
         {
             get => excludeFilter;
-            protected set => excludeFilter = value; 
+            set => excludeFilter = value; 
         }
 
         public bool IsAcceptingEquivIncludeExclude
         {
             get => acceptEquivIncludeExclude;
-            protected set => acceptEquivIncludeExclude = value;
+            set => acceptEquivIncludeExclude = value;
         }
 
         /// <summary>

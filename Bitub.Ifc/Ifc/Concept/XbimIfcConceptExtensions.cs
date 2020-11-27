@@ -1,41 +1,20 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using System.Collections.Generic;
 
 using Bitub.Dto;
-using Bitub.Dto.Concept;
 
 using Xbim.Common;
 using Xbim.Common.Step21;
 using Xbim.Common.Metadata;
 
-using Xbim.Ifc4.SharedBldgElements;
-
-
 namespace Bitub.Ifc.Concept
 {
     public static class XbimIfcConceptExtensions
     {
-        public static readonly Dictionary<XbimSchemaVersion, ExpressMetaData> SchemaVersionMetaData;
-        public static readonly ExpressType[] CommonMarkerEntities = new ExpressType[]
-        {
-            new ExpressType(typeof(IfcWall)), new ExpressType(typeof(IfcColumn))
-        };
-
         #region Internals
 
         private static Comparison<ExpressType> ExpressTypeComparision = (a, b) => Math.Sign(a.TypeId - b.TypeId);
-
-        static XbimIfcConceptExtensions()
-        {
-            SchemaVersionMetaData = new Dictionary<XbimSchemaVersion, ExpressMetaData>();
-            var ifc4 = ExpressMetaData.GetMetadata(typeof(Xbim.Ifc4.EntityFactoryIfc4).GetTypeInfo().Module);
-            var ifc2x3 = ExpressMetaData.GetMetadata(typeof(Xbim.Ifc2x3.EntityFactoryIfc2x3).GetTypeInfo().Module);
-            SchemaVersionMetaData.Add(XbimSchemaVersion.Ifc4, ifc4);
-            SchemaVersionMetaData.Add(XbimSchemaVersion.Ifc4x1, ifc4);
-            SchemaVersionMetaData.Add(XbimSchemaVersion.Ifc2X3, ifc2x3);
-        }
 
         private static IEnumerable<ExpressType> ToExpressBottomUpPath(this ExpressType expressType, short[] ascTypeIds)
         {
@@ -136,7 +115,7 @@ namespace Bitub.Ifc.Concept
             var typeIds = markerTypes?.Select(t => t.TypeId).ToArray();
             Array.Sort(typeIds);
 
-            return SchemaVersionMetaData[schemaVersion]
+            return IfcAssemblyScope.SchemaAssemblyScope[schemaVersion].metadata
                 .Types()
                 .Where(t => typeof(T).IsAssignableFrom(t.Type))
                 .Select(t => ToInternalClassifier(schemaVersion, t, typeIds));
@@ -144,7 +123,7 @@ namespace Bitub.Ifc.Concept
 
         public static IDictionary<Type, Classifier> ToImplementingClassification<T>(this XbimSchemaVersion schemaVersion) where T : IPersistEntity
         {
-            return SchemaVersionMetaData[schemaVersion]
+            return IfcAssemblyScope.SchemaAssemblyScope[schemaVersion].metadata
                 .Types()
                 .Where(t => typeof(T).IsAssignableFrom(t.Type))
                 .ToDictionary(t => t.Type, t => ToInternalClassifier(schemaVersion, t, null));                

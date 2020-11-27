@@ -12,10 +12,60 @@ using Xbim.Ifc4.Interfaces;
 
 namespace Bitub.Ifc
 {
+    public delegate IEnumerable<T> Unfold<T>(IPersistEntity host) where T : IPersistEntity;
+
     public static class IfcEntityExtensions
     {
-        internal static readonly Assembly XbimIfc4Assembly = typeof(Xbim.Ifc4.EntityFactoryIfc4).Assembly;
-        internal static readonly Assembly XbimIfc2x3Assembly = typeof(Xbim.Ifc2x3.EntityFactoryIfc2x3).Assembly;
+        /// <summary>
+        /// Creates an unfolding hierarchy delegate following decomposition and spatially nested
+        /// relations.
+        /// </summary>
+        /// <typeparam name="T">The type of entity.</typeparam>
+        /// <returns>A lambda which unfolds a given context</returns>
+        public static Unfold<T> NewUnfoldContainer<T>() where T : IIfcObjectDefinition
+        {
+            return (host) =>
+            {
+                if (host is IIfcObjectDefinition parent)
+                    return IfcProductRelationExtensions.Children<T>(parent);
+                else
+                    return Enumerable.Empty<T>();
+            };
+        }
+
+        /// <summary>
+        /// Creates an unfolding hierarchy delegate following only spatially nested
+        /// relations.
+        /// </summary>
+        /// <typeparam name="T">The type of entity.</typeparam>
+        /// <returns>A lambda which unfolds a given context</returns>
+        public static Unfold<T> NewUnfoldSpatialContainer<T>() where T : IIfcProduct
+        {
+            return (host) =>
+            {
+                if (host is IIfcSpatialElement parent)
+                    return IfcProductRelationExtensions.ChildProducts<T>(parent);
+                else
+                    return Enumerable.Empty<T>();
+            };
+        }
+
+        /// <summary>
+        /// Creates an unfolding hierarchy delegate following only spatially nested
+        /// relations.
+        /// </summary>
+        /// <typeparam name="T">The type of entity.</typeparam>
+        /// <returns>A lambda which unfolds a given context</returns>
+        public static Unfold<T> NewUnfoldComposition<T>() where T : IIfcObjectDefinition
+        {
+            return (host) =>
+            {
+                if (host is IIfcObjectDefinition parent)
+                    return IfcProductRelationExtensions.SubObjects<T>(parent);
+                else
+                    return Enumerable.Empty<T>();
+            };
+        }
 
         public static Qualifier ToQualifiedName(this IPersistEntity instance)
         {

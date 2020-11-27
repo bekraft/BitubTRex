@@ -41,13 +41,24 @@ namespace Bitub.Ifc
         /// <typeparam name="T">A preferred type</typeparam>
         /// <param name="o">The parent</param>
         /// <returns>An enumeration of objects of given type</returns>
-        public static IEnumerable<T> Children<T>(this IIfcObjectDefinition o) where T : IIfcProduct
+        public static IEnumerable<T> Children<T>(this IIfcObjectDefinition o) where T : IIfcObjectDefinition
         {
             var productSubs = o.SubObjects<T>();
             if (o is IIfcSpatialElement s)
                 return Enumerable.Concat(productSubs, s.ContainsElements.SelectMany(r => r.RelatedElements.OfType<T>()));
             else
                 return productSubs;
+        }
+
+        /// <summary>
+        /// Returns all products of a spatial element.
+        /// </summary>
+        /// <typeparam name="T">The product type</typeparam>
+        /// <param name="o">The parent object</param>
+        /// <returns></returns>
+        public static IEnumerable<T> ChildProducts<T>(this IIfcSpatialElement o) where T : IIfcProduct
+        {
+            return o.ContainsElements.SelectMany(r => r.RelatedElements.OfType<T>());
         }
 
         /// <summary>

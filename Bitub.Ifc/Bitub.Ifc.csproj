@@ -10,6 +10,8 @@
     <BuildQualifier></BuildQualifier>
     <Build>0</Build>    
     <Configurations>Debug;Release;Beta</Configurations>
+
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

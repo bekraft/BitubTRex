@@ -22,7 +22,7 @@ namespace Bitub.Ifc
     public class Ifc2x3Builder : IfcBuilder
     {
         public Ifc2x3Builder(IfcStore aStore, ILoggerFactory loggerFactory = null)
-            : base(aStore, new AssemblyScope(IfcEntityExtensions.XbimIfc2x3Assembly, IfcEntityExtensions.XbimIfc4Assembly), IfcEntityExtensions.XbimIfc2x3Assembly.GetName(), loggerFactory)
+            : base(aStore, loggerFactory)
         {
         }
 

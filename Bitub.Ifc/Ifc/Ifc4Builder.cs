@@ -2,7 +2,7 @@
 
 using System;
 using System.Linq;
-using System.Reflection;
+
 using Xbim.Ifc;
 using Xbim.Ifc4.GeometryResource;
 using Xbim.Ifc4.Interfaces;
@@ -20,7 +20,7 @@ namespace Bitub.Ifc
     public class Ifc4Builder : IfcBuilder
     {
         public Ifc4Builder(IfcStore aStore, ILoggerFactory loggerFactory = null) 
-            : base(aStore, new AssemblyScope(typeof(Xbim.Ifc4.EntityFactoryIfc4).Assembly), IfcEntityExtensions.XbimIfc4Assembly.GetName(), loggerFactory)
+            : base(aStore, loggerFactory)
         {
         }
 
@@ -97,7 +97,7 @@ namespace Bitub.Ifc
                 shapeRepresentation = s.Instances.New<IfcShapeRepresentation>();
                 productDefinitionShape.Representations.Add(shapeRepresentation);
 
-                var project = Scopes.OfType<IfcProject>().FirstOrDefault();
+                var project = InstanceScopeStack.OfType<IfcProject>().FirstOrDefault();
                 var contexts = project
                     .RepresentationContexts
                     .Where<IfcGeometricRepresentationContext>(c => c.ContextType == representationContext);

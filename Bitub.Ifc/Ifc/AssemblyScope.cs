@@ -40,14 +40,34 @@ namespace Bitub.Ifc
             get => assemblySpaces.SelectMany(a => a.ExportedTypes.Select(t => t.ToQualifier()));            
         }
 
-        public IEnumerable<string> SpaceNames
+        public IEnumerable<AssemblyName> SpaceNames
         {
-            get => assemblySpaces.Select(a => a.GetName().Name);
+            get => assemblySpaces.Select(a => a.GetName());
         }
 
-        public TypeScope<TBase> GetScopeOf<TBase>(string assemblySpaceName = null)
+        public IEnumerable<Module> Modules
         {
-            return new TypeScope<TBase>(this, assemblySpaceName);
+            get => assemblySpaces.SelectMany(a => a.Modules);
+        }
+
+        public virtual Qualifier GetModuleQualifer(Module module)
+        {
+            return module.Name.ToQualifier();
+        }
+
+        public virtual TypeScope GetScopeOf<TBase>()
+        {
+            return GetScopeOf<TBase>(Modules.ToArray());
+        }
+
+        public virtual TypeScope GetScopeOf<TBase>(Module module)
+        {
+            return new TypeScope(typeof(TBase), this, new Module[] { module });
+        }
+
+        public virtual TypeScope GetScopeOf<TBase>(IEnumerable<Module> modules)
+        {
+            return new TypeScope(typeof(TBase), this, modules.ToArray());
         }
     }
 }

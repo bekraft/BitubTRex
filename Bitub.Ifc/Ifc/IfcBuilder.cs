@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 using Xbim.IO;
 
 using Xbim.Ifc4.Interfaces;
 using Xbim.Ifc;
 
-using Xbim.Common;
 using Xbim.Common.Step21;
 using Xbim.Common.Geometry;
 
@@ -24,45 +22,36 @@ namespace Bitub.Ifc
     public abstract class IfcBuilder
     {
         public readonly IfcStore store;
-        public readonly ILogger log;
-        public readonly Qualifier schema;
+        public readonly IfcAssemblyScope ifcAssembly;
 
-        #region Internals
-        private Stack<IIfcObjectDefinition> containerScopes;
-        protected IEnumerable<IIfcObjectDefinition> Scopes { get => containerScopes; }
+        #region Internals        
+        protected Stack<IIfcObjectDefinition> InstanceScopeStack { get; private set; } = new Stack<IIfcObjectDefinition>();
+
+        protected readonly ILogger log;
+        protected readonly Qualifier schema;
         #endregion
 
         public readonly IfcEntityScope<IIfcProduct> ifcProductScope;
         public readonly IfcEntityScope<IIfcProperty> ifcPropertyScope;
         public readonly IfcEntityScope<IIfcValue> ifcValueScope;
-        public readonly AssemblyScope assemblyScope;
-
-        /// <summary>
-        /// Current owner history entry.
-        /// </summary>
-        public IIfcOwnerHistory CurrentVersion { get; protected set; }
 
         /// <summary>
         /// New builder attached to IFC entity assembly given as scope.
         /// </summary>
         /// <param name="aStore">A store.</param>
-        /// <param name="scope">The assembly scope</param>
-        /// <param name="spaceName">The assembly space name</param>
         /// <param name="loggerFactory">The logger factory</param>
-        protected IfcBuilder(IfcStore aStore, AssemblyScope scope, AssemblyName spaceName, ILoggerFactory loggerFactory = null)
+        protected IfcBuilder(IfcStore aStore, ILoggerFactory loggerFactory = null)
         {
             // Principle properties
-            log = loggerFactory?.CreateLogger<IfcBuilder>();
+            log = loggerFactory?.CreateLogger(GetType());
             store = aStore;
-            assemblyScope = scope;
             schema = aStore.SchemaVersion.ToString().ToQualifier();
+            ifcAssembly = IfcAssemblyScope.SchemaAssemblyScope[aStore.SchemaVersion];
 
-            // Container stack
-            containerScopes = new Stack<IIfcObjectDefinition>();
             // Type scopes
-            ifcProductScope = new IfcEntityScope<IIfcProduct>(this, spaceName);
-            ifcPropertyScope = new IfcEntityScope<IIfcProperty>(this, spaceName);
-            ifcValueScope = new IfcEntityScope<IIfcValue>(this, spaceName);
+            ifcProductScope = new IfcEntityScope<IIfcProduct>(this);
+            ifcPropertyScope = new IfcEntityScope<IIfcProperty>(this);
+            ifcValueScope = new IfcEntityScope<IIfcValue>(this);
 
             // Initialization
             var project = store.Instances.OfType<IIfcProject>().FirstOrDefault();
@@ -71,22 +60,29 @@ namespace Bitub.Ifc
                 Wrap(s =>
                 {
                     project = InitProject();
-                    CurrentVersion = NewOwnerHistoryEntry("Initial contribution");
+                    OwnerHistoryTag = NewOwnerHistoryEntry("Initial contribution");
                 });
             }
             else
             {
-                Wrap(s => CurrentVersion = NewOwnerHistoryEntry("Adding new data"));
+                Wrap(s => OwnerHistoryTag = NewOwnerHistoryEntry("Adding new data"));
             }
-            containerScopes.Push(project);
+            InstanceScopeStack.Push(project);
         }
 
         protected void NewContainer(IIfcObjectDefinition container)
         {
             var scope = CurrentScope;
-            containerScopes.Push(container);
+            InstanceScopeStack.Push(container);
             store.NewDecomposes(scope).RelatedObjects.Add(container);
         }
+
+        public Qualifier Schema { get => new Qualifier(schema); }
+
+        /// <summary>
+        /// Current owner history entry.
+        /// </summary>
+        public IIfcOwnerHistory OwnerHistoryTag { get; protected set; }
 
         /// <summary>
         /// New builder wrapping a new in-memory IFC model.
@@ -129,13 +125,13 @@ namespace Bitub.Ifc
         /// </summary>
         public IIfcObjectDefinition CurrentScope
         {
-            get => containerScopes.Peek();
+            get => InstanceScopeStack.Peek();
         }
 
         /// <summary>
         /// Current top placement in model hierarchy.
         /// </summary>
-        public IIfcObjectPlacement CurrentPlacement => containerScopes
+        public IIfcObjectPlacement CurrentPlacement => InstanceScopeStack
             .OfType<IIfcProduct>()
             .FirstOrDefault(p => p.ObjectPlacement != null)?
             .ObjectPlacement;
@@ -254,7 +250,7 @@ namespace Bitub.Ifc
             Wrap(s =>
             {
                 site = ifcProductScope.NewOf<IIfcSite>();
-                site.OwnerHistory = CurrentVersion;
+                site.OwnerHistory = OwnerHistoryTag;
                 site.Name = siteName;
 
                 NewContainer(site);
@@ -269,7 +265,7 @@ namespace Bitub.Ifc
             Wrap(s =>
             {
                 building = ifcProductScope.NewOf<IIfcBuilding>();
-                building.OwnerHistory = CurrentVersion;
+                building.OwnerHistory = OwnerHistoryTag;
                 building.Name = buildingName;
 
                 NewContainer(building);
@@ -285,7 +281,7 @@ namespace Bitub.Ifc
             {
                 storey = ifcProductScope.NewOf<IIfcBuildingStorey>();
                 storey.Name = name;
-                storey.OwnerHistory = CurrentVersion;
+                storey.OwnerHistory = OwnerHistoryTag;
                 storey.Elevation = elevation;
 
                 NewContainer(storey);
@@ -358,7 +354,7 @@ namespace Bitub.Ifc
         /// <param name="p">The new group product</param>
         public void NewScope(IIfcProduct p)
         {
-            if (containerScopes.Any(e => e == p))
+            if (InstanceScopeStack.Any(e => e == p))
                 throw new ArgumentException($"#{p.EntityLabel} already scoped.");
 
             NewContainer(p);
@@ -370,8 +366,8 @@ namespace Bitub.Ifc
         /// <returns>Dropped container or null, if there's no.</returns>
         public IIfcObjectDefinition DropCurrentScope()
         {
-            if (containerScopes.Count > 1)
-                return containerScopes.Pop();
+            if (InstanceScopeStack.Count > 1)
+                return InstanceScopeStack.Pop();
             else
                 return null;
         }

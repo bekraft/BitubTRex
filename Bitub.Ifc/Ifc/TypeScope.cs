@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Xml.Linq;
 
 using Bitub.Dto;
 
@@ -12,49 +10,48 @@ namespace Bitub.Ifc
     /// <summary>
     /// A type scope wrapping a partial aspect of a type registry.
     /// </summary>
-    /// <typeparam name="T">The base type</typeparam>
-    public class TypeScope<T>
+    public class TypeScope
     {
         public readonly AssemblyScope assemblyScope;
         public readonly Type baseType;
-        public readonly AssemblyName assemblySpace;
+        public readonly Module[] modules;
 
         #region Internals
         private readonly IDictionary<Qualifier, Type> typeRegistry;
-        private readonly Regex typeReplacePattern;
-        private readonly string typeReplaceBy;
         #endregion
 
-        public TypeScope(AssemblyScope scope, string assemblySpaceName) 
-            : this(scope, new AssemblyName(assemblySpaceName), null, "")
+        public TypeScope(Type typeScope, AssemblyScope scope, string moduleName) 
+            : this(typeScope, scope, scope.Modules.Where(m => m.Name.Equals(moduleName)).ToArray())
         { }
 
-        public TypeScope(AssemblyScope scope, string assemblySpaceName, Regex replacePattern, string replaceBy)
-            : this(scope, new AssemblyName(assemblySpaceName), replacePattern, replaceBy)
+        public TypeScope(Type typeScope, AssemblyScope scope)
+            : this(typeScope, scope, scope.Modules.ToArray())
         { }
 
-        public TypeScope(AssemblyScope scope, AssemblyName assemblySpaceName, Regex replacePattern, string replaceBy)
+        public TypeScope(Type typeScope, AssemblyScope scope, Module[] scopeModules)
         {
             assemblyScope = scope;
-            baseType = typeof(T);
-            assemblySpace = assemblySpaceName;
-            typeReplacePattern = replacePattern;
-            typeReplaceBy = replaceBy;
+            baseType = typeScope;
+            modules = scopeModules;            
 
             typeRegistry = scope
-                .Implementing(typeof(T))
+                .Implementing(baseType)
                 .Where(t => !t.IsAbstract && !t.IsInterface && IsTypeOfAssemblySpace(t))
-                .ToDictionary(t => GetScopeQualifier(t));
+                .ToDictionary(t => GetScopedQualifier(t));
         }
 
         public bool IsTypeOfAssemblySpace(Type t)
         {
-            return (null == assemblySpace || t.Assembly.GetName().Name.Equals(assemblySpace));
+            return modules.Any(m => m == t.Module);
         }
 
-        public Qualifier GetScopeQualifier(Type t)
+        public virtual Qualifier GetScopedQualifier(Type t)
         {
-            return t.ToQualifier(typeReplacePattern, typeReplaceBy);
+            var baseQualifier = assemblyScope.GetModuleQualifer(t.Module);
+            if (null != baseQualifier)
+                return baseQualifier.Append(t.Name);
+            else
+                return t.ToQualifier();
         }
 
         public IEnumerable<Qualifier> TypeQualifiers
