@@ -232,8 +232,8 @@ namespace Bitub.Ifc.Scene
 
         private Classifier FeatureToClassifier(FeatureConcept featureConcept, string separator = ";")
         {
-            var dataFragment = string.Join(separator, featureConcept.Features
-                .Where(f => f.Data?.Op == DataOp.Equals)
+            var dataFragment = string.Join(separator, featureConcept.DataConcept?.Data
+                .Where(f => f.Op == DataOp.Equals)
                 .Select(f => f.ToAnyValue()?.ToString())
                 .Where(s => null != s));
 

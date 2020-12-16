@@ -163,7 +163,7 @@ namespace Bitub.Dto
         /// <param name="superQualifier">The qualifier</param>
         /// <param name="comparison">The string comparision method</param>
         /// <returns>True, if the given qualifier is (paritally) a super qualifier of the classifier</returns>
-        public static bool IsSubMatching(this Classifier classifier, Qualifier superQualifier, StringComparison comparisonType = StringComparison.Ordinal)
+        public static bool IsSubNameMatching(this Classifier classifier, Qualifier superQualifier, StringComparison comparisonType = StringComparison.Ordinal)
         {
             switch(superQualifier.GuidOrNameCase)
             {
@@ -182,7 +182,7 @@ namespace Bitub.Dto
         /// <param name="superQualifier"></param>
         /// <param name="comparison"></param>
         /// <returns>An enumerable of the qualifiers</returns>
-        public static IEnumerable<Qualifier> FilterSubMatching(this Classifier classifier, Qualifier superQualifier, StringComparison comparison = StringComparison.Ordinal)
+        public static IEnumerable<Qualifier> FilterSubNameMatching(this Classifier classifier, Qualifier superQualifier, StringComparison comparison = StringComparison.Ordinal)
         {
             switch (superQualifier.GuidOrNameCase)
             {
@@ -191,6 +191,32 @@ namespace Bitub.Dto
                     return classifier.IsMatching(superQualifier) ? new Qualifier[] { superQualifier } : Enumerable.Empty<Qualifier>();
                 default:
                     return classifier.Path.Where(q => superQualifier.IsSuperQualifierOf(q, comparison));
+            }
+        }
+
+        public static IEnumerable<Qualifier> FilterSubPathMatching(this Classifier classifier, Qualifier pathIndicator, StringComparison comparison = StringComparison.Ordinal)
+        {
+            switch (pathIndicator.GuidOrNameCase)
+            {
+                case Qualifier.GuidOrNameOneofCase.Anonymous:
+                    // Same as matching if using GUIDs
+                    return classifier.IsMatching(pathIndicator) ? new Qualifier[] { pathIndicator } : Enumerable.Empty<Qualifier>();
+                default:
+                    var index = classifier.Path.Select((q, i) => (q,i)).FirstOrDefault(qi => pathIndicator.IsSuperQualifierOf(qi.q, comparison));
+                    return null != index.q ? classifier.Path.Skip(index.i) : Enumerable.Empty<Qualifier>();
+            }
+        }
+
+        public static IEnumerable<Qualifier> FilterSuperPathMatching(this Classifier classifier, Qualifier pathIndicator, StringComparison comparison = StringComparison.Ordinal)
+        {
+            switch (pathIndicator.GuidOrNameCase)
+            {
+                case Qualifier.GuidOrNameOneofCase.Anonymous:
+                    // Same as matching if using GUIDs
+                    return classifier.IsMatching(pathIndicator) ? new Qualifier[] { pathIndicator } : Enumerable.Empty<Qualifier>();
+                default:
+                    var index = classifier.Path.Select((q, i) => (q, i)).FirstOrDefault(qi => pathIndicator.IsSuperQualifierOf(qi.q, comparison));
+                    return null != index.q ? classifier.Path.Take(index.i + 1) : Enumerable.Empty<Qualifier>();
             }
         }
 

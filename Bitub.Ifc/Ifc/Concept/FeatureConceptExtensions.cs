@@ -23,15 +23,53 @@ namespace Bitub.Ifc.Concept
             return new string[] { o.Name ?? "Anonymous", o.GlobalId.ToString() }.ToQualifier();
         }
 
+        public static FeatureConcept AppendRoleFeature(this FeatureConcept featureConcept, params Qualifier[] fillers)
+        {
+            switch (featureConcept.DataOrRoleCase)
+            {
+                case FeatureConcept.DataOrRoleOneofCase.RoleConcept:
+                    featureConcept.RoleConcept.Filler.AddRange(fillers);
+                    return featureConcept;
+                case FeatureConcept.DataOrRoleOneofCase.DataConcept:
+                    throw new NotSupportedException($"Use '{nameof(AppendDataFeature)}' instead.");
+                case FeatureConcept.DataOrRoleOneofCase.None:
+                    featureConcept.RoleConcept = new RoleFeature();
+                    featureConcept.RoleConcept.Filler.AddRange(fillers);
+                    return featureConcept;
+            }
+            throw new NotImplementedException();
+        }
+
+        public static FeatureConcept AppendDataFeature(this FeatureConcept featureConcept, params DataConcept[] dataConcepts)
+        {
+            switch (featureConcept.DataOrRoleCase)
+            {
+                case FeatureConcept.DataOrRoleOneofCase.DataConcept:
+                    featureConcept.DataConcept.Data.AddRange(dataConcepts);
+                    return featureConcept;
+                case FeatureConcept.DataOrRoleOneofCase.RoleConcept:
+                    throw new NotSupportedException($"Use '{nameof(AppendDataFeature)}' instead.");
+                case FeatureConcept.DataOrRoleOneofCase.None:
+                    featureConcept.DataConcept = new DataFeature();
+                    featureConcept.DataConcept.Data.AddRange(dataConcepts);
+                    return featureConcept;
+            }
+            throw new NotImplementedException();
+        }
+
         public static IEnumerable<FeatureConcept> ToBaseFeatures(this IIfcObject o)
         {
-            var id = o.ToIdFeature();
-            var name = o.ToNameFeature();
-            var baseCanonical = new[] { name.Data.Value, id.Data.Value }.ToQualifier();
-            var idFeature = new FeatureConcept { Canonical = baseCanonical.Append(FeatureQualifier_Id) };
-            idFeature.Features.Add(id);
-            yield return idFeature;
-            yield return new FeatureConcept { Canonical = baseCanonical.Append(FeatureQualifier_Name) };
+            var id = o.GlobalId.ToDataConcept(DataOp.Equals);
+            var name = o.ToNameDataConcept();
+            var baseCanonical = new[] { name.Value, id.Value }.ToQualifier();
+            yield return new FeatureConcept 
+            { 
+                Canonical = baseCanonical.Append(FeatureQualifier_Id) 
+            }.AppendDataFeature(id);
+            yield return new FeatureConcept 
+            { 
+                Canonical = baseCanonical.Append(FeatureQualifier_Name) 
+            }.AppendDataFeature(name);
         }
 
         public static IEnumerable<FeatureConcept> ToFeatures<T>(this IIfcObject o, CanonicalFilter filter = null) where T : IIfcSimpleProperty
@@ -42,15 +80,24 @@ namespace Bitub.Ifc.Concept
                 .Where(f => filter?.IsPassedBy(f.Canonical, out _) ?? true);
         }
 
-        public static Feature ToIdFeature(this IIfcRoot o)
+        public static DataFeature ToIdFeature(this IIfcRoot o)
         {
-            return new Feature { Data = o.GlobalId.ToDataConcept(DataOp.Equals) };
+            var feature = new DataFeature();
+            feature.Data.Add(o.GlobalId.ToDataConcept(DataOp.Equals));
+            return feature;
         }
 
-        public static Feature ToNameFeature(this IIfcRoot o)
+        public static DataConcept ToNameDataConcept(this IIfcRoot o)
         {
             string objName = o.Name ?? "Anonymous";
-            return new Feature { Data = new DataConcept { Value = objName, Type = DataType.Label, Op = DataOp.Equals } };
+            return new DataConcept { Value = objName, Type = DataType.Label, Op = DataOp.Equals };
+        }
+
+        public static DataFeature ToNameFeature(this IIfcRoot o)
+        {            
+            var feature = new DataFeature();
+            feature.Data.Add(ToNameDataConcept(o));
+            return feature;
         }
 
         public static IEnumerable<FeatureConcept> ToFeatures<T>(this IIfcPropertySetDefinition set) where T : IIfcSimpleProperty
@@ -64,36 +111,43 @@ namespace Bitub.Ifc.Concept
             q.Named.Frags.Add(p.Name.ToString());
             
             var f = new FeatureConcept { Canonical = q };
+            var feature = new DataFeature();
+            
             if (p is IIfcPropertySingleValue psv)
             {
-                f.Features.Add(new Feature { Data = psv.NominalValue.ToDataConcept() });
+                feature.Data.Add(psv.NominalValue.ToDataConcept());
             }
             else if (p is IIfcPropertyBoundedValue pbv)
             {                
                 f.Op = ConceptOp.AllOf;
                 if (null != pbv.UpperBoundValue)
-                    f.Features.Add(new Feature { Data = pbv.UpperBoundValue.ToDataConcept(DataOp.LessThanEquals) });
+                    feature.Data.Add(pbv.UpperBoundValue.ToDataConcept(DataOp.LessThanEquals));
                 if (null != pbv.LowerBoundValue)
-                    f.Features.Add(new Feature { Data = pbv.LowerBoundValue.ToDataConcept(DataOp.GreaterThanEquals) });
+                    feature.Data.Add(pbv.LowerBoundValue.ToDataConcept(DataOp.GreaterThanEquals));
 
                 if (null != pbv.SetPointValue)
-                    f.Features.Add(new Feature { Data = pbv.SetPointValue.ToDataConcept(DataOp.Equals) });
+                    feature.Data.Add(pbv.SetPointValue.ToDataConcept(DataOp.Equals));
             }
             else if (p is IIfcPropertyEnumeratedValue pev)
             {
                 f.Op = ConceptOp.AllOf;
-                pev.EnumerationValues.Select(v => v.ToDataConcept(DataOp.Equals)).ForEach(c => f.Features.Add(new Feature { Data = c }));
+                pev.EnumerationValues
+                    .Select(v => v.ToDataConcept(DataOp.Equals))
+                    .ForEach(c => feature.Data.Add(c));
             }
             else if (p is IIfcPropertyListValue plv)
             {
                 f.Op = ConceptOp.AllOf;
-                plv.ListValues.Select(v => v.ToDataConcept(DataOp.Equals)).ForEach(c => f.Features.Add(new Feature { Data = c }));
+                plv.ListValues
+                    .Select(v => v.ToDataConcept(DataOp.Equals))
+                    .ForEach(c => feature.Data.Add(c));
             }
             else 
             {
                 throw new NotImplementedException($"Not yet implemented: {p.ExpressType.Name}");
             }
 
+            f.DataConcept = feature;
             return f;
         }
 

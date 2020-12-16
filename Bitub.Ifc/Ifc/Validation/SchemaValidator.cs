@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
-using System.Runtime.CompilerServices;
+
 using Xbim.Common;
 using Xbim.Common.Enumerations;
 using Xbim.Common.ExpressValidation;
 using Xbim.Common.Step21;
-using Xbim.Common.XbimExtensions;
 
 namespace Bitub.Ifc.Validation
 {

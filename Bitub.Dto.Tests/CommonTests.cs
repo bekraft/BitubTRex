@@ -56,6 +56,31 @@ namespace Bitub.Dto.Tests
         }
 
         [Test]
+        public void NameAndPathMatching()
+        {
+            var nc1 = new string[] { "A" }.ToQualifier();
+            var nc2 = new string[] { "A", "Test" }.ToQualifier();
+            var nc3 = new string[] { "A", "Test", "Of" }.ToQualifier();
+            var c1 = new Classifier();
+            c1.Path.AddRange(new[] { nc1, nc2, nc3 });
+
+            var r1 = c1.FilterSubNameMatching(nc2).ToArray();
+            Assert.AreEqual(2, r1.Length);
+            Assert.AreEqual(nc2, r1[0]);
+            Assert.AreEqual(nc3, r1[1]);
+
+            var r2 = c1.FilterSubPathMatching(nc2).ToArray();
+            Assert.AreEqual(2, r2.Length);
+            Assert.AreEqual(nc2, r2[0]);
+            Assert.AreEqual(nc3, r2[1]);
+
+            var r3 = c1.FilterSuperPathMatching(nc2).ToArray();
+            Assert.AreEqual(2, r3.Length);
+            Assert.AreEqual(nc1, r3[0]);
+            Assert.AreEqual(nc2, r3[1]);
+        }
+
+        [Test]
         public void QualifierXmlRoundtrip()
         {
             var named = new string[] { "A", "Test1" }.ToQualifier();

@@ -4,33 +4,42 @@ package Bitub.Dto.Concept;
 import "Common.proto";
 import "google/protobuf/timestamp.proto";
 
-// Version 1.2
+// Version 1.2.1
 // Unified version of TRex and Classify
 option csharp_namespace = "Bitub.Dto.Concept";
 option java_package = "bitub.dto";
 
+// An ontology / classification
 message Ontology {
 	repeated Classifier classifiers = 1;
 }
 
-message ConceptSpace {
+// A domain space
+message Domain {
 	Qualifier canonical = 1;
-	repeated Concept concepts = 2;
+	string name = 2;
+	string description = 3;
+	repeated Concept concepts = 4;
 }
 
 // A domain concept
 message Concept {
 	Qualifier canonical = 1;
 	string description = 2;
-	repeated Qualifier subsumes = 3;
-	repeated string tags = 4;
+	repeated Qualifier subsumes = 3; // Opposite of "abstracts"
+	repeated string tags = 4; // Tagging
 }
 
 // A concept template based on features
 message FeatureConcept {
 	Qualifier canonical = 1;
 	ConceptOp op = 2;
-	repeated Feature features = 3;
+	// A feature is either data concept or role filler reference
+	oneof dataOrRole {
+		DataFeature dataConcept = 3;
+		RoleFeature roleConcept = 4;
+	}
+
 }
 
 // The concept quantification operator
@@ -39,12 +48,14 @@ enum ConceptOp {
 	OneOf = 1; // existential
 }
 
-// A feature is either data concept or role filler reference
-message Feature {
-	oneof dataOrFiller {
-		DataConcept data = 3;
-		Qualifier filler = 4;
-	}
+// A role feature as a sequence of given role fillers
+message RoleFeature {
+	repeated Qualifier filler = 1;
+}
+
+// A data feature as a sequence of given values and quantifiers
+message DataFeature {
+	repeated DataConcept data = 1;
 }
 
 // A feature data concept
