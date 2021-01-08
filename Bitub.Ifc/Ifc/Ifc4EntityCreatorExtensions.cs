@@ -21,7 +21,7 @@ using Xbim.Common.Geometry;
 using Xbim.Ifc4.PropertyResource;
 using Bitub.Ifc.Transform;
 using Microsoft.Extensions.Logging;
-using Bitub.Ifc.Scene;
+using Bitub.Ifc.Export;
 
 namespace Bitub.Ifc
 {

@@ -39,6 +39,25 @@ namespace Bitub.Dto
             }
         }
 
+        public static string GetFragment(this Name name, int index = 0)
+        {
+            if (index == 0)
+                return name.Frags.FirstOrDefault();
+            else
+                return name.Frags.Skip(index).FirstOrDefault();
+        }
+
+        public static Name SetFragment(this Name name, int index, string fragment, string defaultParent = "")
+        {
+            for (int i=0; i<=index; i++)
+            {
+                if (name.Frags.Count == i)
+                    name.Frags.Add(defaultParent);
+            }
+            name.Frags[index] = fragment;
+            return name;
+        }
+
         public static bool IsEmpty(this Qualifier qualifier)
         {
             if (null == qualifier)

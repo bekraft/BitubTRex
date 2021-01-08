@@ -120,7 +120,7 @@ namespace Bitub.Ifc.Export
             return gReader.ContextIds
                    .Select(label => s.Model.Instances[label])
                    .OfType<IIfcRepresentationContext>()
-                   .Select(c => (c.EntityLabel, s.AppliedSettings.UserRepresentationContext.FirstOrDefault(sc => StringComparer.OrdinalIgnoreCase.Equals(sc.Name, c.ContextIdentifier))))
+                   .Select(c => (c.EntityLabel, s.Preferences.UserRepresentationContext.FirstOrDefault(sc => StringComparer.OrdinalIgnoreCase.Equals(sc.Name, c.ContextIdentifier))))
                    .Where(t => t.Item2 != null)
                    .ToDictionary(t => t.EntityLabel, t => t.Item2);
         }
@@ -142,11 +142,11 @@ namespace Bitub.Ifc.Export
                     }
                     mean *= 1.0 / cr.Count;
 
-                    switch (s.AppliedSettings.Positioning)
+                    switch (s.Preferences.Positioning)
                     {
                         case ScenePositioningStrategy.UserCorrection:
                             // Center at user's center
-                            offset = s.AppliedSettings.UserModelCenter.ToXbimVector3DMeter(s.Model.ModelFactors);
+                            offset = s.Preferences.UserModelCenter.ToXbimVector3DMeter(s.Model.ModelFactors);
                             break;
                         case ScenePositioningStrategy.MostPopulatedRegionCorrection:
                             // Center at most populated
@@ -181,10 +181,10 @@ namespace Bitub.Ifc.Export
                             Logger?.LogInformation($"No translation correction applied by settings to context '{cr.ContextLabel}'");
                             break;
                         default:
-                            throw new NotImplementedException($"Missing implementation for '{s.AppliedSettings.Positioning}'");
+                            throw new NotImplementedException($"Missing implementation for '{s.Preferences.Positioning}'");
                     }
 
-                    if (s.AppliedSettings.Transforming == SceneTransformationStrategy.Matrix)
+                    if (s.Preferences.Transforming == SceneTransformationStrategy.Matrix)
                         // If Matrix or Global use rotation matrix representation
                         sc.Wcs = new XbimMatrix3D(offset).ToRotation(s.Scale);
                     else
@@ -230,14 +230,14 @@ namespace Bitub.Ifc.Export
         {
             // Context transformation (relative offset shift => make final transform relative to context shift)
             var contextWcs = s.TransformOf(shape.RepresentationContext) ?? XbimMatrix3D.Identity;
-            switch (s.AppliedSettings.Transforming)
+            switch (s.Preferences.Transforming)
             {
                 case SceneTransformationStrategy.Matrix:
                     return (shape.Transformation * contextWcs).ToRotation(s.Scale);
                 case SceneTransformationStrategy.Quaternion:
                     return (shape.Transformation * contextWcs).ToQuaternion(s.Scale);
                 default:
-                    throw new NotImplementedException($"Missing implementation for '{s.AppliedSettings.Transforming}'");
+                    throw new NotImplementedException($"Missing implementation for '{s.Preferences.Transforming}'");
             }
         }
 
