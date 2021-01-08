@@ -1,16 +1,23 @@
 ﻿using System;
 using System.Linq;
+using System.Collections.Generic;
 
+using Xbim.Common;
 using Xbim.Common.Geometry;
-using Xbim.Ifc;
 
+using Xbim.Ifc;
+using Xbim.Ifc4.Interfaces;
+
+using Bitub.Dto;
 using Bitub.Dto.Scene;
 using Bitub.Dto.Spatial;
+using Bitub.Dto.Concept;
+
+using Bitub.Ifc.Concept;
 
 using Google.Protobuf.Collections;
-using Xbim.Ifc4.UtilityResource;
 
-namespace Bitub.Ifc.Scene
+namespace Bitub.Ifc.Export
 {
     public static class XbimModelExtensions
     {
@@ -129,5 +136,76 @@ namespace Bitub.Ifc.Scene
                 Label = r.Name
             };
         }
-    } 
+
+        public static IDictionary<Type, Classifier> ToIfcClassifierMap(this IModel model)
+        {
+            return model.SchemaVersion.ToImplementingClassification<IIfcProduct>();
+        }
+
+        public static Component ToClassifedComponentWith(this Component component, IIfcProduct product, CanonicalFilter featureToClassifierFilter)
+        {
+            if (null != featureToClassifierFilter)
+            {
+                foreach (var featureConcept in product.ToFeatures<IIfcSimpleProperty>(featureToClassifierFilter))
+                    component.Concepts.Add(featureConcept.ToClassifierOnValueEquals());
+            }
+            return component;
+        }
+
+        public static Component ToFullyFeaturedWith(this Component component, IIfcProduct product, CanonicalFilterRule featureFilterRule)
+        {
+            component.Features.AddRange(Enumerable
+                // Add all, id, name and additional features
+                .Concat(product.ToBaseFeatures(), product.ToFeatures<IIfcSimpleProperty>())
+                // And filter by rule
+                .Where(f => featureFilterRule.IsAcceptedBy(f.Canonical)));
+            return component;
+        }
+
+        public static Component ToComponent(this IIfcProduct product, out int? optParentLabel, IDictionary<Type, Classifier> ifcClassifierMap)
+        {
+            var parent = product.Parent<IIfcProduct>().FirstOrDefault();
+            var component = new Component
+            {
+                Id = product.GlobalId.ToGlobalUniqueId(),
+                // -1 reserved for roots
+                Parent = parent?.GlobalId.ToGlobalUniqueId(),
+                Name = product.Name ?? "",
+            };
+
+            // Add IFC express types inheritance by default
+            component.Concepts.Add(ifcClassifierMap[product.GetType()]);
+
+            component.Children.AddRange(product.Children<IIfcProduct>().Select(p => p.GlobalId.ToGlobalUniqueId()));
+            optParentLabel = parent?.EntityLabel;
+            return component;
+        }
+
+        public static IEnumerable<Material> ToMaterialBySurfaceStyles(this IModel model)
+        {
+            foreach (var style in model.Instances.OfType<IIfcSurfaceStyle>())
+                yield return style.ToMaterial();
+        }
+
+        public static IEnumerable<Material> ToMaterialByColorMap(this IModel model, XbimColourMap defaultColorMap, IEnumerable<RefId> negativeTypeNids)
+        {
+            foreach (var rid in negativeTypeNids)
+            {
+                var defaultStyle = model.Metadata.GetType((short)Math.Abs(rid.Nid));
+                var defaultColor = defaultColorMap[defaultStyle.Name];
+                var defaultMaterial = new Material
+                {
+                    Name = defaultStyle.Name,
+                    Id = rid
+                };
+                defaultMaterial.ColorChannels.Add(new ColorOrNormalised
+                {
+                    Channel = ColorChannel.Albedo,
+                    Color = defaultColor.ToColor(),
+                });
+                yield return defaultMaterial;
+            }
+        }
+
+    }
 }

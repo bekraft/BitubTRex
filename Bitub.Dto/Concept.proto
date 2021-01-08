@@ -4,7 +4,7 @@ package Bitub.Dto.Concept;
 import "Common.proto";
 import "google/protobuf/timestamp.proto";
 
-// Version 1.2.1
+// Version 1.2.2
 // Unified version of TRex and Classify
 option csharp_namespace = "Bitub.Dto.Concept";
 option java_package = "bitub.dto";

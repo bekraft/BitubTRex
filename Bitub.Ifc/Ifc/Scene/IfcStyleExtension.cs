@@ -7,7 +7,7 @@ using Xbim.Ifc4.Interfaces;
 using Bitub.Dto;
 using Bitub.Dto.Scene;
 
-namespace Bitub.Ifc.Scene
+namespace Bitub.Ifc.Export
 {
     public static class IfcStyleExtension
     {

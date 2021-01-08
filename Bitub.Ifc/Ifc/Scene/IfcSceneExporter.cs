@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 using Bitub.Ifc.Concept;
 using Bitub.Dto.Concept;
 
-namespace Bitub.Ifc.Scene
+namespace Bitub.Ifc.Export
 {
     /// <summary>
     /// Transfer scene model data exporter. Internally uses an abstract tesselation provider. In case of Xbim tesselation use
@@ -37,7 +37,7 @@ namespace Bitub.Ifc.Scene
         /// <summary>
         /// Initial experter settings.
         /// </summary>
-        public IfcSceneExportSettings Settings { get; set; } = new IfcSceneExportSettings();
+        public IfcExportSettings Settings { get; set; } = new IfcExportSettings();
 
         /// <summary>
         /// Default color settings.
@@ -59,44 +59,45 @@ namespace Bitub.Ifc.Scene
         /// </summary>
         /// <param name="model">The IFC model</param>
         /// <returns>A scene</returns>
-        public Task<IfcSceneExportSummary> Run(IModel model, CancelableProgressing monitor)
+        public Task<IfcSceneExportResult> RunExport(IModel model, CancelableProgressing monitor)
         {
             return Task.Run(() =>
             {
                 try
                 {
-                    return DoSceneModelTransfer(model, new IfcSceneExportSettings(Settings), monitor);
+                    return BuildScene(model, new IfcExportSettings(Settings), monitor);
                 }
                 catch (Exception e)
                 {
                     monitor?.State.MarkBroken();
                     Logger.LogError("{0}: {1} [{2}]", e.GetType().Name, e.Message, e.StackTrace);
-                    return new IfcSceneExportSummary(model, Settings) { FailureReason = e };
+                    return new IfcSceneExportResult(e, model, Settings);
                 }
             });
         }
 
         // Runs the scene model export
-        private IfcSceneExportSummary DoSceneModelTransfer(IModel model, IfcSceneExportSettings settings, CancelableProgressing progressing)
+        private IfcSceneExportResult BuildScene(IModel model, IfcExportSettings settings, CancelableProgressing progressing)
         {
             // Generate new summary
-            var summary = new IfcSceneExportSummary(model, settings);
+            var result = new IfcSceneExportResult(model, settings);
 
             // Transfer materials
-            var materials = StylesToMaterial(model).ToDictionary(m => m.Id.Nid);
-            summary.Scene.Materials.AddRange(materials.Values);
+            var materials =model.ToMaterialBySurfaceStyles().ToDictionary(m => m.Id.Nid);
+            result.ExportedModel.Materials.AddRange(materials.Values);
 
             Logger?.LogInformation("Starting model tesselation of {0}", model.Header.Name);
             // Retrieve enumeration of components having a geomety within given contexts            
-            var sceneRepresentations = TesselatorInstance.Tesselate(model, summary, progressing);
+            var sceneRepresentations = TesselatorInstance.Tesselate(model, result, progressing);
             var ifcClassifierMap = model.SchemaVersion.ToImplementingClassification<IIfcProduct>();
 
             Logger?.LogInformation("Starting model export of {0}", model.Header.Name);
             // Run transfer and log parents
             var parents = new HashSet<int>();
+            var componentCache = new Dictionary<int, Component>();
             foreach (var sr in sceneRepresentations)
             {
-                var p = model.Instances[sr.EntityLabel] as IIfcProduct;
+                var product = model.Instances[sr.EntityLabel] as IIfcProduct;
                 if (progressing?.State.IsAboutCancelling ?? false)
                 {
                     Logger?.LogInformation("Canceled model export of '{0}'", model.Header.FileName);
@@ -105,12 +106,15 @@ namespace Bitub.Ifc.Scene
                 }
 
                 Component c;
-                if (!summary.ComponentCache.TryGetValue(p.EntityLabel, out c))
+                if (!componentCache.TryGetValue(product.EntityLabel, out c))
                 {
                     int? optParent;
-                    c = CreateComponent(p, out optParent, ifcClassifierMap[p.GetType()]);
-                    summary.ComponentCache.Add(p.EntityLabel, c);
-                    summary.Scene.Components.Add(c);
+                    c = product.ToComponent(out optParent, ifcClassifierMap)
+                        .ToClassifedComponentWith(product, Settings.FeatureToClassifierFilter)
+                        .ToFullyFeaturedWith(product, Settings.FeatureFilterRule);
+
+                    componentCache.Add(product.EntityLabel, c);
+                    result.ExportedModel.Components.Add(c);
 
                     if (optParent.HasValue)
                         parents.Add(optParent.Value);
@@ -120,7 +124,7 @@ namespace Bitub.Ifc.Scene
             }
 
             // Check for remaining components (i.e. missing parents without geometry)
-            parents.RemoveWhere(id => summary.ComponentCache.ContainsKey(id));
+            parents.RemoveWhere(id => componentCache.ContainsKey(id));
             Queue<int> missingInstance = new Queue<int>(parents);
             while (missingInstance.Count > 0)
             {
@@ -137,26 +141,29 @@ namespace Bitub.Ifc.Scene
                 if (model.Instances[missingInstance.Dequeue()] is IIfcProduct product)
                 {
                     Component c;
-                    if (!summary.ComponentCache.TryGetValue(product.EntityLabel, out c))
+                    if (!componentCache.TryGetValue(product.EntityLabel, out c))
                     {
                         int? optParent;
-                        c = CreateComponent(product, out optParent, ifcClassifierMap[product.GetType()]);
-                        summary.ComponentCache.Add(product.EntityLabel, c);                       
+                        c = product.ToComponent(out optParent, ifcClassifierMap)
+                            .ToClassifedComponentWith(product, Settings.FeatureToClassifierFilter)
+                            .ToFullyFeaturedWith(product, Settings.FeatureFilterRule);
 
-                        if (optParent.HasValue && !summary.ComponentCache.ContainsKey(optParent.Value))
+                        componentCache.Add(product.EntityLabel, c);                       
+
+                        if (optParent.HasValue && !componentCache.ContainsKey(optParent.Value))
                             // Enqueue missing parents
                             missingInstance.Enqueue(optParent.Value);
 
-                        summary.Scene.Components.Add(c);
+                        result.ExportedModel.Components.Add(c);
                     }
                 }
             }
 
             // Add default materials where required
-            summary.Scene.Materials.AddRange(
-                DefaultMaterials(
-                    model,
-                    summary.Scene.Components
+            result.ExportedModel.Materials.AddRange(
+                model.ToMaterialByColorMap(                    
+                    DefaultProductColorMap,
+                    result.ExportedModel.Components
                         .SelectMany(c => c.Representations)
                         .SelectMany(r => r.Bodies)
                         .Select(b => b.Material)
@@ -165,79 +172,7 @@ namespace Bitub.Ifc.Scene
                 )
             );
 
-            return summary;
-        }
-
-
-        private IEnumerable<Material> StylesToMaterial(IModel model)
-        {
-            foreach (var style in model.Instances.OfType<IIfcSurfaceStyle>())
-                yield return style.ToMaterial();                       
-        }
-
-        private IEnumerable<Material> DefaultMaterials(IModel model, IEnumerable<RefId> refids)
-        {
-            foreach(var rid in refids)
-            {
-                var defaultStyle = model.Metadata.GetType((short)Math.Abs(rid.Nid));
-                var defaultColor = DefaultProductColorMap[defaultStyle.Name];
-                var defaultMaterial = new Material
-                {
-                    Name = defaultStyle.Name,
-                    Id = rid
-                };
-                defaultMaterial.ColorChannels.Add(new ColorOrNormalised
-                {
-                    Channel = ColorChannel.Albedo,
-                    Color = defaultColor.ToColor(),
-                });
-                yield return defaultMaterial;
-            }
-        }
-
-        // Creates a new component descriptor
-        private Component CreateComponent(IIfcProduct product, out int? optParentLabel, params Classifier[] ifcClassifier)
-        {
-            var parent = product.Parent<IIfcProduct>().FirstOrDefault();
-            var component = new Component
-            {
-                Id = product.GlobalId.ToGlobalUniqueId(),
-                // -1 reserved for roots
-                Parent = parent?.GlobalId.ToGlobalUniqueId(),
-                Name = product.Name ?? "",
-            };
-
-            // Add IFC express types inheritance by default
-            component.Concepts.AddRange(ifcClassifier);
-
-            if (null != Settings.FeatureToClassifierFilter)
-            {
-                foreach (var featureConcept in product.ToFeatures<IIfcSimpleProperty>(Settings.FeatureToClassifierFilter))
-                    component.Concepts.Add(FeatureToClassifier(featureConcept));
-            }
-
-            if (null != Settings.FeatureFilterRule)
-            {
-                component.Features.AddRange(Enumerable
-                    // Add all, id, name and additional features
-                    .Concat(product.ToBaseFeatures(), product.ToFeatures<IIfcSimpleProperty>())
-                    // And filter by rule
-                    .Where(f => Settings.FeatureFilterRule.IsAcceptedBy(f.Canonical)));                
-            }
-
-            component.Children.AddRange(product.Children<IIfcProduct>().Select(p => p.GlobalId.ToGlobalUniqueId()));
-            optParentLabel = parent?.EntityLabel;
-            return component;
-        }
-
-        private Classifier FeatureToClassifier(FeatureConcept featureConcept, string separator = ";")
-        {
-            var dataFragment = string.Join(separator, featureConcept.DataConcept?.Data
-                .Where(f => f.Op == DataOp.Equals)
-                .Select(f => f.ToAnyValue()?.ToString())
-                .Where(s => null != s));
-
-            return featureConcept.Canonical.Append(dataFragment).ToClassifier();
+            return result;
         }
     }
 }

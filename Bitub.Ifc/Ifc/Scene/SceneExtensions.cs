@@ -3,7 +3,7 @@
 using Xbim.Common;
 using Xbim.Common.Geometry;
 
-namespace Bitub.Ifc.Scene
+namespace Bitub.Ifc.Export
 {
     public static class SceneExtensions
     {

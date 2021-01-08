@@ -12,14 +12,14 @@ using System.Threading.Tasks;
 using Bitub.Dto;
 using Bitub.Ifc.Tests;
 
-namespace Bitub.Ifc.Scene.Tests
+namespace Bitub.Ifc.Export.Tests
 {
     [TestClass]
     public class SceneXbimExporterTests : BaseTests<SceneXbimExporterTests>
     {
-        private async Task DoIfcModelExport(string fileName, IfcSceneExportSettings settings)
+        private async Task DoIfcModelExport(string fileName, IfcExportSettings settings)
         {
-            IfcSceneExportSummary result;
+            IfcSceneExportResult result;
             using (var store = IfcStore.Open(fileName))
             {
                 var exporter = new IfcSceneExporter(new XbimTesselationContext(LoggerFactory), LoggerFactory);
@@ -60,7 +60,7 @@ namespace Bitub.Ifc.Scene.Tests
         {
             await DoIfcModelExport(
                 @"Resources\Ifc2x3-Slab-BooleanResult.ifc",
-                new IfcSceneExportSettings { Transforming = SceneTransformationStrategy.Quaternion });
+                new IfcExportSettings { Transforming = SceneTransformationStrategy.Quaternion });
         }
 
         [TestMethod]
@@ -72,7 +72,7 @@ namespace Bitub.Ifc.Scene.Tests
 
             await DoIfcModelExport(
                 @"Resources\Ifc4-SampleHouse.ifc",
-                new IfcSceneExportSettings
+                new IfcExportSettings
                 {
                     Transforming = SceneTransformationStrategy.Quaternion,
                     FeatureToClassifierFilter = filter
@@ -85,7 +85,7 @@ namespace Bitub.Ifc.Scene.Tests
         {
             await DoIfcModelExport(
                 @"Resources\Ifc4-Storey-With-4Walls.ifc",
-                new IfcSceneExportSettings { Transforming = SceneTransformationStrategy.Quaternion });
+                new IfcExportSettings { Transforming = SceneTransformationStrategy.Quaternion });
         }
 
         [TestMethod]
@@ -94,7 +94,7 @@ namespace Bitub.Ifc.Scene.Tests
         {
             await DoIfcModelExport(
                 @"Resources\Ifc4-Rotated-IfcSite-1st-floor.ifc",
-                new IfcSceneExportSettings 
+                new IfcExportSettings 
                 { 
                     Transforming = SceneTransformationStrategy.Quaternion, 
                     Positioning = ScenePositioningStrategy.MostExtendedRegionCorrection
@@ -107,7 +107,7 @@ namespace Bitub.Ifc.Scene.Tests
         {
             await DoIfcModelExport(
                 @"Resources\Ifc4-Base-Groundfloor.ifc",
-                new IfcSceneExportSettings
+                new IfcExportSettings
                 {
                     Transforming = SceneTransformationStrategy.Quaternion,
                     Positioning = ScenePositioningStrategy.MostExtendedRegionCorrection
@@ -120,7 +120,7 @@ namespace Bitub.Ifc.Scene.Tests
         {
             await DoIfcModelExport(
                 @"Resources\Ifc4-Rotated-1st-floor.ifc",
-                new IfcSceneExportSettings
+                new IfcExportSettings
                 {
                     Transforming = SceneTransformationStrategy.Matrix,
                     Positioning = ScenePositioningStrategy.MeanTranslationCorrection
@@ -133,7 +133,7 @@ namespace Bitub.Ifc.Scene.Tests
         {
             await DoIfcModelExport(
                 @"Resources\Ifc4-Multi-Body-House.ifc",
-                new IfcSceneExportSettings
+                new IfcExportSettings
                 {
                     Transforming = SceneTransformationStrategy.Quaternion,
                     Positioning = ScenePositioningStrategy.MeanTranslationCorrection                    

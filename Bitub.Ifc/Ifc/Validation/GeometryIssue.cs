@@ -12,7 +12,7 @@ using Xbim.Common.Geometry;
 using Xbim.Ifc4.Interfaces;
 
 using Bitub.Dto.Spatial;
-using Bitub.Ifc.Scene;
+using Bitub.Ifc.Export;
 using Xbim.Ifc2x3.SharedBldgElements;
 
 namespace Bitub.Ifc.Validation

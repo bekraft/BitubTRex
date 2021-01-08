@@ -6,7 +6,7 @@ using Bitub.Dto.Scene;
 using Bitub.Dto.Spatial;
 using Bitub.Dto.Concept;
 
-namespace Bitub.Ifc.Scene
+namespace Bitub.Ifc.Export
 {
     public enum SceneTransformationStrategy
     {
@@ -24,8 +24,8 @@ namespace Bitub.Ifc.Scene
         MostExtendedRegionCorrection
     }
 
-    [XmlRoot("IfcSceneWriterSettings", Namespace = "https://github.com/bekraft/BitubTRex/Bitub.Ifc.Scene")]
-    public sealed class IfcSceneExportSettings
+    [XmlRoot("IfcExportSettings", Namespace = "https://github.com/bekraft/BitubTRex/Bitub.Ifc.Scene")]
+    public class IfcExportSettings
     {
         /// <summary>
         /// Translation correction strategy to be applied while transferring data.
@@ -54,12 +54,6 @@ namespace Bitub.Ifc.Scene
         public float UnitsPerMeter { get; set; } = 1.0f;
 
         /// <summary>
-        /// Classify by property paths. Each path consists of two or one fragment. Given two will embed values of a <>pset.property</c> will embed
-        /// <c>pset.property.value</c> if existing. Given a single fragment <c>property</c> will embed <c>.property.value</c>
-        /// </summary>
-        public Qualifier[] ClassifyByPropertyPath { get; set; } = new Qualifier[] { };
-
-        /// <summary>
         /// The representation contexts to transfer.
         /// </summary>
         public SceneContext[] UserRepresentationContext { get; set; } = new SceneContext[] { new SceneContext { Name = "Body" } };
@@ -74,11 +68,11 @@ namespace Bitub.Ifc.Scene
         /// </summary>
         public CanonicalFilterRule FeatureFilterRule { get; set; }
 
-        public IfcSceneExportSettings()
+        public IfcExportSettings()
         {
         }
 
-        public IfcSceneExportSettings(IfcSceneExportSettings settings)
+        public IfcExportSettings(IfcExportSettings settings)
         {
             foreach (var prop in GetType().GetProperties())
             {
@@ -86,15 +80,15 @@ namespace Bitub.Ifc.Scene
             }
         }
 
-        public static IfcSceneExportSettings ReadFrom(string fileName)
+        public static IfcExportSettings ReadFrom(string fileName)
         {
-            var serializer = new XmlSerializer(typeof(IfcSceneExportSettings));
-            return serializer.Deserialize(File.OpenText(fileName)) as IfcSceneExportSettings;
+            var serializer = new XmlSerializer(typeof(IfcExportSettings));
+            return serializer.Deserialize(File.OpenText(fileName)) as IfcExportSettings;
         }
 
         public void SaveTo(string fileName)
         {
-            var serializer = new XmlSerializer(typeof(IfcSceneExportSettings));
+            var serializer = new XmlSerializer(typeof(IfcExportSettings));
             serializer.Serialize(File.CreateText(fileName), this);
         }
     }

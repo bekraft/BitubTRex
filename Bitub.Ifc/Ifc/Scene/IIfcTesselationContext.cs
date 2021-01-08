@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 using Xbim.Common;
 
-namespace Bitub.Ifc.Scene
+namespace Bitub.Ifc.Export
 {
     /// <summary>
     /// A tuple of model entity label and an enumeration of scene represenation messages.
@@ -27,6 +27,6 @@ namespace Bitub.Ifc.Scene
     /// </summary>
     public interface IIfcTesselationContext 
     {        
-        IEnumerable<IfcProductSceneRepresentation> Tesselate(IModel m, IfcSceneExportSummary summary, CancelableProgressing progressing);
+        IEnumerable<IfcProductSceneRepresentation> Tesselate(IModel m, IfcSceneExportResult summary, CancelableProgressing progressing);
     }
 }

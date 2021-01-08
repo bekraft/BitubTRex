@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using System.Text;
 using System.Threading.Tasks;
 
-using Bitub.Ifc.Scene;
+using Bitub.Ifc.Export;
 using Bitub.Dto;
 using Bitub.Dto.Scene;
 using Bitub.Dto.Spatial;
@@ -22,7 +22,7 @@ using System.IO;
 using Xbim.Common.XbimExtensions;
 using Xbim.Common.Metadata;
 
-namespace Bitub.Ifc.Scene
+namespace Bitub.Ifc.Export
 {
     /// <summary>
     /// Tesselation context implementing Xbim shape triangulation via Open Cascade.
@@ -114,7 +114,7 @@ namespace Bitub.Ifc.Scene
                     .ToDictionary(t => t.EntityLabel, t => new SceneContext { Name = t.Item2 });
         }
 
-        private IDictionary<int, SceneContext> ContextsCreateFromSettings(IGeometryStoreReader gReader, IfcSceneExportSummary s)
+        private IDictionary<int, SceneContext> ContextsCreateFromSettings(IGeometryStoreReader gReader, IfcSceneExportResult s)
         {
             // Retrieve all context with geometry and match those to pregiven in settings
             return gReader.ContextIds
@@ -126,7 +126,7 @@ namespace Bitub.Ifc.Scene
         }
 
         // Compute contexts and related transformation
-        private void ComputeContextTransforms(IGeometryStoreReader gReader, IfcSceneExportSummary s, IDictionary<int, SceneContext> contextTable)
+        private void ComputeContextTransforms(IGeometryStoreReader gReader, IfcSceneExportResult s, IDictionary<int, SceneContext> contextTable)
         {
             foreach (var cr in gReader.ContextRegions)
             {
@@ -202,7 +202,7 @@ namespace Bitub.Ifc.Scene
         }
 
         // Creates a new representation context
-        private Representation GetOrCreateRepresentation(IfcSceneExportSummary s, XbimShapeInstance shape, TesselationPackage pkg)
+        private Representation GetOrCreateRepresentation(IfcSceneExportResult s, XbimShapeInstance shape, TesselationPackage pkg)
         {            
             var (context, contextWcs) = s.RepresentationContext(shape.RepresentationContext);
             var representation = pkg.Representations.FirstOrDefault(r => r.Context.Equals(context.Name));
@@ -226,7 +226,7 @@ namespace Bitub.Ifc.Scene
         }
 
         // Creates a transform
-        private Dto.Scene.Transform CreateTransform(IfcSceneExportSummary s, XbimShapeInstance shape)
+        private Dto.Scene.Transform CreateTransform(IfcSceneExportResult s, XbimShapeInstance shape)
         {
             // Context transformation (relative offset shift => make final transform relative to context shift)
             var contextWcs = s.TransformOf(shape.RepresentationContext) ?? XbimMatrix3D.Identity;
@@ -242,7 +242,7 @@ namespace Bitub.Ifc.Scene
         }
 
         // Append vertices and return shift
-        private void AppendVertices(Representation r, IfcSceneExportSummary summary, IEnumerable<XbimPoint3D> points)
+        private void AppendVertices(Representation r, IfcSceneExportResult summary, IEnumerable<XbimPoint3D> points)
         {
             PtArray ptArray = new PtArray();
             foreach (var p in points)
@@ -290,7 +290,7 @@ namespace Bitub.Ifc.Scene
         /// <param name="summary">The scene export summary</param>
         /// <param name="monitor">The progress emitter instance</param>
         /// <returns>An enumerable of tesselated product representations</returns>
-        public IEnumerable<IfcProductSceneRepresentation> Tesselate(IModel model, IfcSceneExportSummary summary, CancelableProgressing monitor)
+        public IEnumerable<IfcProductSceneRepresentation> Tesselate(IModel model, IfcSceneExportResult summary, CancelableProgressing monitor)
         {
             ReadGeometryStore(model, monitor);
 
