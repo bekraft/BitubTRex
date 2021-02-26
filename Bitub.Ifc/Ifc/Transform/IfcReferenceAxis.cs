@@ -4,7 +4,7 @@ using System.Xml.Serialization;
 using Xbim.Common.Geometry;
 
 using Bitub.Dto.Spatial;
-using Bitub.Ifc.Scene;
+using Bitub.Ifc.Export;
 using Bitub.Dto.Scene;
 
 namespace Bitub.Ifc.Transform

@@ -146,19 +146,26 @@ namespace Bitub.Ifc.Export
         {
             if (null != featureToClassifierFilter)
             {
-                foreach (var featureConcept in product.ToFeatures<IIfcSimpleProperty>(featureToClassifierFilter))
-                    component.Concepts.Add(featureConcept.ToClassifierOnValueEquals());
+                var classifiers = product
+                    .ToFeatures<IIfcSimpleProperty>(featureToClassifierFilter)
+                    .Select(fc => fc.ToClassifierOnValueEquals())
+                    .Distinct();
+
+                component.Concepts.AddRange(classifiers);
             }
             return component;
         }
 
         public static Component ToFullyFeaturedWith(this Component component, IIfcProduct product, CanonicalFilterRule featureFilterRule)
         {
-            component.Features.AddRange(Enumerable
-                // Add all, id, name and additional features
-                .Concat(product.ToBaseFeatures(), product.ToFeatures<IIfcSimpleProperty>())
-                // And filter by rule
-                .Where(f => featureFilterRule.IsAcceptedBy(f.Canonical)));
+            if (null != featureFilterRule)
+            {
+                component.Features.AddRange(Enumerable
+                    // Add all, id, name and additional features
+                    .Concat(product.ToBaseFeatures(), product.ToFeatures<IIfcSimpleProperty>())
+                    // And filter by rule
+                    .Where(f => featureFilterRule.IsAcceptedBy(f.Canonical)));
+            }
             return component;
         }
 

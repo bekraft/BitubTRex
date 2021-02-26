@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bitub.Ifc.Scene
+namespace Bitub.Ifc.Export
 {
     public abstract class IfcExporter
     {
