@@ -30,16 +30,18 @@ using SharpGLTF.Geometry.VertexTypes;
 
 namespace Bitub.Ifc.Export
 {
-    public class IfcGLTFSceneExporter
+    public class GLTFExporter : IExporter<ModelRoot>
     {
         #region Internals        
-        private readonly ILogger logger;
+        private readonly ILoggerFactory loggerFactory;
+        private readonly ILogger logger;        
+        private readonly ITesselationContext<ExportPreferences> tesselatorInstance;
         #endregion
 
         /// <summary>
         /// Export preferences.
         /// </summary>
-        public IfcExportSettings Preferences { get; private set; }
+        public ExportPreferences Preferences { get; set; } = new ExportPreferences();
 
         /// <summary>
         /// Default color settings.
@@ -47,33 +49,22 @@ namespace Bitub.Ifc.Export
         public XbimColourMap DefaultProductColorMap { get; set; } = new XbimColourMap(StandardColourMaps.IfcProductTypeMap);
 
 
-        public IfcGLTFSceneExporter(IfcExportSettings preferences, ILoggerFactory loggerFactory = null)
+        public GLTFExporter(ITesselationContext<ExportPreferences> tesselatorInstance, ILoggerFactory loggerFactory = null)
         {
-            logger = loggerFactory?.CreateLogger<IfcGLTFSceneExporter>();
-            Preferences = preferences;
+            this.logger = loggerFactory?.CreateLogger<GLTFExporter>();
+            this.loggerFactory = loggerFactory;
+            this.tesselatorInstance = tesselatorInstance;
         }
 
-        public Task<IfcGLTFExportResult> RunExport(IModel model, CancelableProgressing monitor)
+        public Task<ModelRoot> RunExport(IModel model, CancelableProgressing monitor)
         {
-            return Task.Run(() =>
-            {
-                try
-                {
-                    return new IfcGLTFExportResult(
-                        BuildScene(model, new IfcExportSettings(Preferences), monitor), model, Preferences);
-                }
-                catch (Exception e)
-                {
-                    monitor?.State.MarkBroken();
-                    logger.LogError("{0}: {1} [{2}]", e.GetType().Name, e.Message, e.StackTrace);
-                    return new IfcGLTFExportResult(e, model, Preferences);
-                }
-            });
+            return Task.Run(() => BuildScene(model, new ExportPreferences(Preferences), monitor));
         }
 
-        public ModelRoot BuildScene(IModel model, IfcExportSettings settings, CancelableProgressing monitor)
+        private ModelRoot BuildScene(IModel model, ExportPreferences preferences, CancelableProgressing monitor)
         {
             var sceneBuilder = new SharpGLTF.Scenes.SceneBuilder();
+            var exportContext = new ExportContext<ExportPreferences>(loggerFactory);
 
             var materials = model.ToMaterialBySurfaceStyles().ToDictionary(
                 m => m.Id.Nid,

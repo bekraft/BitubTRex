@@ -10,6 +10,16 @@ namespace Bitub.Dto
     {
         public static readonly Regex guidRegExpression = new Regex(@"^[{(]?[0-9A-F]{8}[-]?([0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+        public static RefId ToRefId(this int index)
+        {
+            return new RefId { Nid = index };
+        }
+
+        public static RefId ToRefId(this Qualifier qualifier)
+        {
+            return new RefId { Sid = qualifier };
+        }
+
         #region GlobalUniqueId context
 
         /// <summary>

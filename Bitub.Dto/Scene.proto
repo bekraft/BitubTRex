@@ -38,10 +38,14 @@ message Mesh {
 // A generic meshed face
 message Face {
 	Orientation orient = 1;
-    repeated uint32 loop = 2;
-	repeated float uv = 3;
-	bool isPlanar = 4;
-	Mesh mesh = 5;
+	RefId material = 2;
+
+    repeated uint32 loop = 3;
+	repeated float normal = 4;
+	repeated float uv = 5;
+	bool isPlanar = 6;
+
+	Mesh mesh = 10;
 }
 
 // UV concept
@@ -65,28 +69,34 @@ message Patch {
 
 // XYZ Container
 message PtArray {
-	repeated float xyz = 1;
+	RefId id = 1;
+	repeated float xyz = 2;
 }
 
-// A BREP body face container
+// A BREP body with explicit face container
 message FaceBody {
-	uint32 ptSet = 1;
-	RefId material = 2;
-	bool isShell = 3; 
-	bool isConvex = 4;	
+	RefId pts = 1;	
 	
-	Transform transform = 10;
-	repeated Face faces = 11;	
+	bool isShell = 3; 
+	bool isConvex = 4;			
+	repeated Face faces = 10;	
 }
 
-// A wired body container
-message WireBody {
-	uint32 ptSet = 1;
-	RefId material = 2;
+// Simple all-in-one meshed body with no explicit faces
+message MeshBody {
+	RefId pts =  1;
 
-	Transform transform = 10;
-    repeated Patch patches = 11;
-	repeated Point singletons = 12;
+	bool isShell = 2;
+	bool isConvex = 3;
+	Mesh tess = 4;
+}
+
+// A wired body container having only patches and singleton points
+message WireBody {
+	RefId pts = 1;
+	
+    repeated Patch patches = 10;
+	repeated Point singletons = 11;
 }
 
 message Quaternion {
@@ -111,15 +121,31 @@ message Transform {
 	Bitub.Dto.Spatial.XYZ t = 3;
 }
 
-// All bodies inside share the same vertex basis and context classification.
-message Representation {
-	string context = 1;
+// Body kind selector
+message Body {
+	oneof bodySelect {
+		MeshBody meshBody = 1;
+		FaceBody faceBody = 2;
+		WireBody wireBody = 3;
+	}
+}
 
-	Bitub.Dto.Spatial.BoundingBox boundingBox = 3;	
+// All bodies inside share the same vertex basis and context classification.
+message ShapeBody {
+	RefId id = 1;
 
 	repeated PtArray points = 5;
-	repeated FaceBody bodies = 6;	
-	repeated WireBody wires = 7;
+	repeated Body bodies = 6;
+}
+
+// A concrete shape of a representation
+message Shape {
+	RefId shapeBody = 1;	
+	RefId material = 2;
+	Qualifier context = 3;
+
+	Transform transform = 4;
+	Bitub.Dto.Spatial.BoundingBox boundingBox = 5;
 }
 
 // Atomic part of a component
@@ -129,13 +155,15 @@ message Component {
 	string name = 5;
 	repeated Classifier concepts = 6;	
 	repeated GlobalUniqueId children = 7;
-	repeated Representation representations = 8;
+	repeated Shape shapes = 8;
 	repeated Bitub.Dto.Concept.FeatureConcept features = 9;
+	Bitub.Dto.Spatial.BoundingBox boundingBox = 10;
 }
 
 // Material 
 message Material {
     RefId id = 1;
+
     string name = 2;
 	bool hintRenderBothFaces = 3;
 	bool hintSwitchFrontRearFaces = 4;
@@ -193,11 +221,12 @@ message SceneModel {
 	repeated SceneContext contexts = 5;
 	repeated Material materials = 6;
 	repeated Component components = 7;	
+	repeated ShapeBody shapeBodies = 8;
 }
 
 // Context related data
 message SceneContext {
-	string name = 1;
+	Qualifier name = 1;
 	double fDeflection = 2;
 	double fTolerance = 3;
 	Transform wcs = 5;

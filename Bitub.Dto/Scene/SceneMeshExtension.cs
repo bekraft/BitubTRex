@@ -57,26 +57,6 @@ namespace Bitub.Dto.Scene
             return newMesh;
         }
 
-        /// <summary>
-        /// True, if component has a mesh body.
-        /// </summary>
-        /// <param name="c"></param>
-        /// <returns></returns>
-        public static bool IsMeshed(this Component c)
-        {
-            return c.Representations.Any(r => r.Bodies.Any(b => b.Faces.Count > 0));
-        }
-
-        /// <summary>
-        /// True, if component has a wire representation.
-        /// </summary>
-        /// <param name="c"></param>
-        /// <returns></returns>
-        public static bool IsWired(this Component c)
-        {
-            return c.Representations.Any(r => r.Wires.Any(w => w.Patches.Count > 0));
-        }
-
         public static bool IsTriangle(this Facet t)
         {
             switch(t.Type)
