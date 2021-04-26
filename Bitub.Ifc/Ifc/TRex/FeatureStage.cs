@@ -4,6 +4,9 @@ using Bitub.Dto.Concept;
 
 namespace Bitub.Ifc.TRex
 {
+    /// <summary>
+    /// A feature concept bound to a stage level in model hierarchy.
+    /// </summary>
     public class FeatureStage : IEquatable<FeatureStage>, IComparable<FeatureStage>
     {
         public readonly FeatureConcept feature;

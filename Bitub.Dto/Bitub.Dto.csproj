@@ -2,7 +2,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Protoc>$(UserProfile)\.nuget\packages\google.protobuf.tools\3.8.0\tools\windows_x64\protoc.exe</Protoc>
+    <Protoc>$(UserProfile)\.nuget\packages\google.protobuf.tools\3.15.8\tools\windows_x64\protoc.exe</Protoc>
+    <ProtobufTools>$(UserProfile)\.nuget\packages\google.protobuf.tools\3.15.8\tools\.</ProtobufTools>
     
     <BuildMajor>1</BuildMajor>
     <BuildMinor>0</BuildMinor>
@@ -85,10 +86,10 @@
   
   <ItemGroup>
     <PackageReference Include="Google.Protobuf">
-      <Version>3.8.0</Version>
+      <Version>3.15.8</Version>
     </PackageReference>
     <PackageReference Include="Google.Protobuf.Tools">
-      <Version>3.8.0</Version>
+      <Version>3.15.8</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.9" />
     <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
@@ -97,11 +98,10 @@
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Message Text="Building $(Version)" Importance="High" />
-    <Message Text="Including from protobuf sources PROTOBUF_SRC=&quot;$(PROTOBUF_SRC)&quot;" Importance="High" />
     <Exec Command="if not exist  &quot;$(ProjectDir)Generated&quot; mkdir &quot;$(ProjectDir)Generated&quot;" />
-    <Exec Command="$(Protoc) -I=&quot;$(PROTOBUF_SRC)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Common.proto&quot;" />
-    <Exec Command="$(Protoc) -I=&quot;$(PROTOBUF_SRC)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Spatial.proto&quot;" />
-    <Exec Command="$(Protoc) -I=&quot;$(PROTOBUF_SRC)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Concept.proto&quot;" />
-    <Exec Command="$(Protoc) -I=&quot;$(PROTOBUF_SRC)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Scene.proto&quot;" />    
+    <Exec Command="$(Protoc) -I=&quot;$(ProtobufTools)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Common.proto&quot;" />
+    <Exec Command="$(Protoc) -I=&quot;$(ProtobufTools)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Spatial.proto&quot;" />
+    <Exec Command="$(Protoc) -I=&quot;$(ProtobufTools)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Concept.proto&quot;" />
+    <Exec Command="$(Protoc) -I=&quot;$(ProtobufTools)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Scene.proto&quot;" />    
   </Target>
 </Project>

@@ -171,24 +171,21 @@ message Color {
 }
 
 // Scene meta data
-message SceneMetaData {
-	GlobalUniqueId id = 1;
-	Qualifier project = 2;
-	string description = 3;
-
-	Bitub.Dto.Spatial.LatLon  wgs84 = 4;
-	string crs = 5;
-	string hrs = 6;
+message MetaData {
+	string name = 1;
+	string description = 2;
+	google.protobuf.Timestamp stamp = 3;
+	
+	Bitub.Dto.Spatial.LatLon EPSG4326 = 4;
+	string CRSHint = 5;
+	string HRSHint = 6;
 }
 
 // Global root message
-message SceneModel {
-	// SceneMetaData metadata = 1;
-	GlobalUniqueId id = 1;
-    string name = 2;
-	
-	float unitsPerMeter = 3;
-	google.protobuf.Timestamp stamp = 4;
+message ComponentModel {
+	Qualifier id = 1;
+	MetaData metadata = 2;
+	float unitsPerMeter = 3;	
 
 	repeated SceneContext contexts = 5;
 	repeated Material materials = 6;
@@ -215,21 +212,4 @@ enum SceneDataType {
 	COMPONENT_AND_MATERIAL = 3;
 	FULL_COMPONENT = 7;
 	ALL = 15;	
-}
-
-// A spatial sceene request
-message SceneModelRequest {
-	RefId id = 1;
-	Qualifier scene = 2;
-	SceneDataType sceneDataType = 3;
-
-	oneof viewpointOrABox {
-		Bitub.Dto.Spatial.Viewpoint viewpoint = 4;
-		Bitub.Dto.Spatial.ABox abox = 5;
-	}
-
-	// If true, only deliver new data
-	Qualifier requestToken = 6;
-	// Prefilter scene by qualifiers (based on scene components classification)
-	repeated Qualifier filter = 7; 
 }

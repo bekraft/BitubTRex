@@ -5,11 +5,13 @@ using Google.Protobuf.WellKnownTypes;
 using Xbim.Common;
 using Xbim.Ifc4.Interfaces;
 
+using Bitub.Ifc;
+using Bitub.Dto;
 using Bitub.Dto.Scene;
 
 namespace Bitub.Ifc.Export
 {
-    public sealed class IfcSceneExportResult : IfcExportResult<SceneModel, IfcExportSettings>
+    public sealed class IfcSceneExportResult : IfcExportResult<ComponentModel, IfcExportSettings>
     {
         #region Internals
 
@@ -26,14 +28,17 @@ namespace Bitub.Ifc.Export
             FailureReason = exception;
         }
 
-        private SceneModel CreateNew(IIfcProject p, IfcExportSettings settings)
+        private ComponentModel CreateNew(IIfcProject p, IfcExportSettings settings)
         {
-            return new SceneModel()
+            return new ComponentModel()
             {
-                Name = p?.Name,
-                Id = p?.GlobalId.ToGlobalUniqueId(),
-                UnitsPerMeter = settings.UnitsPerMeter,
-                Stamp = Timestamp.FromDateTime(DateTime.Now.ToUniversalTime())
+                Metadata = new MetaData
+                {
+                    Name = p?.Name,
+                    Stamp = Timestamp.FromDateTime(DateTime.Now.ToUniversalTime())
+                },                
+                Id = p?.GlobalId.ToGlobalUniqueId().ToQualifier(),
+                UnitsPerMeter = settings.UnitsPerMeter               
             };
         }
 
