@@ -1,4 +1,8 @@
-﻿using Bitub.Dto;
+﻿using System;
+using System.Collections.Generic;
+
+using Bitub.Dto;
+using Bitub.Dto.Concept;
 
 namespace Bitub.Ifc.TRex
 {
@@ -14,5 +18,16 @@ namespace Bitub.Ifc.TRex
         public FeatureStageStrategy StageStrategy { get; set; } = FeatureStageStrategy.LastOf;
 
         public FeatureStageRange StageRange { get; set; } = FeatureStageRange.GlobalRange;
+    }
+
+    public sealed class FeatureEntityMapping
+    {
+        public CanonicalFilterRule EntityTypeScope { get; set; }
+        public IDictionary<Qualifier, FeatureConcept> Feature { get; private set; }
+
+        public FeatureEntityMapping(StringComparison stringComparison)
+        {
+            Feature = new Dictionary<Qualifier, FeatureConcept>(new QualifierCaseEqualityComparer(stringComparison));
+        }
     }
 }

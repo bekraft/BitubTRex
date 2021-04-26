@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bitub.Dto.Scene
 {
@@ -13,7 +9,7 @@ namespace Bitub.Dto.Scene
     {
         public uint A, B, C;
 
-        public bool IsValid => A != B && B != C;
+        public bool IsValid { get => A != B && B != C; }
 
         /// <summary>
         /// Shifting the indices by some positive value.

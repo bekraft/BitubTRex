@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,10 +7,10 @@ using Microsoft.Extensions.Logging;
 using System.Text;
 using System.Threading.Tasks;
 
-using Bitub.Ifc.Export;
 using Bitub.Dto;
 using Bitub.Dto.Scene;
 using Bitub.Dto.Spatial;
+using Bitub.Ifc.Export;
 
 using Bitub.Ifc.Transform;
 
@@ -18,7 +19,7 @@ using Xbim.Common.Geometry;
 using Xbim.ModelGeometry.Scene;
 
 using Xbim.Ifc4.Interfaces;
-using System.IO;
+
 using Xbim.Common.XbimExtensions;
 using Xbim.Common.Metadata;
 
@@ -27,51 +28,46 @@ namespace Bitub.Ifc.Export
     /// <summary>
     /// Tesselation context implementing Xbim shape triangulation via Open Cascade.
     /// </summary>
-    public sealed class XbimTesselationContext : IIfcTesselationContext
+    public sealed class XbimTesselationContext : ITesselationContext<ExportPreferences>
     {
-        /// <summary>
-        /// Internal tesselation package aggregator.
-        /// </summary>
-        private class TesselationPackage
+        #region Internals
+        private readonly ILogger logger;
+
+        // Aggregates component and remaining shape labels.
+        private class ComponentShape
         {
-            internal readonly List<Representation> Representations;
-            
-            private List<string> _requiredShapesInstances;
-            private List<int> _doneShapeGeometryLabels;
+            // Sorted list
+            readonly List<int> instanceLabels = new List<int>();
+            readonly List<Shape> shapeList = new List<Shape>();
 
-            internal TesselationPackage(IEnumerable<XbimShapeInstance> required)
+            internal ComponentShape(IEnumerable<XbimShapeInstance> productShapeInstances)
             {
-                Representations = new List<Representation>();
-                _requiredShapesInstances = required.Select(i => LabelShapeInstance(i)).ToList();                
+                instanceLabels = productShapeInstances.Select(i => i.InstanceLabel).OrderBy(i => i).ToList();
             }
 
-            internal string LabelShapeInstance(XbimShapeInstance s) => $"{s.ShapeGeometryLabel}/{s.InstanceLabel}";
-
-            internal bool IsShapeGeometryDone(XbimShapeGeometry g) => null != _doneShapeGeometryLabels && _doneShapeGeometryLabels.Contains(g.ShapeLabel);
-
-            internal bool RemoveDone(XbimShapeInstance shape)
+            internal bool Add(XbimShapeInstance productShapeInstance, Shape productShape)
             {
-                bool removed = _requiredShapesInstances.Remove(LabelShapeInstance(shape));
-                if(CountOpenInstances > 0)
-                {   // Only if we are not done yet
-                    if (null == _doneShapeGeometryLabels)
-                        _doneShapeGeometryLabels = new List<int>();
-                    _doneShapeGeometryLabels.Add(shape.ShapeGeometryLabel);
-                }
-                return removed;
+                var idx = instanceLabels.BinarySearch(productShapeInstance.InstanceLabel);
+                if (0 > idx)
+                    return false;
+                else
+                    instanceLabels.RemoveAt(idx);
+
+                shapeList.Add(productShape);
+                return true;
             }
 
-            internal int CountOpenInstances => _requiredShapesInstances.Count;
-
-            internal bool IsDone => _requiredShapesInstances.Count == 0;
-
-            internal IfcProductSceneRepresentation ToSceneRepresentation(int productLabel)
+            internal IEnumerable<Shape> Shapes
             {
-                return new IfcProductSceneRepresentation(productLabel, Representations);
+                get => shapeList.ToArray();
+            }
+
+            internal bool IsComplete
+            {
+                get => instanceLabels.Count == 0;
             }
         }
-
-        private readonly ILogger Logger;
+        #endregion
 
         /// <summary>
         /// A list of EXPRESS IFC types to be excluded while exporting tesselations. Default is empty.
@@ -84,172 +80,7 @@ namespace Bitub.Ifc.Export
         /// <param name="loggerFactory">Optional logger factory</param>
         public XbimTesselationContext(ILoggerFactory loggerFactory = null)
         {
-            Logger = loggerFactory?.CreateLogger<XbimTesselationContext>();
-        }
-
-        private IDictionary<int, SceneContext> ContextsCreateFromModel(IModel model, IGeometryStoreReader gReader)
-        {
-            return gReader.ContextIds
-                   .Select(label => model.Instances[label])
-                   .OfType<IIfcRepresentationContext>()
-                   .ToDictionary(c => c.EntityLabel, c => new SceneContext { Name = c.ContextIdentifier });
-        }
-
-        private IDictionary<int, SceneContext> ContextsCreateFrom(IModel model, IGeometryStoreReader gReader, string[] contextIdentifiers)
-        {
-            return gReader.ContextIds
-                   .Select(label => model.Instances[label])
-                   .OfType<IIfcRepresentationContext>()
-                   .Select(c => (c.EntityLabel, contextIdentifiers.FirstOrDefault(id => id == c.ContextIdentifier)))
-                   .Where(t => t.Item2 != null)
-                   .ToDictionary(t => t.EntityLabel, t => new SceneContext { Name = t.Item2 } );
-        }
-
-        private IDictionary<int, SceneContext> SceneContextsOf(IEnumerable<IIfcRepresentationContext> modelContexts, string[] identifiers, bool ignoreCase = false)
-        {
-            var comparisionMethod = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
-            return modelContexts
-                    .Select(c => (c.EntityLabel, identifiers.FirstOrDefault(id => string.Equals(id, c.ContextIdentifier, comparisionMethod))))
-                    .Where(t => t.Item2 != null)
-                    .ToDictionary(t => t.EntityLabel, t => new SceneContext { Name = t.Item2 });
-        }
-
-        private IDictionary<int, SceneContext> ContextsCreateFromSettings(IGeometryStoreReader gReader, IfcSceneExportResult s)
-        {
-            // Retrieve all context with geometry and match those to pregiven in settings
-            return gReader.ContextIds
-                   .Select(label => s.Model.Instances[label])
-                   .OfType<IIfcRepresentationContext>()
-                   .Select(c => (c.EntityLabel, s.Preferences.UserRepresentationContext.FirstOrDefault(sc => StringComparer.OrdinalIgnoreCase.Equals(sc.Name, c.ContextIdentifier))))
-                   .Where(t => t.Item2 != null)
-                   .ToDictionary(t => t.EntityLabel, t => t.Item2);
-        }
-
-        // Compute contexts and related transformation
-        private void ComputeContextTransforms(IGeometryStoreReader gReader, IfcSceneExportResult s, IDictionary<int, SceneContext> contextTable)
-        {
-            foreach (var cr in gReader.ContextRegions)
-            {
-                SceneContext sc;
-                if (contextTable.TryGetValue(cr.ContextLabel, out sc))
-                {
-                    XbimVector3D offset = XbimVector3D.Zero;
-                    XbimVector3D mean = XbimVector3D.Zero;
-                    foreach (var r in cr)
-                    {
-                        mean += r.Centre.ToVector();
-                        sc.Regions.Add(r.ToRegion(s.Scale));
-                    }
-                    mean *= 1.0 / cr.Count;
-
-                    switch (s.Preferences.Positioning)
-                    {
-                        case ScenePositioningStrategy.UserCorrection:
-                            // Center at user's center
-                            offset = s.Preferences.UserModelCenter.ToXbimVector3DMeter(s.Model.ModelFactors);
-                            break;
-                        case ScenePositioningStrategy.MostPopulatedRegionCorrection:
-                            // Center at most populated
-                            offset = cr.MostPopulated().Centre.ToVector();
-                            break;
-                        case ScenePositioningStrategy.MostExtendedRegionCorrection:
-                            // Center at largest
-                            offset = cr.Largest().Centre.ToVector();
-                            break;
-                        case ScenePositioningStrategy.MeanTranslationCorrection:
-                            // Use mean correction
-                            offset = mean;
-                            break;
-                        case ScenePositioningStrategy.SignificantPopulationCorrection:
-                            var population = cr.Sum(r => r.Population);
-                            XbimRegion rs = null;
-                            double max = double.NegativeInfinity;
-                            foreach (var r in cr)
-                            {
-                                // Compute weighted extent by relative population
-                                double factor = r.Size.Length * r.Population / population;
-                                if (max < factor)
-                                {
-                                    rs = r;
-                                    max = factor;
-                                }
-                            }
-                            offset = rs.Centre.ToVector();
-                            break;
-                        case ScenePositioningStrategy.NoCorrection:
-                            // No correction
-                            Logger?.LogInformation($"No translation correction applied by settings to context '{cr.ContextLabel}'");
-                            break;
-                        default:
-                            throw new NotImplementedException($"Missing implementation for '{s.Preferences.Positioning}'");
-                    }
-
-                    if (s.Preferences.Transforming == SceneTransformationStrategy.Matrix)
-                        // If Matrix or Global use rotation matrix representation
-                        sc.Wcs = new XbimMatrix3D(offset).ToRotation(s.Scale);
-                    else
-                        // Otherwise use Quaternion representation
-                        sc.Wcs = new XbimMatrix3D(offset).ToQuaternion(s.Scale);
-
-                    // Set correction to negative offset shift (without scale since in model space units)
-                    s.SetRepresentationContext(cr.ContextLabel, sc, new XbimMatrix3D(offset * -1));
-                }
-                else
-                {
-                    Logger?.LogWarning("Excluding context label '{0}'. Not mentioned by settings.", cr.ContextLabel);
-                }
-            }
-        }
-
-        // Creates a new representation context
-        private Representation GetOrCreateRepresentation(IfcSceneExportResult s, XbimShapeInstance shape, TesselationPackage pkg)
-        {            
-            var (context, contextWcs) = s.RepresentationContext(shape.RepresentationContext);
-            var representation = pkg.Representations.FirstOrDefault(r => r.Context.Equals(context.Name));
-            // left expansion & concatenation in xbim !
-            var aabb = shape.BoundingBox.ToABox(s.Scale, p => (shape.Transformation * contextWcs).Transform(p));
-
-            if (null == representation)
-            {   // Create new representation
-                representation = new Representation
-                {
-                    Context = context.Name,
-                    BoundingBox = new BoundingBox { ABox = aabb }
-                };
-                pkg.Representations.Add(representation);
-            }
-            else
-            {   // Union bounding boxes
-                representation.BoundingBox.ABox = representation.BoundingBox.ABox.UnionWith(aabb);
-            }
-            return representation;
-        }
-
-        // Creates a transform
-        private Dto.Scene.Transform CreateTransform(IfcSceneExportResult s, XbimShapeInstance shape)
-        {
-            // Context transformation (relative offset shift => make final transform relative to context shift)
-            var contextWcs = s.TransformOf(shape.RepresentationContext) ?? XbimMatrix3D.Identity;
-            switch (s.Preferences.Transforming)
-            {
-                case SceneTransformationStrategy.Matrix:
-                    return (shape.Transformation * contextWcs).ToRotation(s.Scale);
-                case SceneTransformationStrategy.Quaternion:
-                    return (shape.Transformation * contextWcs).ToQuaternion(s.Scale);
-                default:
-                    throw new NotImplementedException($"Missing implementation for '{s.Preferences.Transforming}'");
-            }
-        }
-
-        // Append vertices and return shift
-        private void AppendVertices(Representation r, IfcSceneExportResult summary, IEnumerable<XbimPoint3D> points)
-        {
-            PtArray ptArray = new PtArray();
-            foreach (var p in points)
-                // Append to vertices and apply scale
-                p.AppendTo(ptArray.Xyz, summary.Scale);
-
-            r.Points.Add(ptArray);
+            logger = loggerFactory?.CreateLogger<XbimTesselationContext>();
         }
 
         /// <summary>
@@ -259,7 +90,7 @@ namespace Bitub.Ifc.Export
         /// <param name="progressing">The progress emitter</param>
         /// <param name="forceUpdate">Whether to force an update of geometry store anyway</param>
         /// <returns>The given udpated state or a new state</returns>
-        public IEnumerable<IIfcRepresentationContext> ReadGeometryStore(IModel model, CancelableProgressing progressing, bool forceUpdate = false)
+        public IGeometryStore ReadGeometryStore(IModel model, CancelableProgressing progressing, bool forceUpdate = false)
         {
             // Use Xbim Model Context for geometry creation            
             if (forceUpdate || (model.GeometryStore?.IsEmpty ?? false))
@@ -271,16 +102,10 @@ namespace Bitub.Ifc.Export
                     progressing?.NotifyOnProgressChange();
                 };
                 
-                var context = new Xbim3DModelContext(model, "model", null, Logger);                
-                context.CreateContext(progressDelegate, false);
-                return context.Contexts;
+                var context = new Xbim3DModelContext(model, "model", null, logger);                
+                context.CreateContext(progressDelegate, false);                
             }
-            else
-            {
-                return model.GeometryStore.BeginRead().ContextIds
-                        .Select(label => model.Instances[label])
-                        .Cast<IIfcRepresentationContext>();
-            }
+            return model.GeometryStore;
         }
 
         /// <summary>
@@ -290,22 +115,35 @@ namespace Bitub.Ifc.Export
         /// <param name="summary">The scene export summary</param>
         /// <param name="monitor">The progress emitter instance</param>
         /// <returns>An enumerable of tesselated product representations</returns>
-        public IEnumerable<IfcProductSceneRepresentation> Tesselate(IModel model, IfcSceneExportResult summary, CancelableProgressing monitor)
+        public IEnumerable<TesselationMessage> Tesselate(IModel model, ExportContext<ExportPreferences> ec, CancelableProgressing monitor)
         {
-            ReadGeometryStore(model, monitor);
+            return Tesselate(model, ec, monitor, XbimGeometryRepresentationType.OpeningsAndAdditionsIncluded);
+        }
+
+        public IEnumerable<TesselationMessage> Tesselate(IModel model, 
+            ExportContext<ExportPreferences> ec, CancelableProgressing monitor, params XbimGeometryRepresentationType[] geometryTypes)
+        {
+            var geometryStore = ReadGeometryStore(model, monitor);
+            Array.Sort(geometryTypes);
 
             short[] excludeTypeId = ExcludeExpressType.Select(t => model.Metadata.ExpressTypeId(t.ExpressName)).ToArray();
             Array.Sort(excludeTypeId);
 
             // Start reading the geometry store built before
-            using (var gReader = model.GeometryStore.BeginRead())
+            using (var gReader = geometryStore.BeginRead())
             {
                 int totalCount = gReader.ShapeGeometries.Count();
                 int currentCount = 0;
                 // Product label vs. Component and candidate shape labels
-                var packageCache = new SortedDictionary<int, TesselationPackage>();
-                // Compute contexts
-                ComputeContextTransforms(gReader, summary, ContextsCreateFromSettings(gReader, summary));
+                var componentCache = new SortedDictionary<int, ComponentShape>();
+
+                // Compute contexts and push them to cache
+                var activeContexts = ec.FilterActiveUserSceneContexts(model, gReader.ContextIds.ToArray()).ToDictionary(g => g.Item1, g => g.Item2);
+                foreach (var contextTransform in ec.CreateSceneContextTransforms(model.ModelFactors, gReader.ContextRegions, activeContexts))
+                {
+                    ec.contextCache.TryAdd(contextTransform.contextLabel, contextTransform);
+                    yield return new TesselationMessage(contextTransform);
+                }
 
                 monitor?.NotifyProgressEstimateUpdate(totalCount);
 
@@ -320,15 +158,15 @@ namespace Bitub.Ifc.Export
                     currentCount++;
                     
                     monitor?.State.UpdateDone(currentCount, "Running tesselation...");
-                    monitor?.NotifyOnProgressChange();                   
+                    monitor?.NotifyOnProgressChange();
 
                     if (geometry.ShapeData.Length <= 0)
                         // No geometry
                         continue;
 
                     var shapes = gReader.ShapeInstancesOfGeometry(geometry.ShapeLabel)
-                        .Where(i => 0 > Array.BinarySearch(excludeTypeId, i.IfcTypeId) 
-                        && i.RepresentationType == XbimGeometryRepresentationType.OpeningsAndAdditionsIncluded);
+                        // Skip types defined by exclusion and those which aren't defined by geometry types
+                        .Where(i => 0 > Array.BinarySearch(excludeTypeId, i.IfcTypeId) && 0 <= Array.BinarySearch(geometryTypes, i.RepresentationType));
 
                     if (!shapes.Any())
                         // No shape instances
@@ -338,7 +176,34 @@ namespace Bitub.Ifc.Export
                     {
                         using (var br = new BinaryReader(ms))
                         {
-                            XbimShapeTriangulation tr = br.ReadShapeTriangulation();                            
+                            XbimShapeTriangulation tr = br.ReadShapeTriangulation();
+                            
+                            // Create representation
+                            var shapeBody = new ShapeBody()
+                            {
+                                Id = new RefId { Nid = geometry.ShapeLabel },
+                            };
+
+                            if (ec.Current.BodyExportType.HasFlag(SceneBodyExportType.FaceBody))
+                            {
+                                shapeBody.Bodies.Add(new Body { FaceBody = CreateFaceBody(ec, tr, new RefId { Nid = shapeBody.Points.Count }) });
+                            }
+                            if (ec.Current.BodyExportType.HasFlag(SceneBodyExportType.MeshBody))
+                            {
+                                shapeBody.Bodies.Add(new Body { MeshBody = CreateMeshBody(ec, tr, new RefId { Nid = shapeBody.Points.Count }) });
+                            }
+                            if (ec.Current.BodyExportType.HasFlag(SceneBodyExportType.WireBody))
+                            {
+                                // TODO Support wires, find curves by mesh investigation, see tesselation validation support
+                                throw new NotImplementedException("Wire body currently not supported/implemented.");
+                            }
+
+                            var ptArray = CreatePtArray(ec, tr.Vertices);
+                            ptArray.Id = new RefId { Nid = shapeBody.Points.Count };
+                            shapeBody.Points.Add(ptArray);
+                            yield return new TesselationMessage(new ShapeRepresentation(geometry.IfcShapeLabel, shapeBody));
+                            
+                            // Create shapes
                             foreach (XbimShapeInstance shape in shapes)
                             {
                                 if (monitor?.State.IsAboutCancelling ?? false)
@@ -350,86 +215,22 @@ namespace Bitub.Ifc.Export
                                 var product = model.Instances[shape.IfcProductLabel] as IIfcProduct;
 
                                 // Try first to find the referenced component
-                                TesselationPackage pkg;
-                                if (!packageCache.TryGetValue(shape.IfcProductLabel, out pkg))
+                                ComponentShape cShape;
+                                if (!componentCache.TryGetValue(shape.IfcProductLabel, out cShape))
                                 {
                                     // New component ToDo shape tuple built from component and todo ShapeGeometryLabel
-                                    pkg = new TesselationPackage(gReader.ShapeInstancesOfEntity(product));
-                                    packageCache[shape.IfcProductLabel] = pkg;
+                                    cShape = new ComponentShape(gReader.ShapeInstancesOfEntity(product)
+                                        .Where(i => 0 > Array.BinarySearch(excludeTypeId, i.IfcTypeId) && 0 <= Array.BinarySearch(geometryTypes, i.RepresentationType)));
+                                    componentCache[shape.IfcProductLabel] = cShape;
                                 }
 
-                                var ctx = summary.ContextOf(shape.RepresentationContext);
-                                if (null == ctx)
-                                {
-                                    Logger?.LogWarning($"Shape of representation #{shape.RepresentationContext} of product #{product.EntityLabel} out of context scope. Skipped.");
-                                    continue;
-                                }
-
-                                // Check for representation
-                                var representation = GetOrCreateRepresentation(summary, shape, pkg);
-
-                                if (!pkg.IsShapeGeometryDone(geometry))
-                                    AppendVertices(representation, summary, tr.Vertices);
-
-                                // TODO Use "bias" definition to adjust biased local offsets
-                                var body = new FaceBody
-                                {
-                                    Material = new RefId { Nid = shape.StyleLabel > 0 ? shape.StyleLabel : shape.IfcTypeId * -1 },
-                                    Transform = CreateTransform(summary, shape),
-                                    PtSet = (uint)representation.Points.Count - 1,
-                                };
-
-                                foreach (var face in tr.Faces)
-                                {
-                                    if (face.Indices.Count % 3 != 0)
-                                        throw new NotSupportedException("Expecting triangular meshes only");
-
-                                    // Translate Xbim face definition
-                                    var bodyFace = new Face
-                                    {
-                                        IsPlanar = face.IsPlanar,                                        
-                                        Mesh = new Mesh
-                                        {
-                                            Type = FacetType.TriMesh,
-                                            Orient = Orientation.Ccw
-                                        }
-                                    };
-
-                                    switch (face.NormalCount)
-                                    {
-                                        case 0:
-                                            // No normals at all
-                                            break;
-                                        case 1:
-                                            // Single normal
-                                            bodyFace.IsPlanar = true;
-                                            face.Normals[0].Normal.AppendTo(bodyFace.Mesh.Normal);
-                                            break;
-                                        default:
-                                            // No planar face
-                                            if (face.NormalCount != face.Indices.Count)
-                                                throw new NotSupportedException($"Incorrect count of normals per face mesh (expecting {face.Indices.Count}, have {face.NormalCount}");
-
-                                            foreach (var n in face.Normals.Select(n => n.Normal))
-                                                n.AppendTo(bodyFace.Mesh.Normal);
-
-                                            break;
-                                    }
-
-                                    bodyFace.Mesh.Vertex.AddRange(face.Indices.Select(i => (uint)i));
-                                    body.Faces.Add(bodyFace);
-                                }
-
-                                // Add body to known component
-                                representation.Bodies.Add(body);
-                                // Remove geometry label from todo list
-                                pkg.RemoveDone(shape);
+                                cShape.Add(shape, CreateShape(ec, shape));
 
                                 // If no shape instances left
-                                if (pkg.IsDone)
+                                if (cShape.IsComplete)
                                 {   
-                                    yield return pkg.ToSceneRepresentation(shape.IfcProductLabel);
-                                    packageCache.Remove(shape.IfcProductLabel);
+                                    yield return new TesselationMessage(new ProductShape(shape.IfcProductLabel, cShape.Shapes));
+                                    componentCache.Remove(shape.IfcProductLabel);
                                 }
                             }
                         }
@@ -437,19 +238,137 @@ namespace Bitub.Ifc.Export
                 }
 
                 // Return most recent
-                if (packageCache.Count > 0)
+                if (componentCache.Count > 0)
                 {
-                    Logger?.LogWarning($"Detected {packageCache.Count} unfinished geometry entries. Missing shapes.");
-                    foreach (var e in packageCache)
+                    logger?.LogWarning($"Detected {componentCache.Count} unfinished geometry entries. Missing shapes.");
+                    foreach (var e in componentCache)
                     {
                         // Announce missing components even if unfinished due to some reason
-                        Logger?.LogWarning($"IfcProduct #{e.Key} misses {e.Value.CountOpenInstances} shape(s).");
-                        yield return e.Value.ToSceneRepresentation(e.Key);
+                        logger?.LogWarning($"IfcProduct '#{e.Key}' misses shape(s).");
+                        yield return new TesselationMessage(new ProductShape(e.Key, e.Value.Shapes));
                     }
                 }
             }
 
             monitor?.NotifyOnProgressChange("Done tesselation.");
         }
+
+        #region Mesh creation
+
+        // Append vertices and return shift
+        private PtArray CreatePtArray(ExportContext<ExportPreferences> ec, IEnumerable<XbimPoint3D> points)
+        {
+            PtArray ptArray = new PtArray();
+            foreach (var p in points)
+                // Append to vertices and apply scale
+                p.AppendTo(ptArray.Xyz, ec.Scale);
+
+            return ptArray;
+        }
+
+        // Appends the triangulated face to the given mesh
+        private Mesh AppendFaceToMesh(Mesh mesh, XbimFaceTriangulation face)
+        {
+            if (face.Indices.Count % 3 != 0)
+                throw new NotSupportedException("Expecting triangular meshes only");
+
+            switch (face.NormalCount)
+            {
+                case 0:
+                    // No normals at all
+                    break;
+                case 1:
+                    // Single normal
+                    face.Normals[0].Normal.AppendTo(mesh.Normal);
+                    break;
+                default:
+                    // No planar face
+                    if (face.NormalCount != face.Indices.Count)
+                        throw new NotSupportedException($"Incorrect count of normals per face mesh (expecting {face.Indices.Count}, have {face.NormalCount}");
+
+                    face.Normals.Select(n => n.Normal).ForEach(n => n.AppendTo(mesh.Normal));
+                    break;
+            }
+
+            mesh.Vertex.AddRange(face.Indices.Select(i => (uint)i));
+            return mesh;
+        }
+
+        // Creates a faceted body having explicit faces
+        private FaceBody CreateFaceBody(ExportContext<ExportPreferences> ec, XbimShapeTriangulation tr, RefId pts)
+        {
+            var faceBody = new FaceBody { Pts = pts };
+
+            foreach (var face in tr.Faces)
+            {
+                // Translate Xbim face definition                
+                var bodyFace = new Face { IsPlanar = face.IsPlanar };
+                bodyFace.Mesh = AppendFaceToMesh(new Mesh { Type = FacetType.TriMesh, Orient = Orientation.Ccw }, face);
+
+                if (1 == face.NormalCount)
+                    bodyFace.IsPlanar = true;
+
+                faceBody.Faces.Add(bodyFace);
+            }
+            return faceBody;
+        }
+
+        private MeshBody CreateMeshBody(ExportContext<ExportPreferences> ec, XbimShapeTriangulation tr, RefId pts)
+        {
+            var meshBody = new MeshBody()
+            {
+                Pts = pts,                 
+                IsConvex = false,
+                Tess = new Mesh { Orient = Orientation.Ccw, Type = FacetType.TriMesh }
+            };
+
+            tr.Faces.ForEach(f => AppendFaceToMesh(meshBody.Tess, f));
+
+            return meshBody;
+        }
+
+        private Dto.Scene.Transform CreateTransform(SceneTransformationStrategy transformationStrategy, float scale, XbimMatrix3D matrix3D)
+        {
+            switch (transformationStrategy)
+            {
+                case SceneTransformationStrategy.Matrix:
+                    return matrix3D.ToRotation(scale);                    
+                case SceneTransformationStrategy.Quaternion:
+                    return matrix3D.ToQuaternion(scale);                    
+                default:
+                    throw new NotImplementedException($"Missing implementation for '{transformationStrategy}'");
+            }
+        }
+
+        private Shape CreateShape(ExportContext<ExportPreferences> ec, XbimShapeInstance shapeInstance)
+        {
+            // Context transformation (relative offset shift => make final transform relative to context shift)
+            SceneContextTransform ctxTransform;
+            XbimMatrix3D shapeTransform;
+            if (ec.contextCache.TryGetValue(shapeInstance.RepresentationContext, out ctxTransform))
+            {
+                shapeTransform = shapeInstance.Transformation * ctxTransform.transform;
+            }
+            else
+            {                
+                logger.LogWarning($"Processed shape with geometry label '#{shapeInstance.ShapeGeometryLabel}' of unknown context label '#{shapeInstance.RepresentationContext}'");
+                return null;
+            }
+
+            return new Shape()
+            {
+                // Encode typeId has material ID with negative magnitude if style label isn't defined
+                Material = new RefId { Nid = shapeInstance.StyleLabel > 0 ? shapeInstance.StyleLabel : shapeInstance.IfcTypeId * -1 },
+                Context = ctxTransform.sceneContext.Name,
+                Transform = CreateTransform(ec.Current.Transforming, ec.Scale, shapeTransform),
+                ShapeBody = new RefId { Nid = shapeInstance.ShapeGeometryLabel },
+                BoundingBox = new BoundingBox 
+                { 
+                    ABox = shapeInstance.BoundingBox.ToABox(ec.Scale, p => shapeTransform.Transform(p))
+                }                
+            };
+        }
+
+        #endregion
     }
 }

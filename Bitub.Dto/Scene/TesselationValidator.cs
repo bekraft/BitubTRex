@@ -22,7 +22,7 @@ namespace Bitub.Dto.Scene
     public class TesselationValidationResult
     {
         public readonly Component Component;
-        public readonly Representation Representation;
+        public readonly ShapeBody ShapeBody;
         public readonly FaceBody Body;
         public readonly TesselationIssueType IssueType;
         public readonly double? TesselatedVolume;

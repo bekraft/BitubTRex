@@ -8,6 +8,7 @@ using Bitub.Dto;
 
 namespace Bitub.Ifc.Transform.Requests
 {
+    [Flags]
     public enum FilteringRules
     {
         WithInverseAggregation = 0x01,

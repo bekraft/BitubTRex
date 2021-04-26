@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Collections.Generic;
 using Bitub.Dto.Concept;
 
 namespace Bitub.Ifc.TRex
@@ -34,6 +34,14 @@ namespace Bitub.Ifc.TRex
         public bool Equals(FeatureStage other)
         {
             return feature.Canonical.Equals(other?.feature?.Canonical);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = -1497673742;
+            hashCode = hashCode * -1521134295 + EqualityComparer<FeatureConcept>.Default.GetHashCode(feature);
+            hashCode = hashCode * -1521134295 + stage.GetHashCode();
+            return hashCode;
         }
     }
 

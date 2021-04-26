@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Xml.Serialization;
 
 using Bitub.Dto;
@@ -8,12 +9,18 @@ using Bitub.Dto.Concept;
 
 namespace Bitub.Ifc.Export
 {
+    /// <summary>
+    /// Transformation labeling strategy. Either provide as quaternion or matrix4x4 representation.
+    /// </summary>
     public enum SceneTransformationStrategy
     {
         Quaternion,
         Matrix
     }
 
+    /// <summary>
+    /// Scene positioning strategy.
+    /// </summary>
     public enum ScenePositioningStrategy
     {
         NoCorrection,
@@ -24,8 +31,32 @@ namespace Bitub.Ifc.Export
         MostExtendedRegionCorrection
     }
 
-    [XmlRoot("IfcExportSettings", Namespace = "https://github.com/bekraft/BitubTRex/Bitub.Ifc.Scene")]
-    public class IfcExportSettings
+    /// <summary>
+    /// Scene export body type. If <c>Auto</c>, exporting context will decide best match to provided data.
+    /// </summary>
+    [Flags]
+    public enum SceneBodyExportType
+    {
+        /// <summary>
+        /// Lets the exporter decide.
+        /// </summary>
+        Auto = 0,
+        /// <summary>
+        /// Transmit only wires.
+        /// </summary>
+        WireBody = 0x01,
+        /// <summary>
+        /// Transmit full meshes only
+        /// </summary>
+        MeshBody = 0x02,
+        /// <summary>
+        /// Transmit mesh faces having boundary loops.
+        /// </summary>
+        FaceBody = 0x04        
+    }
+
+    [XmlRoot("IfcExportPreferences", Namespace = "https://github.com/bekraft/BitubTRex/Bitub.Ifc.Scene")]
+    public class ExportPreferences
     {
         /// <summary>
         /// Translation correction strategy to be applied while transferring data.
@@ -56,7 +87,7 @@ namespace Bitub.Ifc.Export
         /// <summary>
         /// The representation contexts to transfer.
         /// </summary>
-        public SceneContext[] UserRepresentationContext { get; set; } = new SceneContext[] { new SceneContext { Name = "Body" } };
+        public SceneContext[] SelectedContext { get; set; } = new SceneContext[] { new SceneContext { Name = "Body".ToQualifier() } };
 
         /// <summary>
         /// If set passing features with <see cref="DataOp.Equals"/> assignement will be set as classifier.
@@ -68,11 +99,16 @@ namespace Bitub.Ifc.Export
         /// </summary>
         public CanonicalFilterRule FeatureFilterRule { get; set; }
 
-        public IfcExportSettings()
+        /// <summary>
+        /// The body shape export strategy
+        /// </summary>
+        public SceneBodyExportType BodyExportType { get; set; } = SceneBodyExportType.Auto;
+
+        public ExportPreferences()
         {
         }
 
-        public IfcExportSettings(IfcExportSettings settings)
+        public ExportPreferences(ExportPreferences settings)
         {
             foreach (var prop in GetType().GetProperties())
             {
@@ -80,15 +116,15 @@ namespace Bitub.Ifc.Export
             }
         }
 
-        public static IfcExportSettings ReadFrom(string fileName)
+        public static ExportPreferences ReadFrom(string fileName)
         {
-            var serializer = new XmlSerializer(typeof(IfcExportSettings));
-            return serializer.Deserialize(File.OpenText(fileName)) as IfcExportSettings;
+            var serializer = new XmlSerializer(typeof(ExportPreferences));
+            return serializer.Deserialize(File.OpenText(fileName)) as ExportPreferences;
         }
 
         public void SaveTo(string fileName)
         {
-            var serializer = new XmlSerializer(typeof(IfcExportSettings));
+            var serializer = new XmlSerializer(typeof(ExportPreferences));
             serializer.Serialize(File.CreateText(fileName), this);
         }
     }

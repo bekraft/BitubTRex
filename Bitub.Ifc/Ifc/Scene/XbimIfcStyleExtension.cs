@@ -9,7 +9,7 @@ using Bitub.Dto.Scene;
 
 namespace Bitub.Ifc.Export
 {
-    public static class IfcStyleExtension
+    public static class XbimIfcStyleExtension
     {
         public static Color ToColor(this IIfcColourRgb rgb, float alpha = 1.0f)
         {

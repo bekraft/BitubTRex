@@ -70,7 +70,8 @@ namespace Bitub.Ifc.TRex
 
         public FeatureStageCollector ExcludeAllIfcProductsOf<T>(params IfcAssemblyScope[] ifcAssemblies) where T : IIfcProduct
         {
-            throw new NotImplementedException();
+            ExcludeIfcTypes(ifcAssemblies.SelectMany(a => a.GetScopeOf<T>().TypeQualifiers).Select(q => q.ToClassifier()));
+            return this;
         }
 
         public bool CheckConsistency(Action<CanonicalFilter, Classifier, Classifier> fixitAction = null)
@@ -82,7 +83,13 @@ namespace Bitub.Ifc.TRex
         {
             if (instance is IIfcObject ifcObject)
             {
-                return true;
+                var ifcQn = ifcObject.ToQualifiedName();
+                if (EntityTypeFilterRule.IsAcceptedBy(ifcQn.ToClassifier()))
+                {
+                    var features = ifcObject.ToFeatures<IIfcSimpleProperty>(PropertyFilter);
+                    features.ForEach(f => stageCache.AddFeatureStage(new FeatureStage(instanceAtStage, f)));
+                    return true;
+                }                
             }
             return false;
         }

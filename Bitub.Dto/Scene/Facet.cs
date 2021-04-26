@@ -52,12 +52,7 @@ namespace Bitub.Dto.Scene
         /// <summary>
         /// Returns the shifted A vertex of the facet.
         /// </summary>
-        public uint A
-        {
-            get {
-                return Meshed.Mesh.Vertex[IndexOffset(Index, 0)] + Shift;
-            }
-        }
+        public uint A { get => Meshed.Mesh.Vertex[IndexOffset(Index, 0)] + Shift; }
 
         public bool HasNormals { get => Meshed.Mesh.Normal.Count > 0; }
 
