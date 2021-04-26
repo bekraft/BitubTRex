@@ -28,7 +28,7 @@ namespace Bitub.Ifc.Export
     /// var result = await exporter.Run(myModel);
     /// </code>
     /// </summary>
-    public class SceneExporter : IExporter<SceneModel>
+    public class SceneExporter : IExporter<ComponentModel>
     {
         #region Internals
         private readonly ILoggerFactory loggerFactory;
@@ -62,7 +62,7 @@ namespace Bitub.Ifc.Export
         /// </summary>
         /// <param name="model">The IFC model</param>
         /// <returns>A scene</returns>
-        public Task<SceneModel> RunExport(IModel model, CancelableProgressing monitor)
+        public Task<ComponentModel> RunExport(IModel model, CancelableProgressing monitor)
         {
             return Task.Run(() =>
             {
@@ -84,15 +84,15 @@ namespace Bitub.Ifc.Export
         }
 
         // Runs the scene model export
-        private SceneModel BuildScene(IModel model,ExportPreferences exportSettings, CancelableProgressing progressing)
+        private ComponentModel BuildScene(IModel model,ExportPreferences exportSettings, CancelableProgressing progressing)
         {
             var exportContext = new ExportContext<ExportPreferences>(loggerFactory);
             exportContext.InitContextsAndScaleFromModel(model, exportSettings);
 
             // Transfer materials
-            var sceneModel = exportContext.CreateEmptySceneModelFromProject(model.Instances.OfType<IIfcProject>().First());
+            var ComponentModel = exportContext.CreateEmptySceneModelFromProject(model.Instances.OfType<IIfcProject>().First());
             var materials = model.ToMaterialBySurfaceStyles().ToDictionary(m => m.Id.Nid);
-            sceneModel.Materials.AddRange(materials.Values);
+            ComponentModel.Materials.AddRange(materials.Values);
             
             logger?.LogInformation("Starting model tesselation of {0}", model.Header.Name);
             // Retrieve enumeration of components having a geomety within given contexts            
@@ -116,10 +116,10 @@ namespace Bitub.Ifc.Export
                 switch (msg.messageType)
                 {
                     case TesselationMessageType.Context:
-                        sceneModel.Contexts.Add(msg.SceneContext.sceneContext);
+                        ComponentModel.Contexts.Add(msg.SceneContext.sceneContext);
                         break;
                     case TesselationMessageType.Representation:
-                        sceneModel.ShapeBodies.Add(msg.ShapeRepresentation.shapeBody);
+                        ComponentModel.ShapeBodies.Add(msg.ShapeRepresentation.shapeBody);
                         break;
                     case TesselationMessageType.Shape:
                         var product = model.Instances[msg.ProductShape.productLabel] as IIfcProduct;
@@ -132,7 +132,7 @@ namespace Bitub.Ifc.Export
                                 .ToFullyFeaturedWith(product, Preferences.FeatureFilterRule);
 
                             componentCache.Add(product.EntityLabel, c);
-                            sceneModel.Components.Add(c);
+                            ComponentModel.Components.Add(c);
 
                             if (optParent.HasValue)
                                 parents.Add(optParent.Value);
@@ -174,16 +174,16 @@ namespace Bitub.Ifc.Export
                             // Enqueue missing parents
                             missingInstance.Enqueue(optParent.Value);
 
-                        sceneModel.Components.Add(c);
+                        ComponentModel.Components.Add(c);
                     }
                 }
             }
 
             // Add default materials where required
-            sceneModel.Materials.AddRange(
+            ComponentModel.Materials.AddRange(
                 model.ToMaterialByColorMap(                    
                     DefaultProductColorMap,
-                    sceneModel.Components
+                    ComponentModel.Components
                         .SelectMany(c => c.Shapes)
                         .Select(s => s.Material)
                         .Where(m => 0 > m.Nid)
@@ -191,7 +191,7 @@ namespace Bitub.Ifc.Export
                 )
             );
 
-            return sceneModel;
+            return ComponentModel;
         }        
     }
 }

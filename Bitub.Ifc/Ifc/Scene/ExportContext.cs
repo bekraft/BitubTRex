@@ -78,14 +78,17 @@ namespace Bitub.Ifc.Export
 
         public bool IsInContext(int contextLabel) => contextCache.ContainsKey(contextLabel);
 
-        internal SceneModel CreateEmptySceneModelFromProject(IIfcProject p)
+        internal ComponentModel CreateEmptySceneModelFromProject(IIfcProject p)
         {
-            return new SceneModel()
+            return new ComponentModel()
             {
-                Name = p?.Name,
-                Id = p?.GlobalId.ToGlobalUniqueId(),
-                UnitsPerMeter = Current.UnitsPerMeter,
-                Stamp = Timestamp.FromDateTime(DateTime.Now.ToUniversalTime())
+                Metadata = new MetaData
+                {
+                    Name = p?.Name,
+                    Stamp = Timestamp.FromDateTime(DateTime.Now.ToUniversalTime())
+                },                
+                Id = p?.GlobalId.ToGlobalUniqueId().ToQualifier(),
+                UnitsPerMeter = Current.UnitsPerMeter                
             };
         }
 
