@@ -78,9 +78,9 @@ namespace Bitub.Ifc.Export
 
         public bool IsInContext(int contextLabel) => contextCache.ContainsKey(contextLabel);
 
-        internal ComponentModel CreateEmptySceneModelFromProject(IIfcProject p)
+        internal ComponentScene CreateEmptySceneModelFromProject(IIfcProject p)
         {
-            return new ComponentModel()
+            return new ComponentScene()
             {
                 Metadata = new MetaData
                 {

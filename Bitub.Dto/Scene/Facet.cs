@@ -33,8 +33,6 @@ namespace Bitub.Dto.Scene
             if (maxIndex > 0)
             {
                 Facet f = new Facet(mesh, 0);
-                yield return f;
-
                 for (int i = 0; i < maxIndex; i++)
                 {
                     f.Index = i;
@@ -150,7 +148,15 @@ namespace Bitub.Dto.Scene
         public bool Equals(Facet other)
         {
             return (Meshed == other.Meshed) && (Index == other.Index);
-        }        
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Facet f)
+                return Equals(f);
+            else
+                return false;
+        }       
 
         public bool IsValidIndex(int index)
         {
@@ -201,7 +207,12 @@ namespace Bitub.Dto.Scene
             }
         }
 
-
-
+        public override int GetHashCode()
+        {
+            int hashCode = 749459680;
+            hashCode = hashCode * -1521134295 + EqualityComparer<MeshPtOffsetArray>.Default.GetHashCode(Meshed);
+            hashCode = hashCode * -1521134295 + Index.GetHashCode();
+            return hashCode;
+        }
     }
 }

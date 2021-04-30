@@ -24,10 +24,10 @@ namespace Bitub.Ifc.Export.Tests
 
         private async Task InternallyRunExport(string fileName, ExportPreferences settings)
         {
-            Dto.Scene.ComponentModel result;
+            Dto.Scene.ComponentScene result;
             using (var store = IfcStore.Open(fileName))
             {
-                var exporter = new SceneExporter(new XbimTesselationContext(LoggerFactory), LoggerFactory);
+                var exporter = new ComponentModelExporter(new XbimTesselationContext(LoggerFactory), LoggerFactory);
                 exporter.Preferences = settings;
 
                 using (var monitor = new CancelableProgressing(true))

@@ -210,7 +210,7 @@ message MetaData {
 }
 
 // Global root message
-message ComponentModel {
+message ComponentScene {
 	Qualifier id = 1;
 	MetaData metadata = 2;
 	float unitsPerMeter = 3;	

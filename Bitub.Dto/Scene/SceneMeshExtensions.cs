@@ -6,14 +6,36 @@ using Bitub.Dto.Spatial;
 
 namespace Bitub.Dto.Scene
 {
-    public enum CrsOrientation
+    public static class SceneMeshExtensions
     {
-        RightHandedZUp,
-        LeftHandedYUp
-    }
+        public static IEnumerable<Facet[]> ToFacets(this ShapeBody shapeBody)
+        {
+            var ptArrayMap = shapeBody.Points.ToDictionary(pta => pta.Id);
+            return shapeBody.Bodies.Select(b => ToFacets(b, ptArrayMap).ToArray());
+        }
 
-    public static class SceneMeshExtension
-    {
+        private static IEnumerable<Facet> ToFacets(Body body, IDictionary<RefId, PtArray> ptArrayMap)
+        {
+            switch (body.BodySelectCase)
+            {
+                case Body.BodySelectOneofCase.FaceBody:
+                    return body.FaceBody
+                        .Faces
+                        .SelectMany(f => f.Mesh.ToFacets(new PtOffsetArray(ptArrayMap[body.FaceBody.Pts])));                        
+                case Body.BodySelectOneofCase.MeshBody:
+                    return body.MeshBody.ToFacets(ptArrayMap[body.MeshBody.Pts]);
+                case Body.BodySelectOneofCase.WireBody:
+                    throw new NotSupportedException("Wires are not supported for facet derivation");
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        public static IEnumerable<Facet> ToFacets(this MeshBody meshBody, PtArray ptArray)
+        {
+            return meshBody.Tess.ToFacets(new PtOffsetArray(ptArray));
+        }
+
         /// <summary>
         /// Creates an enumerable of facets referring to a single mesh and point array.
         /// </summary>

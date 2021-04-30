@@ -63,7 +63,7 @@ namespace Bitub.Dto.Scene
         /// <param name="model">The scene</param>
         /// <param name="extractor">The extraction delegate</param>
         /// <returns>A lookup by classifier</returns>
-        public static ILookup<Qualifier, Component> ClusterBy(this ComponentModel model, ComponentQualifierDelegate extractor)
+        public static ILookup<Qualifier, Component> ClusterBy(this ComponentScene model, ComponentQualifierDelegate extractor)
         {
             return model.Components.ToLookup(c => extractor(c));
         }
@@ -74,7 +74,7 @@ namespace Bitub.Dto.Scene
         /// <param name="model">The model</param>
         /// <param name="extractor">The extractor</param>
         /// <returns>Dictionary referencing from ID to classifier</returns>
-        public static Dictionary<Component, Qualifier> ClassifyBy(this ComponentModel model, ComponentQualifierDelegate extractor)
+        public static Dictionary<Component, Qualifier> ClassifyBy(this ComponentScene model, ComponentQualifierDelegate extractor)
         {
             return model.Components.ToDictionary(c => c, c => extractor(c));
         }
@@ -85,7 +85,7 @@ namespace Bitub.Dto.Scene
         /// </summary>
         /// <param name="model">The model</param>
         /// <returns>An enumerable component</returns>
-        public static IEnumerable<Component> DepthFirstOrder(this ComponentModel model)
+        public static IEnumerable<Component> DepthFirstOrder(this ComponentScene model)
         {
             // Build parentId lookup and generate queue by roots
             var hierarchy = model.Components.ToLookup(c => c.Parent);
@@ -109,7 +109,7 @@ namespace Bitub.Dto.Scene
         /// </summary>
         /// <param name="model">The model</param>
         /// <returns>An enumerable component</returns>
-        public static IEnumerable<Component> LevelOrder(this ComponentModel model)
+        public static IEnumerable<Component> LevelOrder(this ComponentScene model)
         {
             // Build parentId lookup and generate queue by roots
             var hierarchy = model.Components.ToLookup(c => c.Parent);
