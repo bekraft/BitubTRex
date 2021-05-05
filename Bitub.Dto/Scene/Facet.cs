@@ -29,7 +29,7 @@ namespace Bitub.Dto.Scene
         /// <returns>An enumerable facet</returns>
         public static IEnumerable<Facet> TransientFacetsOf(MeshPtOffsetArray mesh)
         {
-            var maxIndex = mesh.Mesh.FacetCount();
+            var maxIndex = mesh.Mesh.FacetCount;
             if (maxIndex > 0)
             {
                 Facet f = new Facet(mesh, 0);
@@ -184,6 +184,79 @@ namespace Bitub.Dto.Scene
             }
         }
 
+        public bool IsTriangle 
+        {
+            get {
+                switch (Type)
+                {
+                    case FacetType.TriFan:
+                    case FacetType.TriStripe:
+                    case FacetType.TriMesh:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        }
+
+        public bool IsQuad
+        {
+            get {
+                switch (Type)
+                {
+                    case FacetType.QuadMesh:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns a <see cref="Tridex"/> struct wrapping only the index information.
+        /// </summary>
+        /// <returns></returns>
+        public Tridex ToTridex()
+        {
+            if (!IsTriangle)
+                throw new NotSupportedException($"Supporting only triangle represenations");
+
+            return new Tridex { A = A, B = B, C = C };
+        }
+
+        /// <summary>
+        /// A new <see cref="Tridex"/> with reordered vertices keeping the global orientation.
+        /// </summary>
+        /// <param name="pivot">The pivot index (A index)</param>
+        /// <returns>A reordered topological triangle</returns>
+        public Tridex ToTridex(uint? pivot)
+        {
+            if (!pivot.HasValue)
+                return ToTridex();
+
+            if (!IsTriangle)
+                throw new NotSupportedException($"Supporting only triangle represenations");
+
+            // By default assume A is the connector
+            uint v1 = B;
+            uint v2 = C;
+
+            if (pivot == B)
+            {   // Connected at B
+                v1 = C;
+                v2 = A;
+            }
+            else if (pivot == C)
+            {   // Connected at C
+                v1 = A;
+                v2 = B;
+            }
+            else if (pivot != A)
+                throw new ArgumentException($"Given pivot index {pivot} isn't held by given facet {this}");
+
+            return new Tridex { A = pivot.Value, B = v1, C = v2 };
+        }
+
         internal int IndexOffset(int index, int offset)
         {
             switch(Type)
@@ -213,6 +286,14 @@ namespace Bitub.Dto.Scene
             hashCode = hashCode * -1521134295 + EqualityComparer<MeshPtOffsetArray>.Default.GetHashCode(Meshed);
             hashCode = hashCode * -1521134295 + Index.GetHashCode();
             return hashCode;
+        }
+
+        public override string ToString()
+        {
+            if (IsTriangle)
+                return $"{Type}{Index}[{A}-{B}-{C}]";
+            else
+                return $"{Type}{Index}[{A}-{B}-{C}-{D}]";
         }
     }
 }

@@ -1,11 +1,12 @@
-﻿using Bitub.Dto.Spatial;
+﻿using Bitub.Dto.Scene;
+using Bitub.Dto.Spatial;
 
 using Xbim.Common;
 using Xbim.Common.Geometry;
 
 namespace Bitub.Ifc.Export
 {
-    public static class SceneExtensions
+    public static class ExportExtensions
     {
         /// <summary>
         /// Converts a serialized <see cref="XYZ"/> to an <see cref="XbimVector3D"/> of meter scale.

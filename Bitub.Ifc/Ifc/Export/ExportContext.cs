@@ -179,12 +179,19 @@ namespace Bitub.Ifc.Export
                             throw new NotImplementedException($"Missing implementation for '{Current.Positioning}'");
                     }
 
-                    if (Current.Transforming == SceneTransformationStrategy.Matrix)
-                        // If Matrix or Global use rotation matrix representation
-                        sc.Wcs = new XbimMatrix3D(offset).ToRotation(Scale);
-                    else
-                        // Otherwise use Quaternion representation
-                        sc.Wcs = new XbimMatrix3D(offset).ToQuaternion(Scale);
+                    switch (Current.Transforming)
+                    {
+                        case SceneTransformationStrategy.Matrix:
+                            // If Matrix or Global use rotation matrix representation
+                            sc.Wcs = new XbimMatrix3D(offset).ToRotation(Scale);
+                            break;
+                        case SceneTransformationStrategy.Quaternion:
+                            // Otherwise use Quaternion representation
+                            sc.Wcs = new XbimMatrix3D(offset).ToQuaternion(Scale);
+                            break;
+                        default:
+                            throw new NotImplementedException($"{Current.Transforming}");
+                    }                        
 
                     // Set correction to negative offset shift (without scale since in model space units)
                     yield return new SceneContextTransform(cr.ContextLabel, sc, new XbimMatrix3D(offset * -1));
