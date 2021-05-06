@@ -2,48 +2,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Protoc>$(UserProfile)\.nuget\packages\google.protobuf.tools\3.8.0\tools\windows_x64\protoc.exe</Protoc>
-    
-    <BuildMajor>1</BuildMajor>
-    <BuildMinor>0</BuildMinor>
-    <BuildRelease>0</BuildRelease>
-    <BuildQualifier></BuildQualifier>
-    <Build>0</Build>    
-    <Configurations>Debug;Release;Beta</Configurations>
-
-    <LangVersion>8</LangVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <IsPackable>true</IsPackable>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-
-    <BuildRelease>$([System.DateTime]::Now.ToString("yy"))$([System.String]::Format("{0:000}",$([System.DateTime]::Now.DayOfYear)))</BuildRelease>
-    <DayOfMonth>$([MSBuild]::Multiply($([MSBuild]::Multiply($([System.DateTime]::Now.Day), 24)), 60))</DayOfMonth>
-    <HourOfDay>$([MSBuild]::Multiply($([System.DateTime]::Now.Hour), 60))</HourOfDay>
-    <Build>$([MSBuild]::Add($([MSBuild]::Add($([System.DateTime]::Now.Minute),$(HourOfDay))), $(DayOfMonth)))</Build>
-    <BuildQualifier>-Alpha</BuildQualifier>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <IncludeSymbols>true</IncludeSymbols>    
-  </PropertyGroup>
-
-  <PropertyGroup>
     <Title>Bitub.Ifc</Title>    
     <Description>IFC utilities and transformation</Description>
 
     <TargetFrameworks>net47</TargetFrameworks>
 
-    <AssemblyFileVersionAttribute>[assembly:System.Reflection.AssemblyVersionAttribute("$(BuildMajor).$(BuildMinor).$(BuildRelease).$(Build)")];</AssemblyFileVersionAttribute>
-    <AssemblyVersion>$(BuildMajor).$(BuildMinor).$(BuildRelease).$(Build)</AssemblyVersion>
-    <FileVersion>$(BuildMajor).$(BuildMinor).$(BuildRelease).$(Build)</FileVersion>
-    <Version>$(BuildMajor).$(BuildMinor).$(BuildRelease)$(BuildQualifier).$(Build)</Version>
-    <Authors>Bernold Kraft</Authors>
-    <Company>Bitub</Company>
-    <Copyright>Bernold Kraft</Copyright>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageProjectUrl>https://www.github.com/bekraft/BitubTRex</PackageProjectUrl>
-    <RootNamespace>Bitub</RootNamespace>
+    <Configurations>Debug;Release;Beta</Configurations>
 
+    <RootNamespace>Bitub</RootNamespace>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
