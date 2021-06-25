@@ -2,7 +2,7 @@
 
 namespace Bitub.Dto.Json
 {
-    public class JsonLowerFirstNamingPolicy : JsonNamingPolicy
+    public sealed class JsonLowerFirstNamingPolicy : JsonNamingPolicy
     {
         public override string ConvertName(string name)
         {

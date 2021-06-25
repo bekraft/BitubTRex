@@ -19,7 +19,7 @@ namespace Bitub.Dto.Bcf.Tests
         [SetUp]
         public void Setup()
         {
-            jsonSerializerOptions = new JsonSerializerOptions().AddBcfApiConverters();            
+            jsonSerializerOptions = new JsonSerializerOptions().AddBcfApiConverters();
         }
 
         [Test]

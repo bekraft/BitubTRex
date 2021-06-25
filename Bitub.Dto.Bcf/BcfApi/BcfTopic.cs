@@ -18,16 +18,18 @@ namespace Bitub.Dto.BcfApi
         public DateTime ModifiedDate { get; set; }
         [JsonPropertyName("modified_author")]
         public string ModifiedAuthor { get; set; }
-        [JsonPropertyName("authorization"), JsonConverter(typeof(JsonDelegateConverter<BcfAuthorization, IBcfTopicAuthorization>))]
+        [JsonPropertyName("authorization"), JsonConverter(typeof(JsonProxyConverter<BcfAuthorization, IBcfTopicAuthorization>))]
         public IBcfTopicAuthorization Authorization { get; set; }
         [JsonPropertyName("due_date")]
         public DateTime DueDate { get; set; }
         public string topic_type { get; set; }
         public string topic_status { get; set; }
         public object reference_links { get; set; }
-        public string title { get; set; }
-        public string priority { get; set; }
-        public int index { get; set; }
+        [JsonPropertyName("title")]
+        public string Title { get; set; }
+        [JsonPropertyName("priority")]
+        public string Priority { get; set; }
+        public int Index { get; set; }
         public List<object> labels { get; set; }
         public string assigned_to { get; set; }
         public object stage { get; set; }

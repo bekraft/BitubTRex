@@ -11,7 +11,7 @@ namespace Bitub.Dto.BcfApi
         public string Id { get; set; } = System.Guid.NewGuid().ToString();
         [JsonPropertyName("name")]
         public string Name { get; set; }
-        [JsonPropertyName("authorization"), JsonConverter(typeof(JsonDelegateConverter<BcfAuthorization, IBcfProjectAuthorization>))]
+        [JsonPropertyName("authorization"), JsonConverter(typeof(JsonProxyConverter<BcfAuthorization, IBcfProjectAuthorization>))]
         public IBcfProjectAuthorization ProjectAuthorization { get; set; }
     }
 }

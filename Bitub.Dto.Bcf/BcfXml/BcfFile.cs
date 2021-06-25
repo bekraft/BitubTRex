@@ -16,17 +16,17 @@ namespace Bitub.Dto.BcfXml
         public static readonly XmlDeserializationEvents XmlDeserializationEvents = new XmlDeserializationEvents();
 
         #region Internals
-        private ZipArchive _zip;       
-        private BcfVersion _version;
-        private BcfProjectExtension _projectExtension;
+        private ZipArchive zip;       
+        private BcfVersion version;
+        private BcfProjectExtension projectExtension;
 
         internal static XmlParserContext parserContext = CreateParserContext();
 
         protected BcfFile(ZipArchive bcfArchive)
         {
-            _zip = bcfArchive;
-            _projectExtension = Deserialize<BcfProjectExtension>(_zip.GetEntry("project.bcfp")?.Open()) ?? new BcfProjectExtension { Project = new BcfProject() };
-            _version = Deserialize<BcfVersion>(_zip.GetEntry("bcf.version")?.Open()) ?? new BcfVersion { DetailedVersion = "2.1", VersionId = "2.1" };
+            zip = bcfArchive;
+            projectExtension = Deserialize<BcfProjectExtension>(zip.GetEntry("project.bcfp")?.Open()) ?? new BcfProjectExtension { Project = new BcfProject() };
+            version = Deserialize<BcfVersion>(zip.GetEntry("bcf.version")?.Open()) ?? new BcfVersion { DetailedVersion = "2.1", VersionId = "2.1" };
         }
 
         internal static T Deserialize<T>(Stream xmlStream)
@@ -55,8 +55,8 @@ namespace Bitub.Dto.BcfXml
 
         #endregion
 
-        public BcfProject Project { get => _projectExtension?.Project; }
-        public string BcfVersion { get => _version?.DetailedVersion ?? "2.1"; }
+        public BcfProject Project { get => projectExtension?.Project; }
+        public string BcfVersion { get => version?.DetailedVersion ?? "2.1"; }
 
         public static BcfFile ReadFrom(string bcfArchiveName)
         {
@@ -96,9 +96,9 @@ namespace Bitub.Dto.BcfXml
             return (fileName) =>
             {
                 if (fileName.StartsWith("../"))
-                    return _zip.GetEntry(fileName.Replace("../", ""))?.Open();
+                    return zip.GetEntry(fileName.Replace("../", ""))?.Open();
                 else
-                    return _zip.GetEntry($"{topicId}/{fileName}")?.Open();
+                    return zip.GetEntry($"{topicId}/{fileName}")?.Open();
             };
         }
 
@@ -130,9 +130,9 @@ namespace Bitub.Dto.BcfXml
         public ILookup<string, string> Extensions
         {
             get {
-                if (!string.IsNullOrWhiteSpace(_projectExtension.ExtensionSchema))
+                if (!string.IsNullOrWhiteSpace(projectExtension.ExtensionSchema))
                 {   
-                    using (var redefineSchema = _zip.GetEntry(_projectExtension.ExtensionSchema)?.Open())
+                    using (var redefineSchema = zip.GetEntry(projectExtension.ExtensionSchema)?.Open())
                     {
                         return XmlSchema.Read(redefineSchema, (s, e) => { })
                             .Includes.OfType<XmlSchemaRedefine>()
@@ -150,7 +150,7 @@ namespace Bitub.Dto.BcfXml
 
         public IEnumerable<BcfIssue> Issues
         {
-            get => _zip.Entries
+            get => zip.Entries
                 .ToLookup(e => CommonExtensions.guidRegExpression.Match(e.FullName)?.Value)
                 .Where(g => !string.IsNullOrWhiteSpace(g.Key))
                 .Select(g => ReadBcfIssue(g.Key, g.Select(e => e.FullName).ToArray()));
@@ -158,11 +158,11 @@ namespace Bitub.Dto.BcfXml
 
         public void Dispose()
         {
-            if (null == _zip)
+            if (null == zip)
                 throw new ObjectDisposedException("Already disposed");
 
-            _zip.Dispose();
-            _zip = null;
+            zip.Dispose();
+            zip = null;
         }
     }
 }

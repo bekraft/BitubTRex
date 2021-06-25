@@ -154,7 +154,7 @@ message Component {
 	GlobalUniqueId parent = 2;
 	string name = 5;
 	repeated Classifier concepts = 6;	
-	repeated GlobalUniqueId children = 7;
+	//repeated GlobalUniqueId children = 7;
 	repeated Shape shapes = 8;
 	repeated Bitub.Dto.Concept.FeatureConcept features = 9;
 	Bitub.Dto.Spatial.BoundingBox boundingBox = 10;
@@ -177,7 +177,7 @@ enum ColorChannel {
 	Diffuse = 1;
 	Reflective = 2;
 	Specular = 3;
-	Emmisive = 4;
+	Emmissive = 4;
 	DiffuseEmmisive = 5;
 }
 
