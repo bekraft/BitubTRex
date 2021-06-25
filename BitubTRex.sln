@@ -34,6 +34,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitub.Dto.Bcf.Tests", "Bitu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XbimTRexPlugin", "XbimTRexPlugin\XbimTRexPlugin.csproj", "{DB52C6A1-537A-48DC-BB90-7FC0278FEEF4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitub.Dto.Cpi", "Bitub.Dto.Cpi\Bitub.Dto.Cpi.csproj", "{3929B708-EEFF-42EF-9B9D-BCF7A9D35B6B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Beta|Any CPU = Beta|Any CPU
@@ -173,6 +175,24 @@ Global
 		{DB52C6A1-537A-48DC-BB90-7FC0278FEEF4}.Release|x64.Build.0 = Release|Any CPU
 		{DB52C6A1-537A-48DC-BB90-7FC0278FEEF4}.Release|x86.ActiveCfg = Release|Any CPU
 		{DB52C6A1-537A-48DC-BB90-7FC0278FEEF4}.Release|x86.Build.0 = Release|Any CPU
+		{3929B708-EEFF-42EF-9B9D-BCF7A9D35B6B}.Beta|Any CPU.ActiveCfg = Debug|Any CPU
+		{3929B708-EEFF-42EF-9B9D-BCF7A9D35B6B}.Beta|Any CPU.Build.0 = Debug|Any CPU
+		{3929B708-EEFF-42EF-9B9D-BCF7A9D35B6B}.Beta|x64.ActiveCfg = Debug|Any CPU
+		{3929B708-EEFF-42EF-9B9D-BCF7A9D35B6B}.Beta|x64.Build.0 = Debug|Any CPU
+		{3929B708-EEFF-42EF-9B9D-BCF7A9D35B6B}.Beta|x86.ActiveCfg = Debug|Any CPU
+		{3929B708-EEFF-42EF-9B9D-BCF7A9D35B6B}.Beta|x86.Build.0 = Debug|Any CPU
+		{3929B708-EEFF-42EF-9B9D-BCF7A9D35B6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3929B708-EEFF-42EF-9B9D-BCF7A9D35B6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3929B708-EEFF-42EF-9B9D-BCF7A9D35B6B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3929B708-EEFF-42EF-9B9D-BCF7A9D35B6B}.Debug|x64.Build.0 = Debug|Any CPU
+		{3929B708-EEFF-42EF-9B9D-BCF7A9D35B6B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3929B708-EEFF-42EF-9B9D-BCF7A9D35B6B}.Debug|x86.Build.0 = Debug|Any CPU
+		{3929B708-EEFF-42EF-9B9D-BCF7A9D35B6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3929B708-EEFF-42EF-9B9D-BCF7A9D35B6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3929B708-EEFF-42EF-9B9D-BCF7A9D35B6B}.Release|x64.ActiveCfg = Release|Any CPU
+		{3929B708-EEFF-42EF-9B9D-BCF7A9D35B6B}.Release|x64.Build.0 = Release|Any CPU
+		{3929B708-EEFF-42EF-9B9D-BCF7A9D35B6B}.Release|x86.ActiveCfg = Release|Any CPU
+		{3929B708-EEFF-42EF-9B9D-BCF7A9D35B6B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
