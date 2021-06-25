@@ -73,7 +73,7 @@ namespace Bitub.Ifc.Export.Tests
 
         [TestMethod]
         [DeploymentItem(@"Resources\Ifc4-SampleHouse.ifc")]
-        public async Task SampleHouseNoCorrectionQuaternion()
+        public async Task SampleHouseUserCorrectionQuaternion()
         {
             var filter = new Dto.Concept.CanonicalFilter(Dto.Concept.FilterMatchingType.SubOrEquiv, System.StringComparison.OrdinalIgnoreCase);
             filter.Filter.Add(new string[] { "Other", "Category" }.ToQualifier().ToClassifier());
@@ -83,6 +83,8 @@ namespace Bitub.Ifc.Export.Tests
                 new ExportPreferences(testPreferences)
                 {
                     Transforming = SceneTransformationStrategy.Quaternion,
+                    Positioning = ScenePositioningStrategy.UserCorrection,
+                    UserModelCenter = new Dto.Spatial.XYZ(10, 0, 0),
                     FeatureToClassifierFilter = filter
                 });
         }

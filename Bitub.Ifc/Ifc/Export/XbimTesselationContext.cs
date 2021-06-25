@@ -321,7 +321,7 @@ namespace Bitub.Ifc.Export
                 IsConvex = false,
                 Tess = new Mesh { Orient = Orientation.Ccw, Type = FacetType.TriMesh }
             };
-
+            
             tr.Faces.ForEach(f => AppendFaceToMesh(meshBody.Tess, f));
 
             return meshBody;
@@ -344,10 +344,10 @@ namespace Bitub.Ifc.Export
         {
             // Context transformation (relative offset shift => make final transform relative to context shift)
             SceneContextTransform ctxTransform;
-            XbimMatrix3D shapeTransform;
+            XbimMatrix3D shapeTransform = shapeInstance.Transformation;
             if (ec.contextCache.TryGetValue(shapeInstance.RepresentationContext, out ctxTransform))
             {
-                shapeTransform = shapeInstance.Transformation * ctxTransform.transform;
+                shapeTransform *= ctxTransform.transform;
             }
             else
             {                

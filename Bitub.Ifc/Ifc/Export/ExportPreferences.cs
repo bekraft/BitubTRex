@@ -55,7 +55,7 @@ namespace Bitub.Ifc.Export
         FaceBody = 0x04        
     }
 
-    [XmlRoot("IfcExportPreferences", Namespace = "https://github.com/bekraft/BitubTRex/Bitub.Ifc.Scene")]
+    [XmlRoot("ExportPreferences", Namespace = "https://github.com/bekraft/BitubTRex/Bitub.Ifc.Export")]
     public class ExportPreferences
     {
         /// <summary>

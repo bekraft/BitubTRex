@@ -183,7 +183,7 @@ namespace Bitub.Ifc.Export
             // Add IFC express types inheritance by default
             component.Concepts.Add(ifcClassifierMap[product.GetType()]);
 
-            component.Children.AddRange(product.Children<IIfcProduct>().Select(p => p.GlobalId.ToGlobalUniqueId()));
+            //component.Children.AddRange(product.Children<IIfcProduct>().Select(p => p.GlobalId.ToGlobalUniqueId()));
             optParentLabel = parent?.EntityLabel;
             return component;
         }

@@ -90,9 +90,9 @@ namespace Bitub.Ifc.Export
             exportContext.InitContextsAndScaleFromModel(model, exportSettings);
 
             // Transfer materials
-            var ComponentScene = exportContext.CreateEmptySceneModelFromProject(model.Instances.OfType<IIfcProject>().First());
+            var componentScene = exportContext.CreateEmptySceneModelFromProject(model.Instances.OfType<IIfcProject>().First());
             var materials = model.ToMaterialBySurfaceStyles().ToDictionary(m => m.Id.Nid);
-            ComponentScene.Materials.AddRange(materials.Values);
+            componentScene.Materials.AddRange(materials.Values);
             
             logger?.LogInformation("Starting model tesselation of {0}", model.Header.Name);
             // Retrieve enumeration of components having a geomety within given contexts            
@@ -116,10 +116,10 @@ namespace Bitub.Ifc.Export
                 switch (msg.messageType)
                 {
                     case TesselationMessageType.Context:
-                        ComponentScene.Contexts.Add(msg.SceneContext.sceneContext);
+                        componentScene.Contexts.Add(msg.SceneContext.sceneContext);
                         break;
                     case TesselationMessageType.Representation:
-                        ComponentScene.ShapeBodies.Add(msg.ShapeRepresentation.shapeBody);
+                        componentScene.ShapeBodies.Add(msg.ShapeRepresentation.shapeBody);
                         break;
                     case TesselationMessageType.Shape:
                         var product = model.Instances[msg.ProductShape.productLabel] as IIfcProduct;
@@ -132,7 +132,7 @@ namespace Bitub.Ifc.Export
                                 .ToFullyFeaturedWith(product, Preferences.FeatureFilterRule);
 
                             componentCache.Add(product.EntityLabel, c);
-                            ComponentScene.Components.Add(c);
+                            componentScene.Components.Add(c);
 
                             if (optParent.HasValue)
                                 parents.Add(optParent.Value);
@@ -174,16 +174,16 @@ namespace Bitub.Ifc.Export
                             // Enqueue missing parents
                             missingInstance.Enqueue(optParent.Value);
 
-                        ComponentScene.Components.Add(c);
+                        componentScene.Components.Add(c);
                     }
                 }
             }
 
             // Add default materials where required
-            ComponentScene.Materials.AddRange(
+            componentScene.Materials.AddRange(
                 model.ToMaterialByColorMap(                    
                     DefaultProductColorMap,
-                    ComponentScene.Components
+                    componentScene.Components
                         .SelectMany(c => c.Shapes)
                         .Select(s => s.Material)
                         .Where(m => 0 > m.Nid)
@@ -191,7 +191,7 @@ namespace Bitub.Ifc.Export
                 )
             );
 
-            return ComponentScene;
+            return componentScene;
         }        
     }
 }
