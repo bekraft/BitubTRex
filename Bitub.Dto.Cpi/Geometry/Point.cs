@@ -10,7 +10,8 @@ using Bitub.Dto.Spatial;
 
 namespace Bitub.Dto.Cpi.Geometry
 {
-    public class Point
+    [XmlType("p")]
+    public sealed class Point
     {
         public Point()
         { }

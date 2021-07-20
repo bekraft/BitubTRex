@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bitub.Dto.Spatial;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,8 +11,10 @@ namespace Bitub.Dto.Scene
     /// <summary>
     /// Scene model extensions.
     /// </summary>
-    public static class ModelExtensions
+    public static class Extensions
     {
+        #region Static general members
+
         /// <summary>
         /// Classifying by GUIDs as base64 encoding.
         /// </summary>
@@ -49,6 +52,10 @@ namespace Bitub.Dto.Scene
                 return named.ToQualifier();
             };
         }
+
+        #endregion
+
+        #region ComponentScene context
 
         /// <summary>
         /// Produces a cluster lookup by given classifier extraction
@@ -119,5 +126,21 @@ namespace Bitub.Dto.Scene
                 yield return component;
             }
         }
+
+        #endregion
+
+        #region Transform context
+
+        public static string ToLinedString(this XYZ xyz)
+        {
+            return string.Format("{0:G} {1:G} {2:G}", xyz.X, xyz.Y, xyz.Z);
+        }
+
+        public static string ToLinedString(this Rotation r)
+        {
+            return string.Format("{0} {1} {2}", r.Rx.ToLinedString(), r.Ry.ToLinedString(), r.Rz.ToLinedString());
+        }
+
+        #endregion
     }
 }

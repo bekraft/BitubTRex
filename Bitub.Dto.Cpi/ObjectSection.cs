@@ -4,12 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using System.Xml.Serialization;
-
 using Bitub.Dto.Cpi.Topology;
+using Bitub.Dto.Cpi.Data;
+
+using System.Xml.Serialization;
 
 namespace Bitub.Dto.Cpi
 {
+    [XmlType("objectSection")]
     public class ObjectSection : Section
     {
         public ObjectSection() : base("1.4")
@@ -17,5 +19,14 @@ namespace Bitub.Dto.Cpi
 
         [XmlAttribute("unit")]
         public LengthUnitType LengthUnit { get; set; } = LengthUnitType.Meter;
+
+        [XmlElement("rootContainer")]
+        public RootContainer RootContainer { get; set; }
+
+        [XmlElement("materialSection")]
+        public MaterialSection MaterialSection { get; set; }
+
+        [XmlElement("propertySection")]
+        public PropertySection PropertySection { get; set; }
     }
 }

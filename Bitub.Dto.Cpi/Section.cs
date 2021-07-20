@@ -4,7 +4,6 @@ namespace Bitub.Dto.Cpi
 {
     public abstract class Section
     {
-
         protected Section(string initialVersion = null)
         {
             if (!string.IsNullOrEmpty(initialVersion))

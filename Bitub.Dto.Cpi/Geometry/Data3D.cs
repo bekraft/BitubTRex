@@ -8,11 +8,9 @@ using System.Xml.Serialization;
 
 namespace Bitub.Dto.Cpi.Geometry
 {
-    public sealed class Data3D
+    [XmlType("data3D")]
+    public sealed class Data3D : ReferencesCpiObject
     {
-        [XmlAttribute("refID")]
-        public string RefID { get; set; }
-
         [XmlElement("p")]
         public List<Point> Point { get; set; } = new List<Point>();
         [XmlElement("solid")]

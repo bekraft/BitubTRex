@@ -6,7 +6,8 @@ using System.Xml.Serialization;
 
 namespace Bitub.Dto.Cpi.Topology
 {
-    public class RootContainer : CpiObject
+    [XmlType("rootContainer")]
+    public sealed class RootContainer : CpiObject
     {
         [XmlAttribute("mRot")]
         public string Rotation { get; set; } = "1 0 0 0 1 0 0 0 1";

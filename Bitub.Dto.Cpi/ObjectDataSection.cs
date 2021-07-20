@@ -8,6 +8,7 @@ using Bitub.Dto.Cpi.Geometry;
 
 namespace Bitub.Dto.Cpi
 {
+    [XmlType("objectDataSection")]
     public class ObjectDataSection : Section
     {
         public ObjectDataSection() : base("1.4")

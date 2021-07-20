@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using System.Xml.Serialization;
 
@@ -13,12 +10,14 @@ namespace Bitub.Dto.Cpi.Geometry
         Planar, Curved
     }
 
+    [XmlType("solid")]
     public class Solid
     {
         [XmlElement("face")]
         public List<Face> Face { get; set; } = new List<Face>();
     }
 
+    [XmlType("face")]
     public class Face
     {
         [XmlAttribute("shape")]
@@ -27,6 +26,7 @@ namespace Bitub.Dto.Cpi.Geometry
         public List<Triangle> Tessellation { get; set; } = new List<Triangle>();
     }
 
+    [XmlType("t")]
     public class Triangle
     {
         [XmlAttribute("p1")]
