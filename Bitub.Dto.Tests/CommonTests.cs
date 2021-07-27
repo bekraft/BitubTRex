@@ -1,11 +1,9 @@
 ﻿using NUnit.Framework;
 
 using System;
-using System.IO;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+using Bitub.Dto.Xml;
 
 namespace Bitub.Dto.Tests
 {
@@ -86,10 +84,10 @@ namespace Bitub.Dto.Tests
             var named = new string[] { "A", "Test1" }.ToQualifier();
             var anonymous = System.Guid.NewGuid().ToQualifier();
 
-            var xmlNamed = WriteToXmlStream(named, (o, writer) => writer.WriteOuterXml(o, XmlSerializingExtensions.WriteToXml));
+            var xmlNamed = WriteToXmlStream(named, (o, writer) => writer.WriteOuterXml(o, XmlSerializationExtensions.WriteToXml));
             Assert.IsTrue(xmlNamed.Length > 0);
 
-            Qualifier readNamed = ReadFromXmlStream<Qualifier>(xmlNamed, XmlSerializingExtensions.ReadFromXml);
+            Qualifier readNamed = ReadFromXmlStream<Qualifier>(xmlNamed, XmlSerializationExtensions.ReadFromXml);
             Assert.AreEqual(named, readNamed);
         }
 

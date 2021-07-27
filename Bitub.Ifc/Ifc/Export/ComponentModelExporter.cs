@@ -179,15 +179,17 @@ namespace Bitub.Ifc.Export
                 }
             }
 
-            // Add default materials where required
+            // Add default materials where required (Nid < 0)
             componentScene.Materials.AddRange(
-                model.ToMaterialByColorMap(                    
-                    DefaultProductColorMap,
+                DefaultProductColorMap.ToMaterialByIfcTypeIDs( 
+                    model,
                     componentScene.Components
                         .SelectMany(c => c.Shapes)
                         .Select(s => s.Material)
-                        .Where(m => 0 > m.Nid)
-                        .Distinct()
+                        .Where(m => 0 > m.Nid) // Only negative (not allowed in IFC label specification, Xbim internal meaning 
+                        .Select(m => - m.Nid) // Make positive
+                        .Distinct(),
+                    (nid) => new RefId { Nid = -nid } // Create negative NIDs again
                 )
             );
 

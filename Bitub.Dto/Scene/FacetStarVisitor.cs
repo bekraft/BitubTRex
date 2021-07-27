@@ -87,7 +87,7 @@ namespace Bitub.Dto.Scene
                     predicate = f => !visited.Contains(f);
                     break;
                 case InvestigationStrategy.SameFaceFirst:
-                    predicate = f => !visited.Contains(f) && (null == representative || f.Meshed == representative);
+                    predicate = f => !visited.Contains(f) && (null == representative || f.meshed == representative);
                     break;
                 default:
                     throw new NotImplementedException($"Not implemented for '{Strategy}'");
@@ -147,7 +147,7 @@ namespace Bitub.Dto.Scene
                         case InvestigationStrategy.FirstWins:
                             break;
                         case InvestigationStrategy.SameFaceFirst:
-                            if (null != representative && f.Meshed != representative)
+                            if (null != representative && f.meshed != representative)
                                 // Skip, if face isn't representative
                                 continue;
 
@@ -156,8 +156,8 @@ namespace Bitub.Dto.Scene
                             throw new NotImplementedException($"Not implemented for '{Strategy}'");
                     }
 
-                    IsNewFace = representative != f.Meshed;
-                    representative = f.Meshed;
+                    IsNewFace = representative != f.meshed;
+                    representative = f.meshed;
                     visited.Add(f);
 
                     yield return f;

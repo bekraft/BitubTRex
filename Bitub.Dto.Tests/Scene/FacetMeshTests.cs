@@ -35,12 +35,12 @@ namespace Bitub.Dto.Scene.Tests
                 switch (visitor.Strategy)
                 {
                     case FacetStarVisitor.InvestigationStrategy.SameFaceFirst:
-                        if (!f.Meshed.Equals(faces.LastOrDefault()))
+                        if (!f.meshed.Equals(faces.LastOrDefault()))
                         {
                             foreach (var known in faces.Take(faces.Count - 1))
-                                Assert.AreNotEqual(known, f.Meshed, "Face shouldn't be processed before");
+                                Assert.AreNotEqual(known, f.meshed, "Face shouldn't be processed before");
 
-                            faces.Add(f.Meshed);
+                            faces.Add(f.meshed);
                             Assert.IsTrue(visitor.IsNewFace);
                         }
                         else

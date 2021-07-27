@@ -28,7 +28,9 @@ namespace Bitub.Ifc.Transform.Requests
             int[] labelFilter, ExpressType[] typeFilter, FilteringRules rules = 0) : base(source, target)
         {
             entityLabels = labelFilter ?? new int[] { };
+            Array.Sort(entityLabels);
             expressTypes = typeFilter ?? new ExpressType[] { };
+            Array.Sort(expressTypes, (a, b) => Math.Sign(a.TypeId - b.TypeId));
             filteringFlag = rules;
         }
     }

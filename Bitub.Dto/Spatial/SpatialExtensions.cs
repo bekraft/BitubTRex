@@ -13,6 +13,13 @@ namespace Bitub.Dto.Spatial
 
         #endregion
 
+        #region XYZ context
+
+        public static string ToLinedString(this XYZ xyz)
+        {
+            return string.Format("{0:G} {1:G} {2:G}", xyz.X, xyz.Y, xyz.Z);
+        }
+
         public static bool IsAlmostEqual(this XYZ a, XYZ b, double precision)
         {
             return !(Math.Abs(a.X - b.X) > precision || Math.Abs(a.Y - b.Y) > precision || Math.Abs(a.Z - b.Z) > precision);
@@ -23,14 +30,14 @@ namespace Bitub.Dto.Spatial
             return new float[] { a.X, a.Y, a.Z };
         }
 
-        public static float ToNorm2(this XYZ a)
+        public static double ToNorm2(this XYZ a)
         {
-            return (float)Math.Sqrt((double)a.X * a.X + (double)a.Y * a.Y + (double)a.Z * a.Z);
+            return Math.Sqrt((double)a.X * a.X + (double)a.Y * a.Y + (double)a.Z * a.Z);
         }
 
         public static XYZ ToNormalized(this XYZ a)
         {
-            var norm2 = a.ToNorm2();
+            var norm2 = (float)a.ToNorm2();
             return new XYZ
             {
                 X = a.X / norm2,
@@ -38,6 +45,13 @@ namespace Bitub.Dto.Spatial
                 Z = a.Z / norm2
             };
         }
+
+        public static XYZ Negate(this XYZ a) => new XYZ
+        {
+            X = -a.X,
+            Y = -a.Y,
+            Z = -a.Z
+        };
 
         public static XYZ Cross(this XYZ a, XYZ b) => new XYZ
         {
@@ -66,6 +80,10 @@ namespace Bitub.Dto.Spatial
             Y = (a.Y * s),
             Z = (a.Z * s),
         };
+
+        #endregion
+
+        #region ABox context
 
         public static XYZ CenterOf(this ABox box)
         {
@@ -120,5 +138,7 @@ namespace Bitub.Dto.Spatial
         {
             return (a.Max.X - a.Min.X) * (a.Max.Y - a.Min.Y) * (a.Max.Z - a.Min.Z);
         }
+
+        #endregion
     }
 }

@@ -5,7 +5,7 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
-using Bitub.Dto;
+using Bitub.Dto.Xml;
 
 namespace Bitub.Dto.Concept
 {

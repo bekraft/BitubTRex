@@ -55,6 +55,15 @@ namespace Bitub.Dto.Scene
 
         #endregion
 
+        #region Transform context
+
+        public static string ToLinedString(this Rotation r)
+        {
+            return string.Format("{0} {1} {2}", r.Rx.ToLinedString(), r.Ry.ToLinedString(), r.Rz.ToLinedString());
+        }
+
+        #endregion
+
         #region ComponentScene context
 
         /// <summary>
@@ -125,20 +134,6 @@ namespace Bitub.Dto.Scene
                 }
                 yield return component;
             }
-        }
-
-        #endregion
-
-        #region Transform context
-
-        public static string ToLinedString(this XYZ xyz)
-        {
-            return string.Format("{0:G} {1:G} {2:G}", xyz.X, xyz.Y, xyz.Z);
-        }
-
-        public static string ToLinedString(this Rotation r)
-        {
-            return string.Format("{0} {1} {2}", r.Rx.ToLinedString(), r.Ry.ToLinedString(), r.Rz.ToLinedString());
         }
 
         #endregion

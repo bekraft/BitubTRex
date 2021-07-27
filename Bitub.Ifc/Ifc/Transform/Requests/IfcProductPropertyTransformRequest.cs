@@ -1,35 +1,41 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
+using Bitub.Dto;
 using Bitub.Dto.Concept;
 using Bitub.Ifc.Concept;
 using Bitub.Ifc.TRex;
 
 using Xbim.Common;
+using Xbim.Ifc4.Interfaces;
 
 namespace Bitub.Ifc.Transform.Requests
 {
     public class IfcProductPropertyTransform : TransformPackage
     {
-        // General filter
-        public readonly CanonicalFilterRule entityTypeFilter;
-        // Product enhancement filter
+        private ILookup<string, FeatureEntityMapping> perSetRules;
+        private FeatureStageCache featureStageCache;
 
-        // Product property mapping filter
+        internal IfcProductPropertyTransform(FeatureEntityMapping[] mappingRules)
+        {
+            featureStageCache = new FeatureStageCache();
+        }
+
+        private void Init(FeatureEntityMapping[] rules)
+        {            
+        }
     }
 
     public class IfcProductPropertyTransformRequest : IfcTransformRequestTemplate<IfcProductPropertyTransform>
     {
-        public CanonicalFilterRule EntityTypeFilter { get; set; }
-        public FeatureMapping[] FeatureMapping { get; set; }
+        public FeatureEntityMapping[] PropertyMappingRules { get; set; }
 
-        public override string Name => throw new NotImplementedException();
+        public override string Name => "IFC Product Property Mapping";
 
-        public override ILogger Log { get => throw new NotImplementedException(); protected set => throw new NotImplementedException(); }
+        public override ILogger Log { get; protected set; }
 
         protected override IfcProductPropertyTransform CreateTransformPackage(IModel aSource, IModel aTarget)
         {

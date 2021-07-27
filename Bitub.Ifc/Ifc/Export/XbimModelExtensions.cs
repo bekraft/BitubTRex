@@ -21,6 +21,8 @@ namespace Bitub.Ifc.Export
 {
     public static class XbimModelExtensions
     {
+        #region Point context 
+
         public static XYZ ToXYZ(this XbimPoint3D p, float scale = 1.0f)
         {
             return new XYZ()
@@ -45,6 +47,10 @@ namespace Bitub.Ifc.Export
             f.Add((float)(p.Z * scale));
         }
 
+        #endregion
+
+        #region XbimVector3D context
+
         public static XYZ ToXYZ(this XbimVector3D v, float scale = 1.0f)
         {
             return new XYZ()
@@ -68,6 +74,10 @@ namespace Bitub.Ifc.Export
             f.Add((float)(v.Y * scale));
             f.Add((float)(v.Z * scale));
         }
+
+        #endregion
+
+        #region XbimMatrix3D context
 
         public static Bitub.Dto.Scene.Transform ToRotation(this XbimMatrix3D t, float scale = 1.0f)
         {
@@ -99,16 +109,7 @@ namespace Bitub.Ifc.Export
             };
         }
 
-        public static Color ToColor(this XbimColour c)
-        {
-            return new Color()
-            {
-                R = c?.Red ?? 0.75f,
-                G = c?.Green ?? 0.75f,
-                B = c?.Blue ?? 0.75f,
-                A = c?.Alpha ?? 1.0f,
-            };
-        }
+        #endregion
 
         public static ABox ToABox(this XbimRect3D rect3D, float scale = 1.0f, Func<XbimPoint3D, XbimPoint3D> adapter = null)
         {
@@ -188,31 +189,47 @@ namespace Bitub.Ifc.Export
             return component;
         }
 
+        #region Colouring and materials
+
+        public static Color ToColor(this XbimColour c)
+        {
+            return new Color()
+            {
+                R = c?.Red ?? 0.75f,
+                G = c?.Green ?? 0.75f,
+                B = c?.Blue ?? 0.75f,
+                A = c?.Alpha ?? 1.0f,
+            };
+        }
+
         public static IEnumerable<Material> ToMaterialBySurfaceStyles(this IModel model)
         {
             foreach (var style in model.Instances.OfType<IIfcSurfaceStyle>())
                 yield return style.ToMaterial();
         }
 
-        public static IEnumerable<Material> ToMaterialByColorMap(this IModel model, XbimColourMap defaultColorMap, IEnumerable<RefId> negativeTypeNids)
+        public static Material ToMaterialByIfcTypeID(this XbimColourMap defaultColorMap, IModel model, int typeID, Func<int, RefId> generator)
         {
-            foreach (var rid in negativeTypeNids)
+            var defaultStyle = model.Metadata.GetType((short)typeID);
+            var defaultColor = defaultColorMap[defaultStyle.Name];
+            var defaultMaterial = new Material
             {
-                var defaultStyle = model.Metadata.GetType((short)Math.Abs(rid.Nid));
-                var defaultColor = defaultColorMap[defaultStyle.Name];
-                var defaultMaterial = new Material
-                {
-                    Name = defaultStyle.Name,
-                    Id = rid
-                };
-                defaultMaterial.ColorChannels.Add(new ColorOrNormalised
-                {
-                    Channel = ColorChannel.Albedo,
-                    Color = defaultColor.ToColor(),
-                });
-                yield return defaultMaterial;
-            }
+                Name = defaultStyle.Name,
+                Id = generator?.Invoke(typeID) ?? new RefId { Nid = typeID }
+            };
+            defaultMaterial.ColorChannels.Add(new ColorOrNormalised
+            {
+                Channel = ColorChannel.Albedo,
+                Color = defaultColor.ToColor(),
+            });
+            return defaultMaterial;
         }
 
+        public static IEnumerable<Material> ToMaterialByIfcTypeIDs(this XbimColourMap defaultColorMap, IModel model, IEnumerable<int> typeIDs, Func<int, RefId> generator)
+        {
+            return typeIDs.Select(typeID => ToMaterialByIfcTypeID(defaultColorMap, model, typeID, generator));
+        }
+
+        #endregion
     }
 }

@@ -39,7 +39,6 @@ message FeatureConcept {
 		DataFeature dataConcept = 3;
 		RoleFeature roleConcept = 4;
 	}
-
 }
 
 // The concept quantification operator
