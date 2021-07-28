@@ -1,12 +1,15 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 
+using Microsoft.Extensions.Logging;
+
+using static Bitub.Dto.Xml.XmlSerializationExtensions;
+
 namespace Bitub.Dto.Tests
 {
-    public abstract class BaseTests<T>
+    public abstract class TestBase<T>
     {
         protected ILogger<T> logger;
 

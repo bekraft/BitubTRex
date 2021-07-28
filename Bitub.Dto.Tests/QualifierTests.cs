@@ -7,7 +7,7 @@ using Bitub.Dto.Xml;
 
 namespace Bitub.Dto.Tests
 {
-    public class CommonTests : BaseTests<CommonTests>
+    public class QualifierTests : TestBase<QualifierTests>
     {
         [SetUp]
         public void StartUp()

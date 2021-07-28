@@ -5,34 +5,26 @@ namespace Bitub.Dto.Concept
 {
     public static class FeatureExtensions
     {
-        public static bool IsValid(this FeatureConcept featureConcept)
+        public static bool IsValid(this FeatureConcept concept)
         {
-            if (featureConcept.Canonical?.IsEmpty() ?? true)
+            if (concept.Canonical?.IsEmpty() ?? true)
                 return false;
 
-            switch (featureConcept.DataOrRoleCase)
+            switch (concept.CompositeCase)
             {
-                case FeatureConcept.DataOrRoleOneofCase.None:
-                    return false;
-                case FeatureConcept.DataOrRoleOneofCase.DataConcept:
+                case FeatureConcept.CompositeOneofCase.None:
+                    // Simple named concept
+                    return true;
+                case FeatureConcept.CompositeOneofCase.DataFeature:
                     // All data features of the same type
-                    var allOfSameType = featureConcept.DataConcept.Data.Select(data => data.DataValueCase).Distinct().Count() == 1;
-                    // No data feature quantifiers mentioned twice if all have to match
-                    var distinctTypes = featureConcept.Op == ConceptOp.OneOf
-                            || featureConcept.DataConcept.Data.Count == featureConcept.DataConcept.Data.Select(data => data.Type).Distinct().Count();
-                    return distinctTypes && allOfSameType;
-                case FeatureConcept.DataOrRoleOneofCase.RoleConcept:
-                    // No role filler mentioned twice
-                    var distinctFillers = featureConcept.RoleConcept.Filler.Distinct().Count() == featureConcept.RoleConcept.Filler.Count;
-                    return distinctFillers;
+                    var definedType = concept.DataFeature.DataValueCase != DataConcept.DataValueOneofCase.None;
+                    return definedType && concept.DataFeature.ToAnyValue() != null;
+                case FeatureConcept.CompositeOneofCase.RoleFeature:
+                    // Existing filler
+                    return !concept.RoleFeature.IsEmpty();
                 default:                    
                     throw new NotImplementedException();
             }
-        }
-
-        public static bool Subsumes(this FeatureConcept otherFeature)
-        {
-            throw new NotImplementedException();   
         }
 
         public static object ToAnyValue(this DataConcept dataConcept)

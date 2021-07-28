@@ -3,14 +3,17 @@ using System.Linq;
 using System.Collections.Generic;
 
 using Bitub.Dto;
+using Bitub.Dto.Concept;
 
 using Xbim.Common;
 using Xbim.Common.Step21;
 using Xbim.Common.Metadata;
 
+using Xbim.Ifc4.Interfaces;
+
 namespace Bitub.Ifc.Concept
 {
-    public static class XbimIfcConceptExtensions
+    public static class XbimIfcMetadataExtensions
     {
         #region Internals
 
@@ -127,6 +130,6 @@ namespace Bitub.Ifc.Concept
                 .Types()
                 .Where(t => typeof(T).IsAssignableFrom(t.Type))
                 .ToDictionary(t => t.Type, t => ToInternalClassifier(schemaVersion, t, null));                
-        }
+        }        
     }
 }

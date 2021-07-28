@@ -10,7 +10,7 @@ using Bitub.Dto.Concept;
 
 namespace Bitub.Dto.Tests.Concept
 {
-    public class CanonicalFilterTests : BaseTests<CanonicalFilterTests>
+    public class CanonicalFilterTests : TestBase<CanonicalFilterTests>
     {
         protected CanonicalFilter canonicalFilter;
 

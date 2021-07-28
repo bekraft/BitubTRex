@@ -9,26 +9,26 @@ namespace Bitub.Dto.Concept
         public static Domain ToDomain(this IEnumerable<Classifier> ontologyClassification, 
             StringComparison stringComparison = StringComparison.OrdinalIgnoreCase, Qualifier rootCanonical = null)
         {
-            var canonicalCache = new Dictionary<Qualifier, Concept>(new QualifierCaseEqualityComparer(stringComparison));
+            var canonicalCache = new Dictionary<Qualifier, FeatureConcept>(new QualifierCaseEqualityComparer(stringComparison));
             foreach (var classifier in ontologyClassification)
             {
-                Concept parent = null;
+                FeatureConcept parent = null;
                 foreach (var canonical in classifier.Path)
                 {
-                    Concept concept = null;
+                    FeatureConcept concept = null;
                     if (!canonicalCache.TryGetValue(canonical, out concept))
                     {
-                        canonicalCache.Add(canonical, concept = new Concept { Canonical = canonical });
+                        canonicalCache.Add(canonical, concept = new FeatureConcept { Canonical = canonical });
                     }
 
                     if (null != parent)
-                        concept.Subsumes.Add(parent.Canonical);                    
+                        concept.Includes.Add(parent.Canonical);                    
                     
                     parent = concept;
                 }
             }
 
-            var roots = canonicalCache.Values.Where(c => c.Subsumes.Count == 0).ToArray();
+            var roots = canonicalCache.Values.Where(c => c.Includes.Count == 0).ToArray();
             if (null == rootCanonical)
             {
                 if (roots.Length == 1)

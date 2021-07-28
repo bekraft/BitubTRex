@@ -1,7 +1,7 @@
 ﻿syntax = "proto3";
 package Bitub.Dto.Scene;
 
-// Version 1.2.1
+// Version 1.3
 import "Common.proto";
 import "Concept.proto";
 import "Spatial.proto";
@@ -38,7 +38,7 @@ message Mesh {
 // A generic meshed face
 message Face {
 	Orientation orient = 1;
-	RefId material = 2;
+	RefId material = 2; // If supported
 
     repeated uint32 loop = 3;
 	repeated float normal = 4;
@@ -154,9 +154,7 @@ message Component {
 	GlobalUniqueId parent = 2;
 	string name = 5;
 	repeated Classifier concepts = 6;	
-	//repeated GlobalUniqueId children = 7;
 	repeated Shape shapes = 8;
-	repeated Bitub.Dto.Concept.FeatureConcept features = 9;
 	Bitub.Dto.Spatial.BoundingBox boundingBox = 10;
 }
 

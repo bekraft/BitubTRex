@@ -6,7 +6,7 @@ using Bitub.Dto.Tests;
 
 namespace Bitub.Dto.Scene.Tests
 {
-    public class SceneModelTests : BaseTests<SceneModelTests>
+    public class SceneModelTests : TestBase<SceneModelTests>
     {
         const string tExample1 = "{ \"q\": { \"x\": 0.25, \"y\": 0, \"z\": 0, \"w\": 1 }, \"t\": { \"x\": 38.41, \"y\": 0.7, \"z\": 62.75 } }";
 

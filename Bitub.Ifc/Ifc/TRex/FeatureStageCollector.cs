@@ -86,7 +86,7 @@ namespace Bitub.Ifc.TRex
                 var ifcQn = ifcObject.ToQualifiedName();
                 if (EntityTypeFilterRule.IsAcceptedBy(ifcQn.ToClassifier()))
                 {
-                    var features = ifcObject.ToFeatures<IIfcSimpleProperty>(PropertyFilter);
+                    var features = ifcObject.ToFeatureConcepts<IIfcSimpleProperty>(PropertyFilter);
                     features.ForEach(f => stageCache.AddFeatureStage(new FeatureStage(instanceAtStage, f)));
                     return true;
                 }                

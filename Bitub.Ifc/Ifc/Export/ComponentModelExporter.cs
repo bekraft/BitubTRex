@@ -128,8 +128,8 @@ namespace Bitub.Ifc.Export
                         {
                             int? optParent;
                             c = product.ToComponent(out optParent, ifcClassifierMap)
-                                .ToClassifedComponentWith(product, Preferences.FeatureToClassifierFilter)
-                                .ToFullyFeaturedWith(product, Preferences.FeatureFilterRule);
+                                // TODO
+                                .ToClassifedComponentWith(product, Preferences.FeatureToClassifierFilter);
 
                             componentCache.Add(product.EntityLabel, c);
                             componentScene.Components.Add(c);
@@ -165,8 +165,8 @@ namespace Bitub.Ifc.Export
                     {
                         int? optParent;
                         c = product.ToComponent(out optParent, ifcClassifierMap)
-                            .ToClassifedComponentWith(product, Preferences.FeatureToClassifierFilter)
-                            .ToFullyFeaturedWith(product, Preferences.FeatureFilterRule);
+                            // TODO
+                            .ToClassifedComponentWith(product, Preferences.FeatureToClassifierFilter);
 
                         componentCache.Add(product.EntityLabel, c);                       
 
