@@ -91,7 +91,7 @@ namespace Bitub.Ifc.Export
                 sr.DiffuseColour?.ToColorOrNormalised(ColorChannel.Diffuse, alpha),
                 sr.ReflectionColour?.ToColorOrNormalised(ColorChannel.Diffuse, alpha),
                 sr.TransmissionColour?.ToColorOrNormalised(ColorChannel.Emmissive, alpha),
-                sr.DiffuseTransmissionColour?.ToColorOrNormalised(ColorChannel.DiffuseEmmisive, alpha),
+                //sr.DiffuseTransmissionColour?.ToColorOrNormalised(ColorChannel.DiffuseEmmisive, alpha),
                 sr.SpecularColour?.ToColorOrNormalised(ColorChannel.Specular, alpha)
             }.OfType<ColorOrNormalised>();
         }
@@ -105,11 +105,11 @@ namespace Bitub.Ifc.Export
                     Channel = ColorChannel.Diffuse,
                     Color = sl.DiffuseReflectionColour.ToColor()
                 },
-                new ColorOrNormalised()
+                /*new ColorOrNormalised()
                 {
                     Channel = ColorChannel.DiffuseEmmisive,
                     Color = sl.DiffuseTransmissionColour.ToColor()
-                },
+                },*/
                 new ColorOrNormalised()
                 {
                     Channel = ColorChannel.Emmissive,

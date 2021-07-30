@@ -10,6 +10,7 @@ using Xbim.Ifc;
 using Xbim.Ifc4.Interfaces;
 
 using Bitub.Dto;
+using Bitub.Dto.Spatial;
 using Bitub.Dto.Scene;
 
 using Component = Bitub.Dto.Scene.Component;
@@ -127,9 +128,7 @@ namespace Bitub.Ifc.Export
                         if (!componentCache.TryGetValue(product.EntityLabel, out c))
                         {
                             int? optParent;
-                            c = product.ToComponent(out optParent, ifcClassifierMap)
-                                // TODO
-                                .ToClassifedComponentWith(product, Preferences.FeatureToClassifierFilter);
+                            c = product.ToComponent(out optParent, ifcClassifierMap, exportSettings.IsUsingEntityLabelAsID);
 
                             componentCache.Add(product.EntityLabel, c);
                             componentScene.Components.Add(c);
@@ -139,6 +138,7 @@ namespace Bitub.Ifc.Export
                         }
 
                         c.Shapes.AddRange(msg.ProductShape.shapes);
+                        c.BoundingBox = msg.ProductShape.shapes.Select(shape => shape.BoundingBox).Aggregate((a, b) => a.UnionWith(b));
                         break;
                 }
             }
@@ -164,9 +164,7 @@ namespace Bitub.Ifc.Export
                     if (!componentCache.TryGetValue(product.EntityLabel, out c))
                     {
                         int? optParent;
-                        c = product.ToComponent(out optParent, ifcClassifierMap)
-                            // TODO
-                            .ToClassifedComponentWith(product, Preferences.FeatureToClassifierFilter);
+                        c = product.ToComponent(out optParent, ifcClassifierMap, exportSettings.IsUsingEntityLabelAsID);
 
                         componentCache.Add(product.EntityLabel, c);                       
 

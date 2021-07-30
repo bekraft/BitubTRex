@@ -91,7 +91,7 @@ namespace Bitub.Dto.Scene
 
         public XYZ GetXYZ(int offset)
         {
-            var baseOffset = IndexOffset(Index, offset) * 3;
+            var baseOffset = (int)meshed.Mesh.Vertex[IndexOffset(Index, offset)] * 3;
             return new XYZ
             {
                 X = meshed.PtOffsetArray.Points.Xyz[baseOffset],

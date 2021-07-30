@@ -33,7 +33,8 @@ message FeatureConcept {
 		DataConcept dataFeature = 6;
 	}
 
-	repeated Qualifier includes = 7;
+	repeated Qualifier superior = 7; // hyponyms (conjunction if > 1)
+	repeated Qualifier equivalent = 8; // equivalents (conjunction if > 1)
 }
 
 // A feature data concept

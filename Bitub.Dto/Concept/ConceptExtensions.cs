@@ -22,13 +22,13 @@ namespace Bitub.Dto.Concept
                     }
 
                     if (null != parent)
-                        concept.Includes.Add(parent.Canonical);                    
+                        concept.Superior.Add(parent.Canonical);                    
                     
                     parent = concept;
                 }
             }
 
-            var roots = canonicalCache.Values.Where(c => c.Includes.Count == 0).ToArray();
+            var roots = canonicalCache.Values.Where(c => c.Superior.Count == 0).ToArray();
             if (null == rootCanonical)
             {
                 if (roots.Length == 1)

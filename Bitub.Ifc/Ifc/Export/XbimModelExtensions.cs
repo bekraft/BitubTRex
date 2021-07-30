@@ -79,9 +79,9 @@ namespace Bitub.Ifc.Export
 
         #region XbimMatrix3D context
 
-        public static Bitub.Dto.Scene.Transform ToRotation(this XbimMatrix3D t, float scale = 1.0f)
+        public static Dto.Scene.Transform ToRotation(this XbimMatrix3D t, float scale = 1.0f)
         {
-            return new Bitub.Dto.Scene.Transform
+            return new Dto.Scene.Transform
             {                
                 R = new Rotation
                 {   // XbimMatrix is transposed (left hand chaining)
@@ -93,10 +93,10 @@ namespace Bitub.Ifc.Export
             };
         }
 
-        public static Bitub.Dto.Scene.Transform ToQuaternion(this XbimMatrix3D t, float scale = 1.0f)
+        public static Dto.Scene.Transform ToQuaternion(this XbimMatrix3D t, float scale = 1.0f)
         {
             var q = t.GetRotationQuaternion();
-            return new Bitub.Dto.Scene.Transform
+            return new Dto.Scene.Transform
             {
                 Q = new Quaternion
                 {
@@ -143,37 +143,24 @@ namespace Bitub.Ifc.Export
             return model.SchemaVersion.ToImplementingClassification<IIfcProduct>();
         }
 
-        public static Component ToClassifedComponentWith(this Component component, IIfcProduct product, CanonicalFilter featureToClassifierFilter)
-        {
-            // TODO ToClassifedComponentWith
-            /*
-            if (null != featureToClassifierFilter)
-            {
-                var classifiers = product
-                    .ToFeatureConcepts<IIfcSimpleProperty>(featureToClassifierFilter)
-                    .Select(fc => fc.ToClassifierOnValueEquals())
-                    .Distinct();
-
-                component.Concepts.AddRange(classifiers);
-            }*/
-            return component;
-        }
-
-        public static Component ToComponent(this IIfcProduct product, out int? optParentLabel, IDictionary<Type, Classifier> ifcClassifierMap)
+        public static Component ToComponent(this IIfcProduct product, 
+            out int? optParentLabel, IDictionary<Type, Classifier> ifcClassifierMap, bool isUsingEntityLabels)
         {
             var parent = product.Parent<IIfcProduct>().FirstOrDefault();
+            RefId parentId = null;
+            if (null != parent)
+                parentId = isUsingEntityLabels ? new RefId { Nid = parent.EntityLabel } : new RefId { Sid = parent.GlobalId.ToGlobalUniqueId().ToQualifier() };
+
             var component = new Component
             {
-                Id = product.GlobalId.ToGlobalUniqueId(),
-                // -1 reserved for roots
-                Parent = parent?.GlobalId.ToGlobalUniqueId(),
+                Id = isUsingEntityLabels ? new RefId { Nid = product.EntityLabel } : new RefId { Sid = product.GlobalId.ToGlobalUniqueId().ToQualifier() },
+                Parent = parentId,
                 Name = product.Name ?? "",
             };
 
             // Add IFC express types inheritance by default
             component.Concepts.Add(ifcClassifierMap[product.GetType()]);
 
-            //component.Children.AddRange(product.Children<IIfcProduct>().Select(p => p.GlobalId.ToGlobalUniqueId()));
             optParentLabel = parent?.EntityLabel;
             return component;
         }

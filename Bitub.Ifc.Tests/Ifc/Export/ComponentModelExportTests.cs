@@ -15,7 +15,7 @@ using Bitub.Ifc.Tests;
 namespace Bitub.Ifc.Export.Tests
 {
     [TestClass]
-    public class SceneXbimExporterTests : BaseTests<SceneXbimExporterTests>
+    public class ComponentModelExportTests : BaseTests<ComponentModelExportTests>
     {
         private ExportPreferences testPreferences = new ExportPreferences
         {

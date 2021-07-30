@@ -75,9 +75,19 @@ namespace Bitub.Ifc.Export
 
         /// <summary>
         /// Maximum threshold of centre bias of local coordinates relative to local origin.
-        /// Percentage measure of greater axis extent of bounding box. By default disabled (positive infinity).
+        /// Percentage measure of greater axis extent of bounding box. By default disabled (positive infinity). If set
+        /// to value less than infinity, the local origin will be translated to the center of the bounding box. Local transforms will
+        /// be adjusted to reflect the change. Sometimes offsets are directly embedded into vertex coordinates instead of transform. This option be
+        /// sensitive to these biased exports.
         /// </summary>
-        public float MaxBodyOriginCentreBias { get; set; } = float.PositiveInfinity;
+        // TODO 
+        //public float MaxBodyOriginCentreBias { get; set; } = float.PositiveInfinity;
+
+        /// <summary>
+        /// If true, IFC's entity labels will be used as ID. Otherwise object's globally unique IDs are preferred. Enable this option, if given GUIDs are not
+        /// unique (should, but not guranteed by vendor software). When using entity labels, component IDs won't be unique across multiple scenes.
+        /// </summary>
+        public bool IsUsingEntityLabelAsID { get; set; } = false;
 
         /// <summary>
         /// The count of units per meter. Default is 1.0
@@ -88,16 +98,6 @@ namespace Bitub.Ifc.Export
         /// The representation contexts to transfer.
         /// </summary>
         public SceneContext[] SelectedContext { get; set; } = new SceneContext[] { new SceneContext { Name = "Body".ToQualifier() } };
-
-        /// <summary>
-        /// If set passing features with <see cref="DataOp.Equals"/> assignement will be set as classifier.
-        /// </summary>
-        public CanonicalFilter FeatureToClassifierFilter { get; set; }
-
-        /// <summary>
-        /// If set and a feature is accepted it will be attached to the scene object.
-        /// </summary>
-        public CanonicalFilterRule FeatureFilterRule { get; set; }
 
         /// <summary>
         /// The body shape export strategy

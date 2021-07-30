@@ -13,48 +13,6 @@ namespace Bitub.Dto.Scene
     /// </summary>
     public static class Extensions
     {
-        #region Static general members
-
-        /// <summary>
-        /// Classifying by GUIDs as base64 encoding.
-        /// </summary>
-        public static Func<Component, Qualifier> GuidAsBase64AsQualifier = (c) =>
-        {
-            return c.Id.ToQualifier();
-        };
-
-        /// <summary>
-        /// Classifying by upper name invariant.
-        /// </summary>
-        public static Func<Component, Qualifier> UpperNameAsQualifier = (c) =>
-        {
-            return c.Name?.ToUpperInvariant().ToQualifier(c.Parent?.ToBase64String());
-        };
-
-        /// <summary>
-        /// Evalutates the regular expression against the component's name.
-        /// </summary>
-        /// <param name="r">Regex</param>
-        /// <param name="groupName">Optional grpoup name (otherwise assigning global group)</param>
-        /// <returns>A regex matcher based classifier</returns>
-        public static Func<Component, Qualifier> NameRegexPatternQualifier(Regex r, string groupName = null)
-        {
-            return (c) =>
-            {
-                var matches = r.Matches(c.Name);
-                var named = matches.OfType<Match>().Select(g =>
-                {
-                    return null == groupName ? g.Groups[0].Value : g.Groups[groupName].Value;
-                }).ToName();
-
-                named.Frags.Insert(0, c.Parent?.ToBase64String() ?? "");
-
-                return named.ToQualifier();
-            };
-        }
-
-        #endregion
-
         #region Transform context
 
         public static string ToLinedString(this Rotation r)

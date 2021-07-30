@@ -26,5 +26,15 @@ namespace Bitub.Dto.Spatial
         public static XYZ operator +(XYZ a) => a;
         public static XYZ operator -(XYZ a) => a.Negate();
         public static XYZ operator *(XYZ a, XYZ b) => a.Cross(b);
+
+        public static XYZ PositiveInfinity
+        {
+            get => new XYZ(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
+        }
+
+        public static XYZ NegativeInfinity
+        {
+            get => new XYZ(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
+        }
     }
 }

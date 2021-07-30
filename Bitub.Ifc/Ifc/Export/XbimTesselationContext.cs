@@ -3,16 +3,9 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 
-using Microsoft.Extensions.Logging;
-using System.Text;
-using System.Threading.Tasks;
-
 using Bitub.Dto;
 using Bitub.Dto.Scene;
 using Bitub.Dto.Spatial;
-using Bitub.Ifc.Export;
-
-using Bitub.Ifc.Transform;
 
 using Xbim.Common;
 using Xbim.Common.Geometry;
@@ -22,6 +15,9 @@ using Xbim.Ifc4.Interfaces;
 
 using Xbim.Common.XbimExtensions;
 using Xbim.Common.Metadata;
+
+using Microsoft.Extensions.Logging;
+
 
 namespace Bitub.Ifc.Export
 {
