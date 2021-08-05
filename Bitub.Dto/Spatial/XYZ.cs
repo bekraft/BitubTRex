@@ -21,11 +21,25 @@ namespace Bitub.Dto.Spatial
             get => this.ToNorm2();
         }
 
+        public XYZ Normalized
+        {
+            get => this.ToNormalized();
+        }
+
+        public void Normalize()
+        {
+            var norm2 = Magnitude;
+            X = (float)(X / norm2);
+            Y = (float)(Y / norm2);
+            Z = (float)(Z / norm2);
+        }
+
         public static XYZ operator +(XYZ a, XYZ b) => a.Add(b);
         public static XYZ operator -(XYZ a, XYZ b) => a.Sub(b);
         public static XYZ operator +(XYZ a) => a;
         public static XYZ operator -(XYZ a) => a.Negate();
         public static XYZ operator *(XYZ a, XYZ b) => a.Cross(b);
+        public static XYZ operator *(XYZ a, float s) => a.Scale(s);
 
         public static XYZ PositiveInfinity
         {

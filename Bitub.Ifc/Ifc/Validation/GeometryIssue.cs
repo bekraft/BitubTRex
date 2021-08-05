@@ -50,8 +50,10 @@ namespace Bitub.Ifc.Validation
             InstanceHandle = instanceHandle;
         }
 
+        /* TODO FromSolid
         private static GeometryIssue FromSolid(GeometryValidator validator, XbimInstanceHandle instanceHandle, Type objectType, IXbimSolid solid)
         {
+
             var template = new GeometryIssue(validator, instanceHandle);
             template.ObjectType = objectType;
             template.BoundingBox = solid.BoundingBox.ToABox();
@@ -61,10 +63,12 @@ namespace Bitub.Ifc.Validation
             if (!template.Volume.HasValue)
                 template.IssueFlag |= GeometryIssueType.IsOpenShell;
             if (!solid.IsValid)
-                template.IssueFlag |= GeometryIssueType.IsInvalid;
-            return template;
+                template.IssueFlag |= GeometryIssueType.IsInvalid;            
+            return template;            
         }
+        */
 
+        /* TODO FromSolidSet
         private static IEnumerable<GeometryIssue> FromSolidSet(GeometryValidator validator, XbimInstanceHandle instanceHandle, Type objectType, IXbimSolidSet solidSet)
         {
             var template = new GeometryIssue(validator, instanceHandle);
@@ -87,7 +91,9 @@ namespace Bitub.Ifc.Validation
                 yield return child;
             }
         }
+        */
 
+        /* TODO FromInstanceHandle
         public static IEnumerable<GeometryIssue> FromInstanceHandle(GeometryValidator validator, XbimInstanceHandle instanceHandle)
         {
             var persistent = instanceHandle.Model.Instances[instanceHandle.EntityLabel];
@@ -114,6 +120,7 @@ namespace Bitub.Ifc.Validation
                 }
             }
         }
+        */
 
         #endregion
 

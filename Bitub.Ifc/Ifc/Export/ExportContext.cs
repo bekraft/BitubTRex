@@ -24,7 +24,9 @@ namespace Bitub.Ifc.Export
 
         public TSettings Current { get; private set; }
 
-        public float Scale { get; private set; } = 1.0f;
+        public XbimVector3D Scale { get; private set; } = new XbimVector3D(1, 1, 1);
+
+        public XbimMatrix3D CRS { get; private set; } = XbimMatrix3D.Identity;
 
         // Ifc context label vs. scene context
         internal readonly ConcurrentDictionary<int, SceneContextTransform> contextCache = new ConcurrentDictionary<int, SceneContextTransform>();
@@ -42,7 +44,13 @@ namespace Bitub.Ifc.Export
                 throw new ArgumentNullException(nameof(settings));
 
             Current = settings;
-            Scale = Current.UnitsPerMeter / (float)model.ModelFactors.OneMeter;
+
+            var crs = new Rotation(Current.CRS);
+            Scale = crs.Row
+                .Select(r => r.Magnitude / model.ModelFactors.OneMeter)
+                .ToXbimVector3D();
+            crs.Row.ForEach(r => r.Normalize());
+            CRS = crs.ToXbimMatrix();
 
             Current.SelectedContext = Current.SelectedContext.Select(c => new SceneContext
             {
@@ -87,8 +95,7 @@ namespace Bitub.Ifc.Export
                     Name = p?.Name,
                     Stamp = Timestamp.FromDateTime(DateTime.Now.ToUniversalTime())
                 },                
-                Id = p?.GlobalId.ToGlobalUniqueId().ToQualifier(),
-                UnitsPerMeter = Current.UnitsPerMeter                
+                Id = p?.GlobalId.ToGlobalUniqueId().ToQualifier()
             };
         }
 
@@ -132,7 +139,7 @@ namespace Bitub.Ifc.Export
                     XbimVector3D mean = XbimVector3D.Zero;
                     foreach (var r in cr)
                     {
-                        mean += r.Centre.ToVector();
+                        mean += r.Centre.ToXbimVector3D();
                         sc.Regions.Add(r.ToRegion(Scale));
                     }
                     mean *= 1.0 / cr.Count;
@@ -145,11 +152,11 @@ namespace Bitub.Ifc.Export
                             break;
                         case ScenePositioningStrategy.MostPopulatedRegionCorrection:
                             // Center at most populated
-                            offset = cr.MostPopulated().Centre.ToVector();
+                            offset = cr.MostPopulated().Centre.ToXbimVector3D();
                             break;
                         case ScenePositioningStrategy.MostExtendedRegionCorrection:
                             // Center at largest
-                            offset = cr.Largest().Centre.ToVector();
+                            offset = cr.Largest().Centre.ToXbimVector3D();
                             break;
                         case ScenePositioningStrategy.MeanTranslationCorrection:
                             // Use mean correction
@@ -169,7 +176,7 @@ namespace Bitub.Ifc.Export
                                     max = factor;
                                 }
                             }
-                            offset = rs.Centre.ToVector();
+                            offset = rs.Centre.ToXbimVector3D();
                             break;
                         case ScenePositioningStrategy.NoCorrection:
                             // No correction

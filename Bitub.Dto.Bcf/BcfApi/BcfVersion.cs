@@ -10,7 +10,7 @@ namespace Bitub.Dto.BcfApi
         public readonly static BcfVersion Bcf2x1 = new BcfVersion
         { 
             Version = "2.1", 
-            ApiReference = new Uri("https://github.com/BuildingSMART/BCF-API") 
+            ApiReference = new Uri("https://github.com/BuildingSMART/BCF-API/tree/release_2_1") 
         };
 
         [JsonPropertyName("version_id")]

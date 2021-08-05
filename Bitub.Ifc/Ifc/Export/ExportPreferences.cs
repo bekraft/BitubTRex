@@ -10,6 +10,15 @@ using Bitub.Dto.Concept;
 namespace Bitub.Ifc.Export
 {
     /// <summary>
+    /// Identification strategy.
+    /// </summary>
+    public enum SceneComponentIdentificationStrategy
+    {
+        UseGloballyUniqueID,
+        UseIfcInstanceLabel
+    }
+
+    /// <summary>
     /// Transformation labeling strategy. Either provide as quaternion or matrix4x4 representation.
     /// </summary>
     public enum SceneTransformationStrategy
@@ -84,15 +93,15 @@ namespace Bitub.Ifc.Export
         //public float MaxBodyOriginCentreBias { get; set; } = float.PositiveInfinity;
 
         /// <summary>
-        /// If true, IFC's entity labels will be used as ID. Otherwise object's globally unique IDs are preferred. Enable this option, if given GUIDs are not
+        /// If <see cref="SceneComponentIdentificationStrategy.UseGloballyUniqueID"/>, IFC's entity labels will be used as ID. Otherwise object's globally unique IDs are preferred. Enable this option, if given GUIDs are not
         /// unique (should, but not guranteed by vendor software). When using entity labels, component IDs won't be unique across multiple scenes.
         /// </summary>
-        public bool IsUsingEntityLabelAsID { get; set; } = false;
+        public SceneComponentIdentificationStrategy ComponentIdentificationStrategy { get; set; } = SceneComponentIdentificationStrategy.UseGloballyUniqueID;
 
         /// <summary>
-        /// The count of units per meter. Default is 1.0
+        /// Custom CRS rotation and scale as count of units per meter equal to the magnitude of each row vector.
         /// </summary>
-        public float UnitsPerMeter { get; set; } = 1.0f;
+        public Rotation CRS { get; set; } = Rotation.Identity;
 
         /// <summary>
         /// The representation contexts to transfer.

@@ -9,10 +9,10 @@ namespace Bitub.Ifc.TRex
     /// </summary>
     public class FeatureStage : IEquatable<FeatureStage>, IComparable<FeatureStage>
     {
-        public readonly FeatureConcept feature;
+        public readonly ELFeature feature;
         public readonly int stage;
 
-        public FeatureStage(int s, FeatureConcept f)
+        public FeatureStage(int s, ELFeature f)
         {
             feature = f;
             stage = s;
@@ -33,13 +33,13 @@ namespace Bitub.Ifc.TRex
 
         public bool Equals(FeatureStage other)
         {
-            return feature.Canonical.Equals(other?.feature?.Canonical);
+            return feature.Name.Equals(other?.feature?.Name);
         }
 
         public override int GetHashCode()
         {
             int hashCode = -1497673742;
-            hashCode = hashCode * -1521134295 + EqualityComparer<FeatureConcept>.Default.GetHashCode(feature);
+            hashCode = hashCode * -1521134295 + EqualityComparer<ELFeature>.Default.GetHashCode(feature);
             hashCode = hashCode * -1521134295 + stage.GetHashCode();
             return hashCode;
         }

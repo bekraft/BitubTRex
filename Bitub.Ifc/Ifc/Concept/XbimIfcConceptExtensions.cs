@@ -123,31 +123,23 @@ namespace Bitub.Ifc.Concept
 
         #region Specific conversions
 
-        public static IEnumerable<FeatureConcept> ToIfcTypeRoleConcept(this IIfcObject o)
+        public static IEnumerable<ELFeature> ToIfcTypeFeature(this IIfcObject o)
         {
-            yield return new FeatureConcept
+            yield return new ELFeature
             {
-                Canonical = FeatureHasIfcType,
-                RoleFeature = o.ToImplementingClassQualifier()
+                Name = FeatureHasIfcType,
+                Role = new RoleConcept { Filler = o.ToImplementingClassQualifier() }
             };
         }
 
-        public static IEnumerable<FeatureConcept> ToIfcObjectNameConcept(this IIfcObject o)
+        public static IEnumerable<ELFeature> ToIfcObjectNameFeature(this IIfcObject o)
         {
-            yield return new FeatureConcept
-            {
-                Canonical = FeatureName,
-                DataFeature = ToDataConcept(o.Name)
-            };
+            yield return new ELFeature { Name = FeatureName, Data = ToDataConcept(o.Name) };
         }
 
-        public static IEnumerable<FeatureConcept> ToIfcGuidConcept(this IIfcObject o)
+        public static IEnumerable<ELFeature> ToIfcGuidFeature(this IIfcObject o)
         {
-            yield return new FeatureConcept
-            {
-                Canonical = FeatureGloballyUniqueId,
-                DataFeature = ToDataConcept(o.GlobalId)
-            };
+            yield return new ELFeature { Name = FeatureGloballyUniqueId, Data = ToDataConcept(o.GlobalId) };
         }
 
         #endregion
@@ -159,23 +151,23 @@ namespace Bitub.Ifc.Concept
             return new string[] { o.Name ?? "Anonymous", o.GlobalId.ToString() }.ToQualifier();
         }
 
-        public static IEnumerable<FeatureConcept> ToFeatureConcepts<T>(this IIfcObject o, CanonicalFilter filter = null) where T : IIfcSimpleProperty
+        public static IEnumerable<ELFeature> ToFeatures<T>(this IIfcObject o, CanonicalFilter filter = null) where T : IIfcSimpleProperty
         {
             // Pass by default, ignore match results
             return o.PropertySets<IIfcPropertySetDefinition>()
-                .SelectMany(set => set.ToFeatureConcepts<T>())
-                .Where(f => filter?.IsPassedBy(f.Canonical, out _) ?? true);
+                .SelectMany(set => set.ToFeatures<T>())
+                .Where(f => filter?.IsPassedBy(f.Name, out _) ?? true);
         }
 
-        public static IEnumerable<FeatureConcept> ToFeatureConcepts<T>(this IIfcPropertySetDefinition set) where T : IIfcSimpleProperty
+        public static IEnumerable<ELFeature> ToFeatures<T>(this IIfcPropertySetDefinition set) where T : IIfcSimpleProperty
         {
-            return set.Properties<T>().SelectMany(p => p.ToFeatureConcepts(set.Name.ToString().ToQualifier()));
+            return set.Properties<T>().SelectMany(p => p.ToFeatures(set.Name.ToString().ToQualifier()));
         }
 
-        public static IEnumerable<FeatureConcept> ToFeatureConcepts(this IIfcSimpleProperty p, Qualifier superCanonical)
+        public static IEnumerable<ELFeature> ToFeatures(this IIfcSimpleProperty p, Qualifier superCanonical)
         {
             var canonical = superCanonical.Append(p.Name.ToString());
-            return p.ToDataConcept().Select(dataConcept => new FeatureConcept { Canonical = canonical, DataFeature = dataConcept });
+            return p.ToDataConcept().Select(dataConcept => new ELFeature { Name = canonical, Data = dataConcept });
         }      
 
         /// <summary>
@@ -183,9 +175,9 @@ namespace Bitub.Ifc.Concept
         /// </summary>
         /// <param name="p"></param>
         /// <returns></returns>
-        public static IEnumerable<FeatureConcept> ToFeatureConceptAssertion(this IIfcObject p, IEnumerable<Qualifier> superior = null)
+        public static IEnumerable<ELConcept> ToConceptAssertion(this IIfcObject p, IEnumerable<Qualifier> superior = null)
         {
-            var productConcept = new FeatureConcept 
+            var productConcept = new ELConcept 
             { 
                 Canonical = p.ToCanonical(),                
             };
@@ -193,14 +185,10 @@ namespace Bitub.Ifc.Concept
             if (null != superior)
                 productConcept.Superior.AddRange(superior);
 
-            foreach (var concept in p.ToIfcTypeRoleConcept()
-                .Concat(p.ToIfcGuidConcept())
-                .Concat(p.ToIfcObjectNameConcept())
-                .Concat(p.PropertySets<IIfcPropertySetDefinition>().SelectMany(pset => pset.ToFeatureConcepts<IIfcSimpleProperty>())))
-            {
-                yield return concept;
-                productConcept.Equivalent.Add(concept.Canonical);
-            }
+            productConcept.Feature.Add(p.ToIfcTypeFeature());
+            productConcept.Feature.Add(p.ToIfcObjectNameFeature());
+            productConcept.Feature.Add(p.ToIfcGuidFeature());
+            productConcept.Feature.AddRange(p.PropertySets<IIfcPropertySetDefinition>().SelectMany(pset => pset.ToFeatures<IIfcSimpleProperty>()));
 
             yield return productConcept;
         }
@@ -216,28 +204,22 @@ namespace Bitub.Ifc.Concept
         /// <typeparam name="T">The upper bound type.</typeparam>
         /// <param name="schemaVersion">The IFC schema version</param>
         /// <returns>An enumeration of concepts in order of reference</returns>
-        public static IEnumerable<FeatureConcept> ToFeatureConcepts<T>(this XbimSchemaVersion schemaVersion) where T : IPersistEntity
+        public static IEnumerable<ELConcept> ToConcepts<T>(this XbimSchemaVersion schemaVersion) where T : IPersistEntity
         {
-            var conceptCache = new Dictionary<Qualifier, FeatureConcept>();
+            var conceptCache = new Dictionary<Qualifier, ELConcept>();
             foreach (var classifier in schemaVersion.ToImplementingClassifiers<T>())
             {
                 for (int k = 0; k < classifier.Path.Count-1; ++k)
                 {
-                    FeatureConcept concept;
+                    ELConcept concept;
                     if (!conceptCache.TryGetValue(classifier.Path[k], out concept))
                     {
-                        var ifcRoleFeatureConcept = new FeatureConcept
-                        {
-                            Canonical = FeatureHasIfcType,
-                            RoleFeature = classifier.Path[k]
-
-                        };
-                        concept = new FeatureConcept
+                        concept = new ELConcept
                         {
                             Canonical = classifier.Path[k]
                         };
-
-                        concept.Equivalent.Add(ifcRoleFeatureConcept.Canonical);
+                        concept.Feature.Add(new ELFeature { Name = FeatureHasIfcType, Role = new RoleConcept { Filler = classifier.Path[k] } });
+                        conceptCache.Add(concept.Canonical, concept);
 
                         if (k > 0)
                             concept.Superior.Add(classifier.Path[k - 1]);
@@ -246,6 +228,8 @@ namespace Bitub.Ifc.Concept
                     }
                 }
             }
+
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -255,15 +239,15 @@ namespace Bitub.Ifc.Concept
         /// <typeparam name="T">The upper bound type.</typeparam>
         /// <param name="schemaVersion">The IFC schema version</param>
         /// <returns>A domain</returns>
-        public static Domain ToFeatureDomain<T>(this XbimSchemaVersion schemaVersion) where T : IPersistEntity
+        public static ELDomain ToDomain<T>(this XbimSchemaVersion schemaVersion) where T : IPersistEntity
         {
-            var ifcDomain = new Domain
+            var ifcDomain = new ELDomain
             {
                 Name = schemaVersion.ToString(),
                 Canonical = schemaVersion.ToString().ToQualifier(),
                 Description = $"buildingSMART IFC specification ({schemaVersion})"
             };
-            ifcDomain.Concepts.AddRange(ToFeatureConcepts<T>(schemaVersion));
+            //ifcDomain.Concepts.AddRange(ToFeatureConcepts<T>(schemaVersion));
             return ifcDomain;
         }
 

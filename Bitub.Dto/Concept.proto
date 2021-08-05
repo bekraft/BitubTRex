@@ -15,26 +15,37 @@ message Ontology {
 }
 
 // A domain space
-message Domain {
+message ELDomain {
 	Qualifier canonical = 1;
 	string name = 2;
 	string description = 3;
-	repeated FeatureConcept concepts = 4;
+	repeated ELConcept concepts = 4;
 }
 
 // A general composite concept
-message FeatureConcept {
+message ELConcept {
 	Qualifier canonical = 1; // canonical name
 	string description = 2; // description
 	repeated string tags = 4; // tagging
 
-	oneof composite {
-		Qualifier roleFeature = 5; // A role filler
-		DataConcept dataFeature = 6;
-	}
+	repeated ELFeature feature = 5;
 
 	repeated Qualifier superior = 7; // hyponyms (conjunction if > 1)
 	repeated Qualifier equivalent = 8; // equivalents (conjunction if > 1)
+}
+
+// A feature is either a role or a data concept
+message ELFeature {
+	Qualifier name = 1;
+	oneof feature {
+		RoleConcept role = 2;
+		DataConcept data = 3;
+	}
+}
+
+// A role concept
+message RoleConcept {
+	Qualifier filler = 1;
 }
 
 // A feature data concept
@@ -45,10 +56,10 @@ message DataConcept {
 	DataOp op = 4;
 	oneof dataValue {
 		double digit = 5;
-		string value = 7;
-		google.protobuf.Timestamp timeStamp = 8;
-		Logical logical = 9;
-		GlobalUniqueId guid = 10;
+		string value = 6;
+		google.protobuf.Timestamp timeStamp = 7;
+		Logical logical = 8;
+		GlobalUniqueId guid = 9;
 	}
 }
 

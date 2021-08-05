@@ -256,8 +256,7 @@ namespace Bitub.Ifc.Export
         {
             PtArray ptArray = new PtArray();
             foreach (var p in points)
-                // Append to vertices and apply scale
-                p.AppendTo(ptArray.Xyz, ec.Scale);
+                ec.CRS.Transform(p).AppendTo(ptArray.Xyz, ec.Scale);
 
             return ptArray;
         }
@@ -323,7 +322,7 @@ namespace Bitub.Ifc.Export
             return meshBody;
         }
 
-        private Dto.Scene.Transform CreateTransform(SceneTransformationStrategy transformationStrategy, float scale, XbimMatrix3D matrix3D)
+        private Dto.Scene.Transform CreateTransform(SceneTransformationStrategy transformationStrategy, XbimVector3D scale, XbimMatrix3D matrix3D)
         {
             switch (transformationStrategy)
             {
@@ -343,7 +342,7 @@ namespace Bitub.Ifc.Export
             XbimMatrix3D shapeTransform = shapeInstance.Transformation;
             if (ec.contextCache.TryGetValue(shapeInstance.RepresentationContext, out ctxTransform))
             {
-                shapeTransform *= ctxTransform.transform;
+                shapeTransform *= ctxTransform.transform * ec.CRS;                
             }
             else
             {                

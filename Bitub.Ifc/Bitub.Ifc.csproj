@@ -5,7 +5,7 @@
     <Title>Bitub.Ifc</Title>    
     <Description>IFC utilities and transformation</Description>
 
-    <TargetFrameworks>net47</TargetFrameworks>
+    <TargetFrameworks>net48</TargetFrameworks>
 
     <Configurations>Debug;Release;Beta</Configurations>
 
@@ -49,14 +49,14 @@
     <PackageReference Include="Serilog" Version="2.9.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
-    <PackageReference Include="Xbim.Common" Version="5.1.20209.27462" />
-    <PackageReference Include="Xbim.Geometry.Engine.Interop" Version="5.1.20213.31545" />
-    <PackageReference Include="Xbim.Ifc" Version="5.1.20209.27462" />
-    <PackageReference Include="Xbim.Ifc2x3" Version="5.1.20209.27462" />
-    <PackageReference Include="Xbim.Ifc4" Version="5.1.20209.27462" />
-    <PackageReference Include="Xbim.IO.Esent" Version="5.1.20209.27462" />
-    <PackageReference Include="Xbim.IO.MemoryModel" Version="5.1.20209.27462" />
-    <PackageReference Include="Xbim.ModelGeometry.Scene" Version="5.1.20213.31545" />
+    <PackageReference Include="Xbim.Common" Version="5.1.323" />
+    <PackageReference Include="Xbim.Geometry.Engine.Interop" Version="5.1.403" />
+    <PackageReference Include="Xbim.Ifc" Version="5.1.323" />
+    <PackageReference Include="Xbim.Ifc2x3" Version="5.1.323" />
+    <PackageReference Include="Xbim.Ifc4" Version="5.1.323" />
+    <PackageReference Include="Xbim.IO.Esent" Version="5.1.323" />
+    <PackageReference Include="Xbim.IO.MemoryModel" Version="5.1.323" />
+    <PackageReference Include="Xbim.ModelGeometry.Scene" Version="5.1.403" />
   </ItemGroup>
   
   <ItemGroup>

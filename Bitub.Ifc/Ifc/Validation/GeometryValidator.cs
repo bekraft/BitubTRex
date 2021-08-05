@@ -87,6 +87,7 @@ namespace Bitub.Ifc.Validation
             }
         }
 
+        /* TODO GetIssuesFromProducts
         public ILookup<IIfcProduct, GeometryIssue> GetIssuesFromProducts(IEnumerable<IIfcProduct> products)
         {
             return products.Where(product => null != product?.Representation).SelectMany(product => product.Representation.Representations
@@ -106,5 +107,6 @@ namespace Bitub.Ifc.Validation
                 .SelectMany(item => GeometryIssue.FromInstanceHandle(this, new XbimInstanceHandle(item)))
                 .ToLookup(issue => issue.Model);
         }
+        */
     }
 }

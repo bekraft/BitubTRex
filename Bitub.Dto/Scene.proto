@@ -211,7 +211,6 @@ message MetaData {
 message ComponentScene {
 	Qualifier id = 1;
 	MetaData metadata = 2;
-	float unitsPerMeter = 3;	
 
 	repeated SceneContext contexts = 5;
 	repeated Material materials = 6;

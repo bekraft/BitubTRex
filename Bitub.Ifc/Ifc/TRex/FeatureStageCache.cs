@@ -12,13 +12,13 @@ namespace Bitub.Ifc.TRex
     public class FeatureStageCache
     {
         #region Internals
-        private Dictionary<Qualifier, SortedList<int, FeatureConcept>> cache;
+        private Dictionary<Qualifier, SortedList<int, ELFeature>> cache;
         private int stage;
         #endregion
 
         public FeatureStageCache(QualifierCaseEqualityComparer comparer) 
         {
-            cache = new Dictionary<Qualifier, SortedList<int, FeatureConcept>>(comparer);
+            cache = new Dictionary<Qualifier, SortedList<int, ELFeature>>(comparer);
         }
 
         public FeatureStageCache() : this(new QualifierCaseEqualityComparer(StringComparison.OrdinalIgnoreCase))
@@ -30,7 +30,7 @@ namespace Bitub.Ifc.TRex
             set => stage = value;
         }
 
-        public IEnumerable<FeatureConcept> GetAllByDepth(Qualifier qualifier, FeatureStageStrategy strategy, FeatureStageRange stageRange)
+        public IEnumerable<ELFeature> GetAllByDepth(Qualifier qualifier, FeatureStageStrategy strategy, FeatureStageRange stageRange)
         {
             var features = cache[qualifier]?.Where(f => f.Key <= stage);
             if (null == features)
@@ -62,11 +62,11 @@ namespace Bitub.Ifc.TRex
             return AddFeatureStage(featureStage.stage, featureStage.feature);
         }
 
-        public FeatureStage AddFeatureStage(int stage, FeatureConcept feature)
+        public FeatureStage AddFeatureStage(int stage, ELFeature feature)
         {
-            SortedList<int, FeatureConcept> features;
-            if (!cache.TryGetValue(feature.Canonical, out features))
-                cache.Add(feature.Canonical, features = new SortedList<int, FeatureConcept>());
+            SortedList<int, ELFeature> features;
+            if (!cache.TryGetValue(feature.Name, out features))
+                cache.Add(feature.Name, features = new SortedList<int, ELFeature>());
 
             var formerFeature = features[stage];
             features[stage] = feature;

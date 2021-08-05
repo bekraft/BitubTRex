@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
+
 using Bitub.Dto.Spatial;
+using Bitub.Dto.Scene;
 
 namespace Bitub.Dto.Scene
 {
@@ -45,16 +48,85 @@ namespace Bitub.Dto.Scene
 
         public Orientation Orientation { get => meshed.Mesh.Orient; }
 
-        public uint Shift { get => meshed.PtOffsetArray.Offset; }
+        public IEnumerable<Arc<uint>> Loop
+        {
+            get => ArcExtensions.FromLoop(Enumerable.Range(0, (int)Size).Cast<uint>());
+        }
+
+        public IEnumerable<Arc<XYZ>> LoopXYZ
+        {
+            get => ArcExtensions.FromLoop(Enumerable.Range(0, (int)Size).Select(k => GetXYZ(k)));
+        }
+
+        /// <summary>
+        /// Returns a <see cref="Tridex"/> struct wrapping only the index information.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<Tridex> Triangles
+        {
+            get 
+            {
+                yield return new Tridex { A = A, B = B, C = C };
+                if (!IsTriangle)
+                    yield return new Tridex { A = A, B = C, C = D };
+            }
+        }
+
+        /// <summary>
+        /// A new <see cref="Tridex"/> with reordered vertices keeping the global orientation.
+        /// </summary>
+        /// <param name="pivot">The pivot index (A index)</param>
+        /// <returns>A reordered topological triangle</returns>
+        public IEnumerable<Tridex> ToTriangles(uint? pivot)
+        {
+            if (!pivot.HasValue)
+                pivot = A;
+
+            uint? pivotIdx = null;
+            for (uint k = 0; k < Size; ++k)
+            {
+                if (Vertex(k) == pivot)
+                    pivotIdx = k;
+            }
+
+            if (!pivotIdx.HasValue)
+                throw new ArgumentException($"Pivot {pivot} has no equivalent within facet.");
+
+            yield return new Tridex { A = Vertex(pivotIdx.Value), B = Vertex((pivotIdx.Value + 1) % Size), C = Vertex((pivotIdx.Value + 2) % Size) };
+            if (!IsTriangle)
+                yield return new Tridex { A = Vertex(pivotIdx.Value), B = Vertex((pivotIdx.Value + 2) % Size), C = Vertex((pivotIdx.Value + 3) % Size) };
+        }
+
+        public uint Shift 
+        { 
+            get => meshed.PtOffsetArray.Offset; 
+        }
+
+        public uint Vertex(uint offset)
+        {
+            if (offset >= Size || offset < 0)
+                throw new ArgumentException($"Offset {offset} out of allowed range [0;{Size-1}].");
+
+            return meshed.Mesh.Vertex[IndexOffset(Index, (int)offset)] + Shift;
+        }
 
         /// <summary>
         /// Returns the shifted A vertex of the facet.
         /// </summary>
-        public uint A { get => meshed.Mesh.Vertex[IndexOffset(Index, 0)] + Shift; }
+        public uint A 
+        { 
+            get => meshed.Mesh.Vertex[IndexOffset(Index, 0)] + Shift; 
+        }
 
-        public bool HasNormals { get => meshed.Mesh.Normal.Count > 0; }
+        public bool HasNormals 
+        { 
+            get => meshed.Mesh.Normal.Count > 0; 
+        }
 
-        public bool HasUVs { get => meshed.Mesh.Uv.Count > 0; }
+        public bool HasUVs 
+        { 
+            get => meshed.Mesh.Uv.Count > 0; 
+        }
 
         /// <summary>
         /// Will return the normal of the face at given vertex (0 to n-1).
@@ -153,7 +225,7 @@ namespace Bitub.Dto.Scene
         public uint this[int offset]
         {
             get {
-                return meshed.Mesh.Vertex[IndexOffset(Index, Math.Abs(offset % Size))] + Shift;
+                return meshed.Mesh.Vertex[IndexOffset(Index, Math.Abs(offset % (int)Size))] + Shift;
             }
         }
 
@@ -193,13 +265,13 @@ namespace Bitub.Dto.Scene
         public bool IsValidIndex(int index)
         {
             // True, if more vertices than the given offset index
-            return meshed.Mesh.Vertex.Count > IndexOffset(index, Size - 1);                
+            return meshed.Mesh.Vertex.Count > IndexOffset(index, (int)Size - 1);                
         }
 
         /// <summary>
         /// The count of vertices for this facet depending on its type
         /// </summary>
-        public int Size
+        public uint Size
         {
             get {
                 switch (Type)
@@ -242,51 +314,6 @@ namespace Bitub.Dto.Scene
                         return false;
                 }
             }
-        }
-
-        /// <summary>
-        /// Returns a <see cref="Tridex"/> struct wrapping only the index information.
-        /// </summary>
-        /// <returns></returns>
-        public Tridex ToTridex()
-        {
-            if (!IsTriangle)
-                throw new NotSupportedException($"Supporting only triangle represenations");
-
-            return new Tridex { A = A, B = B, C = C };
-        }
-
-        /// <summary>
-        /// A new <see cref="Tridex"/> with reordered vertices keeping the global orientation.
-        /// </summary>
-        /// <param name="pivot">The pivot index (A index)</param>
-        /// <returns>A reordered topological triangle</returns>
-        public Tridex ToTridex(uint? pivot)
-        {
-            if (!pivot.HasValue)
-                return ToTridex();
-
-            if (!IsTriangle)
-                throw new NotSupportedException($"Supporting only triangle represenations");
-
-            // By default assume A is the connector
-            uint v1 = B;
-            uint v2 = C;
-
-            if (pivot == B)
-            {   // Connected at B
-                v1 = C;
-                v2 = A;
-            }
-            else if (pivot == C)
-            {   // Connected at C
-                v1 = A;
-                v2 = B;
-            }
-            else if (pivot != A)
-                throw new ArgumentException($"Given pivot index {pivot} isn't held by given facet {this}");
-
-            return new Tridex { A = pivot.Value, B = v1, C = v2 };
         }
 
         internal int IndexOffset(int index, int offset)

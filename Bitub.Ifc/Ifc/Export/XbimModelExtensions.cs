@@ -11,9 +11,6 @@ using Xbim.Ifc4.Interfaces;
 using Bitub.Dto;
 using Bitub.Dto.Scene;
 using Bitub.Dto.Spatial;
-using Bitub.Dto.Concept;
-
-using Bitub.Ifc.Concept;
 
 using Google.Protobuf.Collections;
 
@@ -23,63 +20,88 @@ namespace Bitub.Ifc.Export
     {
         #region Point context 
 
-        public static XYZ ToXYZ(this XbimPoint3D p, float scale = 1.0f)
+        public static XYZ ToXYZ(this XbimPoint3D p, XbimVector3D scale)
         {
             return new XYZ()
             {
-                X = (float)(p.X * scale),
-                Y = (float)(p.Y * scale),
-                Z = (float)(p.Z * scale)
+                X = (float)(p.X * scale.X),
+                Y = (float)(p.Y * scale.Y),
+                Z = (float)(p.Z * scale.Z)
             };
         }
 
-        public static void AppendTo(this XbimPoint3D p, RepeatedField<double> f, double scale = 1.0)
+        public static void AppendTo(this XbimPoint3D p, RepeatedField<double> f, XbimVector3D scale)
         {
-            f.Add((p.X * scale));
-            f.Add((p.Y * scale));
-            f.Add((p.Z * scale));
+            f.Add((p.X * scale.X));
+            f.Add((p.Y * scale.Y));
+            f.Add((p.Z * scale.Z));
         }
 
-        public static void AppendTo(this XbimPoint3D p, RepeatedField<float> f, double scale = 1.0)
+        public static void AppendTo(this XbimPoint3D p, RepeatedField<float> f, XbimVector3D scale)
         {
-            f.Add((float)(p.X * scale));
-            f.Add((float)(p.Y * scale));
-            f.Add((float)(p.Z * scale));
+            f.Add((float)(p.X * scale.X));
+            f.Add((float)(p.Y * scale.Y));
+            f.Add((float)(p.Z * scale.Z));
         }
 
         #endregion
 
         #region XbimVector3D context
 
-        public static XYZ ToXYZ(this XbimVector3D v, float scale = 1.0f)
+        public static XYZ ToXYZ(this XbimVector3D v)
         {
             return new XYZ()
             {
-                X = (float)(v.X * scale),
-                Y = (float)(v.Y * scale),
-                Z = (float)(v.Z * scale)
+                X = (float)v.X,
+                Y = (float)v.Y,
+                Z = (float)v.Z
             };
         }
 
-        public static void AppendTo(this XbimVector3D v, RepeatedField<double> f, double scale = 1.0)
+        public static XYZ ToXYZ(this XbimVector3D v, XbimVector3D scale)
         {
-            f.Add((v.X * scale));
-            f.Add((v.Y * scale));
-            f.Add((v.Z * scale));
+            return new XYZ()
+            {
+                X = (float)(v.X * scale.X),
+                Y = (float)(v.Y * scale.Y),
+                Z = (float)(v.Z * scale.Z)
+            };
         }
 
-        public static void AppendTo(this XbimVector3D v, RepeatedField<float> f, double scale = 1.0)
+        public static void AppendTo(this XbimVector3D v, RepeatedField<double> f)
         {
-            f.Add((float)(v.X * scale));
-            f.Add((float)(v.Y * scale));
-            f.Add((float)(v.Z * scale));
+            f.Add(v.X);
+            f.Add(v.Y);
+            f.Add(v.Z);
+        }
+
+        public static void AppendTo(this XbimVector3D v, RepeatedField<double> f, XbimVector3D scale)
+        {
+            f.Add((v.X * scale.X));
+            f.Add((v.Y * scale.Y));
+            f.Add((v.Z * scale.Z));
+        }
+
+        public static void AppendTo(this XbimVector3D v, RepeatedField<float> f)
+        {
+            f.Add((float)v.X);
+            f.Add((float)v.Y);
+            f.Add((float)v.Z);
+        }
+
+
+        public static void AppendTo(this XbimVector3D v, RepeatedField<float> f, XbimVector3D scale)
+        {
+            f.Add((float)(v.X * scale.X));
+            f.Add((float)(v.Y * scale.Y));
+            f.Add((float)(v.Z * scale.Z));
         }
 
         #endregion
 
         #region XbimMatrix3D context
 
-        public static Dto.Scene.Transform ToRotation(this XbimMatrix3D t, float scale = 1.0f)
+        public static Dto.Scene.Transform ToRotation(this XbimMatrix3D t, XbimVector3D scale)
         {
             return new Dto.Scene.Transform
             {                
@@ -93,7 +115,7 @@ namespace Bitub.Ifc.Export
             };
         }
 
-        public static Dto.Scene.Transform ToQuaternion(this XbimMatrix3D t, float scale = 1.0f)
+        public static Dto.Scene.Transform ToQuaternion(this XbimMatrix3D t, XbimVector3D scale)
         {
             var q = t.GetRotationQuaternion();
             return new Dto.Scene.Transform
@@ -111,7 +133,7 @@ namespace Bitub.Ifc.Export
 
         #endregion
 
-        public static ABox ToABox(this XbimRect3D rect3D, float scale = 1.0f, Func<XbimPoint3D, XbimPoint3D> adapter = null)
+        public static ABox ToABox(this XbimRect3D rect3D, XbimVector3D scale, Func<XbimPoint3D, XbimPoint3D> adapter = null)
         {
             return new ABox
             {
@@ -120,7 +142,7 @@ namespace Bitub.Ifc.Export
             };
         }
 
-        public static BoundingBox ToBoundingBox(this XbimRect3D rect3D, float scale = 1.0f, Func<XbimPoint3D, XbimPoint3D> adapter = null)
+        public static BoundingBox ToBoundingBox(this XbimRect3D rect3D, XbimVector3D scale, Func<XbimPoint3D, XbimPoint3D> adapter = null)
         {
             return new BoundingBox
             {
@@ -128,7 +150,7 @@ namespace Bitub.Ifc.Export
             };
         }
 
-        public static Region ToRegion(this XbimRegion r, float scale = 1.0f, Func<XbimPoint3D, XbimPoint3D> adapter = null)
+        public static Region ToRegion(this XbimRegion r, XbimVector3D scale, Func<XbimPoint3D, XbimPoint3D> adapter = null)
         {
             return new Region
             {
@@ -138,23 +160,27 @@ namespace Bitub.Ifc.Export
             };
         }
 
-        public static IDictionary<Type, Classifier> ToIfcClassifierMap(this IModel model)
+        public static RefId ToRefId(this IIfcRoot entity, SceneComponentIdentificationStrategy strategy)
         {
-            return model.SchemaVersion.ToImplementingClassification<IIfcProduct>();
+            switch (strategy)
+            {
+                case SceneComponentIdentificationStrategy.UseGloballyUniqueID:
+                    return new RefId { Sid = entity.GlobalId.ToGlobalUniqueId().ToQualifier() };
+                case SceneComponentIdentificationStrategy.UseIfcInstanceLabel:
+                    return new RefId { Nid = entity.EntityLabel };
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
         public static Component ToComponent(this IIfcProduct product, 
-            out int? optParentLabel, IDictionary<Type, Classifier> ifcClassifierMap, bool isUsingEntityLabels)
+            out int? optParentLabel, IDictionary<Type, Classifier> ifcClassifierMap, SceneComponentIdentificationStrategy strategy)
         {
             var parent = product.Parent<IIfcProduct>().FirstOrDefault();
-            RefId parentId = null;
-            if (null != parent)
-                parentId = isUsingEntityLabels ? new RefId { Nid = parent.EntityLabel } : new RefId { Sid = parent.GlobalId.ToGlobalUniqueId().ToQualifier() };
-
             var component = new Component
             {
-                Id = isUsingEntityLabels ? new RefId { Nid = product.EntityLabel } : new RefId { Sid = product.GlobalId.ToGlobalUniqueId().ToQualifier() },
-                Parent = parentId,
+                Id = product.ToRefId(strategy),
+                Parent = parent?.ToRefId(strategy),
                 Name = product.Name ?? "",
             };
 
@@ -167,6 +193,11 @@ namespace Bitub.Ifc.Export
 
         #region Colouring and materials
 
+        /// <summary>
+        /// Mapping to a color.
+        /// </summary>
+        /// <param name="c">The color instance</param>
+        /// <returns>The component color instance</returns>
         public static Color ToColor(this XbimColour c)
         {
             return new Color()
@@ -184,6 +215,14 @@ namespace Bitub.Ifc.Export
                 yield return style.ToMaterial();
         }
 
+        /// <summary>
+        /// Converts a default colouring entry of an IFC type into a material reference using given type ID and typeID-2-RefId mapper.
+        /// </summary>
+        /// <param name="defaultColorMap">The default color map</param>
+        /// <param name="model">The model and its metadata of concern</param>
+        /// <param name="typeID">The type ID</param>
+        /// <param name="generator">The RefID generator</param>
+        /// <returns>A material using found colour specification as Albedo channel.</returns>
         public static Material ToMaterialByIfcTypeID(this XbimColourMap defaultColorMap, IModel model, int typeID, Func<int, RefId> generator)
         {
             var defaultStyle = model.Metadata.GetType((short)typeID);
@@ -201,6 +240,14 @@ namespace Bitub.Ifc.Export
             return defaultMaterial;
         }
 
+        /// <summary>
+        /// In principal using <see cref="ToMaterialByIfcTypeID(XbimColourMap, IModel, int, Func{int, RefId})"/>. Maps multiple types in a sequence.
+        /// </summary>
+        /// <param name="defaultColorMap">The default color map</param>
+        /// <param name="model">The model and its metadata of concern</param>
+        /// <param name="typeIDs">The type ID sequence</param>
+        /// <param name="generator">The RefID generator</param>
+        /// <returns>A material using found colour specification as Albedo channel.</returns>
         public static IEnumerable<Material> ToMaterialByIfcTypeIDs(this XbimColourMap defaultColorMap, IModel model, IEnumerable<int> typeIDs, Func<int, RefId> generator)
         {
             return typeIDs.Select(typeID => ToMaterialByIfcTypeID(defaultColorMap, model, typeID, generator));

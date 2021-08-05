@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
+
+using Bitub.Dto.Scene;
 
 using Xbim.Common;
 using Xbim.Common.Geometry;
@@ -7,8 +10,10 @@ using Xbim.Ifc4.Interfaces;
 
 namespace Bitub.Ifc.Transform
 {
-    public static class XbimVector3dExtensions
+    public static class XbimExtensions
     {
+        #region General context
+
         private static double PrecisionClamp(double value, double scale, double precision)
         {
             return PrecisionClamp(value * scale, precision);
@@ -19,14 +24,30 @@ namespace Bitub.Ifc.Transform
             return Math.Abs(value) < precision ? 0 : value;
         }
 
-        public static XbimVector3D ToVector(this XbimPoint3D p)
+        public static XbimVector3D ToXbimVector3D(double value)
         {
-            return new XbimVector3D(p.X, p.Y, p.Z);
+            return new XbimVector3D(value, value, value);
         }
 
-        public static System.Numerics.Vector3 ToNumericVector(this XbimVector3D v)
+        public static XbimVector3D ToXbimVector3D(this IEnumerable<double> doubles)
         {
-            return new System.Numerics.Vector3((float)v.X, (float)v.Y, (float)v.Z);
+            var xyz = doubles.Take(3).ToArray();
+            return new XbimVector3D(xyz[0], xyz[1], xyz[2]);
+        }
+
+        public static XbimVector3D ToXbimVector3D(this IEnumerable<float> floats)
+        {
+            var xyz = floats.Take(3).ToArray();
+            return new XbimVector3D(xyz[0], xyz[1], xyz[2]);
+        }
+
+        #endregion
+
+        #region XbimPoint3D & XbimVector3D context
+
+        public static XbimVector3D ToXbimVector3D(this XbimPoint3D p)
+        {
+            return new XbimVector3D(p.X, p.Y, p.Z);
         }
 
         public static System.Numerics.Vector3 ToNumericVector(this XbimPoint3D p)
@@ -34,12 +55,17 @@ namespace Bitub.Ifc.Transform
             return new System.Numerics.Vector3((float)p.X, (float)p.Y, (float)p.Z);
         }
 
+        public static System.Numerics.Vector3 ToNumericVector(this XbimVector3D v)
+        {
+            return new System.Numerics.Vector3((float)v.X, (float)v.Y, (float)v.Z);
+        }
+
         public static XbimPoint3D ToTranslateOnto(this XbimVector3D v, XbimPoint3D p)
         {
             return new XbimPoint3D(p.X + v.X, p.Y + v.Y, p.Z + v.Z);
         }
 
-        public static XbimPoint3D ToPoint(this XbimVector3D v)
+        public static XbimPoint3D ToXbimPoint3D(this XbimVector3D v)
         {
             return new XbimPoint3D(v.X, v.Y, v.Z);
         }
@@ -134,6 +160,10 @@ namespace Bitub.Ifc.Transform
             };
         }
 
+        #endregion
+
+        #region IIfcCartesianPoint & IIfcDirection context
+
         public static XbimVector3D ToXbimVector3D(this IIfcCartesianPoint p)
         {
             var mf = p.Model.ModelFactors;
@@ -164,5 +194,6 @@ namespace Bitub.Ifc.Transform
             );
         }
 
+        #endregion
     }
 }

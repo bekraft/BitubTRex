@@ -4,10 +4,6 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">Any CPU</Platform>
 
-    <DeployDynamoProjectName>TRexIfc</DeployDynamoProjectName>
-    <DeployDynamoVersion>2.6</DeployDynamoVersion>
-    <DeployDynamoPath>$(AppData)\Dynamo\Dynamo Core\$(DeployDynamoVersion)\packages</DeployDynamoPath>
-
     <Authors>Bernold Kraft</Authors>
     <Company>Bitub</Company>
     <Copyright>Bernold Kraft</Copyright>
@@ -33,7 +29,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <LanguageTargets>$(MSBuildToolsPath)\Microsoft.CSharp.targets</LanguageTargets>
 
     <Title>XbimTRex UI</Title>
@@ -107,14 +103,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Xbim.Common" Version="5.1.20209.27462" />
-    <PackageReference Include="Xbim.Geometry.Engine.Interop" Version="5.1.20213.31545" />
-    <PackageReference Include="Xbim.Ifc" Version="5.1.20209.27462" />
-    <PackageReference Include="Xbim.Ifc2x3" Version="5.1.20209.27462" />
-    <PackageReference Include="Xbim.Ifc4" Version="5.1.20209.27462" />
-    <PackageReference Include="Xbim.IO.Esent" Version="5.1.20209.27462" />
-    <PackageReference Include="Xbim.IO.MemoryModel" Version="5.1.20209.27462" />
-    <PackageReference Include="Xbim.ModelGeometry.Scene" Version="5.1.20213.31545" />
+    <PackageReference Include="Xbim.Common" Version="5.1.323" />
+    <PackageReference Include="Xbim.Geometry.Engine.Interop" Version="5.1.403" />
+    <PackageReference Include="Xbim.Ifc" Version="5.1.323" />
+    <PackageReference Include="Xbim.Ifc2x3" Version="5.1.323" />
+    <PackageReference Include="Xbim.Ifc4" Version="5.1.323" />
+    <PackageReference Include="Xbim.IO.Esent" Version="5.1.323" />
+    <PackageReference Include="Xbim.IO.MemoryModel" Version="5.1.323" />
+    <PackageReference Include="Xbim.ModelGeometry.Scene" Version="5.1.403" />
     <PackageReference Include="Xbim.WindowsUI" Version="5.1.209" />
   </ItemGroup>
 

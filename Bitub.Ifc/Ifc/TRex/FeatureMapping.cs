@@ -23,11 +23,11 @@ namespace Bitub.Ifc.TRex
     public sealed class FeatureEntityMapping
     {
         public CanonicalFilterRule EntityTypeScope { get; set; }
-        public IDictionary<Qualifier, FeatureConcept> Feature { get; private set; }
+        public IDictionary<Qualifier, ELFeature> Feature { get; private set; }
 
         public FeatureEntityMapping(StringComparison stringComparison)
         {
-            Feature = new Dictionary<Qualifier, FeatureConcept>(new QualifierCaseEqualityComparer(stringComparison));
+            Feature = new Dictionary<Qualifier, ELFeature>(new QualifierCaseEqualityComparer(stringComparison));
         }
     }
 }

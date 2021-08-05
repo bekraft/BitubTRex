@@ -128,7 +128,7 @@ namespace Bitub.Ifc.Export
                         if (!componentCache.TryGetValue(product.EntityLabel, out c))
                         {
                             int? optParent;
-                            c = product.ToComponent(out optParent, ifcClassifierMap, exportSettings.IsUsingEntityLabelAsID);
+                            c = product.ToComponent(out optParent, ifcClassifierMap, exportSettings.ComponentIdentificationStrategy);
 
                             componentCache.Add(product.EntityLabel, c);
                             componentScene.Components.Add(c);
@@ -164,7 +164,7 @@ namespace Bitub.Ifc.Export
                     if (!componentCache.TryGetValue(product.EntityLabel, out c))
                     {
                         int? optParent;
-                        c = product.ToComponent(out optParent, ifcClassifierMap, exportSettings.IsUsingEntityLabelAsID);
+                        c = product.ToComponent(out optParent, ifcClassifierMap, exportSettings.ComponentIdentificationStrategy);
 
                         componentCache.Add(product.EntityLabel, c);                       
 

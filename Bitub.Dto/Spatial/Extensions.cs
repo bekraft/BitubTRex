@@ -44,12 +44,12 @@ namespace Bitub.Dto.Spatial
 
         public static XYZ ToNormalized(this XYZ a)
         {
-            var norm2 = (float)a.ToNorm2();
+            var norm2 = a.ToNorm2();
             return new XYZ
             {
-                X = a.X / norm2,
-                Y = a.Y / norm2,
-                Z = a.Z / norm2
+                X = (float)(a.X / norm2),
+                Y = (float)(a.Y / norm2),
+                Z = (float)(a.Z / norm2)
             };
         }
 

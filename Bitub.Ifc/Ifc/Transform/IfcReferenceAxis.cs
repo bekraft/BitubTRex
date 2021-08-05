@@ -127,10 +127,10 @@ namespace Bitub.Ifc.Transform
         /// </summary>
         /// <param name="m">The 4x4 transformation matrix</param>
         /// <param name="unitsPerMeter">The scale of 1 meter (i.e. 1000 for "mm")</param>
-        public IfcAlignReferenceAxis(XbimMatrix3D m, float unitsPerMeter = 1.0f)
+        public IfcAlignReferenceAxis(XbimMatrix3D m, double unitsPerMeter = 1.0f)
         {
             // Set offset and target by translation and EX            
-            _offset = m.Translation.ToXYZ(1.0f / unitsPerMeter);
+            _offset = m.Translation.ToXYZ(XbimExtensions.ToXbimVector3D(1.0 / unitsPerMeter));
             _target = new XYZ
             {
                 X = (float)m.M11 + _offset.X,
@@ -157,7 +157,7 @@ namespace Bitub.Ifc.Transform
         /// <param name="unitsPerMeter">The units per meter scale</param>
         public void Translate(XbimVector3D deltaOffset, float unitsPerMeter = 1.0f)
         {
-            var shift = deltaOffset.ToXYZ(1.0f / unitsPerMeter);
+            var shift = deltaOffset.ToXYZ(XbimExtensions.ToXbimVector3D(1.0 / unitsPerMeter));
             _offset = _offset.Add(shift);
             _target = _target.Add(shift);
         }
@@ -187,24 +187,40 @@ namespace Bitub.Ifc.Transform
 
             // New reference placed at P2-P1 and X1 + d*(-z12) by mirroring at x2
             var deltaAxis = new IfcAlignReferenceAxis(new XYZ { }, new XbimVector3D(x0, -y0, -z0).Normalized().ToXYZ());            
-            deltaAxis.Translate( targetAxis._offset.ToXbimPoint3D() - (_offset.ToXbimPoint3D() * deltaAxis.To3D()) );
+            deltaAxis.Translate( targetAxis._offset.ToXbimPoint3D() - (_offset.ToXbimPoint3D() * deltaAxis.ToTransform3D()) );
             return deltaAxis;
         }
 
         /// <summary>
         /// Converts the reference axis into a transform matrix given a m-scale.
         /// </summary>
-        /// <param name="unitsPerMeter">The conversion factor from 1m to model store unit</param>
+        /// <param name="scale">The conversion factor from 1m to model store unit</param>
         /// <returns>A transform matrix</returns>
-        public XbimMatrix3D To3D(double unitsPerMeter = 1.0)
+        public XbimMatrix3D ToTransform3D(XbimVector3D scale)
         {
             var ex = AlignToAxis;
             return new XbimMatrix3D(
                 ex.X, ex.Y, ex.Z, 0,
                 TangentAxis.X, TangentAxis.Y, TangentAxis.Z, 0,
                 ReferenceAxis.X, ReferenceAxis.Y, ReferenceAxis.Z, 0,
-                _offset.X * unitsPerMeter, _offset.Y * unitsPerMeter, _offset.Z * unitsPerMeter, 1
+                _offset.X * scale.X, _offset.Y * scale.Y, _offset.Z * scale.Z, 1
             );
         }
+
+        /// <summary>
+        /// Converts the reference axis into a transform matrix given a m-scale.
+        /// </summary>
+        /// <returns>A transform matrix</returns>
+        public XbimMatrix3D ToTransform3D()
+        {
+            var ex = AlignToAxis;
+            return new XbimMatrix3D(
+                ex.X, ex.Y, ex.Z, 0,
+                TangentAxis.X, TangentAxis.Y, TangentAxis.Z, 0,
+                ReferenceAxis.X, ReferenceAxis.Y, ReferenceAxis.Z, 0,
+                _offset.X, _offset.Y, _offset.Z, 1
+            );
+        }
+
     }
 }
