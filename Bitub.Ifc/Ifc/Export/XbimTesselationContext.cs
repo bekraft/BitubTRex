@@ -30,7 +30,7 @@ namespace Bitub.Ifc.Export
         private readonly ILogger logger;
 
         // Aggregates component and remaining shape labels.
-        private class ComponentShape
+        private sealed class ComponentShape
         {
             // Sorted list
             readonly List<int> instanceLabels = new List<int>();
@@ -41,7 +41,7 @@ namespace Bitub.Ifc.Export
                 instanceLabels = productShapeInstances.Select(i => i.InstanceLabel).OrderBy(i => i).ToList();
             }
 
-            internal bool Add(XbimShapeInstance productShapeInstance, Shape productShape)
+            internal bool MarkDone(XbimShapeInstance productShapeInstance)
             {
                 var idx = instanceLabels.BinarySearch(productShapeInstance.InstanceLabel);
                 if (0 > idx)
@@ -49,8 +49,14 @@ namespace Bitub.Ifc.Export
                 else
                     instanceLabels.RemoveAt(idx);
 
-                shapeList.Add(productShape);
                 return true;
+            }
+
+            internal bool Add(XbimShapeInstance productShapeInstance, Shape productShape)
+            {
+                var isHeldAndDone = MarkDone(productShapeInstance);
+                shapeList.Add(productShape);
+                return isHeldAndDone;
             }
 
             internal IEnumerable<Shape> Shapes
@@ -220,7 +226,17 @@ namespace Bitub.Ifc.Export
                                     componentCache[shape.IfcProductLabel] = cShape;
                                 }
 
-                                cShape.Add(shape, CreateShape(ec, shape));
+                                var productShape = CreateShape(ec, shape);
+                                if (null != productShape)
+                                {
+                                    cShape.Add(shape, productShape);
+                                }
+                                else
+                                {
+                                    cShape.MarkDone(shape);
+                                    logger.LogWarning("No product tesselation available for #{0} in context #{1}.", 
+                                        shape.ShapeGeometryLabel, shape.RepresentationContext);
+                                }
 
                                 // If no shape instances left
                                 if (cShape.IsComplete)
