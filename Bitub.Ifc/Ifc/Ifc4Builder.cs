@@ -3,7 +3,10 @@
 using System;
 using System.Linq;
 
+using Xbim.Common;
+
 using Xbim.Ifc;
+using Xbim.Ifc4.ActorResource;
 using Xbim.Ifc4.GeometryResource;
 using Xbim.Ifc4.Interfaces;
 using Xbim.Ifc4.Kernel;
@@ -19,20 +22,26 @@ namespace Bitub.Ifc
     /// </summary>
     public class Ifc4Builder : IfcBuilder
     {
-        public Ifc4Builder(IfcStore aStore, ILoggerFactory loggerFactory = null) 
-            : base(aStore, loggerFactory)
+        public Ifc4Builder(IModel model, ILoggerFactory loggerFactory = null) 
+            : base(model, loggerFactory)
         {
+            OwningUser = model.Instances.FirstOrDefault<IfcPersonAndOrganization>();
+            OwningApplication = model.Instances.FirstOrDefault<IfcApplication>();
         }
+
+        public IfcPersonAndOrganization OwningUser { get; set; }
+
+        public IfcApplication OwningApplication { get; set; }
 
         protected override IIfcProject InitProject()
         {
-            IfcProject project = store.Instances.OfType<IfcProject>().FirstOrDefault();
+            IfcProject project = model.Instances.OfType<IfcProject>().FirstOrDefault();
             if (null == project)
-                project = store.Instances.New<IfcProject>();
+                project = model.Instances.New<IfcProject>();
 
             ChangeOrNewLengthUnit(IfcSIUnitName.METRE);
             if (null == project.ModelContext)
-                project.RepresentationContexts.Add(store.NewIfc4GeometricContext("Body", "Model"));
+                project.RepresentationContexts.Add(model.NewIfc4GeometricContext("Body", "Model"));
             return project;
         }
 
@@ -43,22 +52,22 @@ namespace Bitub.Ifc
 
         private IfcOwnerHistory NewOwnerHistoryEntry(string version, IfcChangeActionEnum change)
         {
-            IfcOwnerHistory newVersion = store.NewIfc4OwnerHistoryEntry(version, change);            
+            IfcOwnerHistory newVersion = model.NewIfc4OwnerHistoryEntry(version, OwningUser, OwningApplication, change);            
             return newVersion;
         }
 
         protected IfcSIUnit ChangeOrNewLengthUnit(IfcSIUnitName name, IfcSIPrefix? prefix = null)
         {
-            var project = store.Instances.OfType<IfcProject>().First();
+            var project = model.Instances.OfType<IfcProject>().First();
             var assigment = project.UnitsInContext;
             if (null == assigment)
-                assigment = store.NewIfc4UnitAssignment(IfcUnitEnum.LENGTHUNIT, name, prefix);
+                assigment = model.NewIfc4UnitAssignment(IfcUnitEnum.LENGTHUNIT, name, prefix);
 
             // Test for existing
             var unit = assigment.Units.Where(u => (u as IfcSIUnit)?.UnitType == IfcUnitEnum.LENGTHUNIT).FirstOrDefault() as IfcSIUnit;
             if (null == unit)
             {
-                unit = store.Instances.New<IfcSIUnit>(u => { u.UnitType = IfcUnitEnum.LENGTHUNIT; });
+                unit = model.Instances.New<IfcSIUnit>(u => { u.UnitType = IfcUnitEnum.LENGTHUNIT; });
                 assigment.Units.Add(unit);
             }
                 
@@ -73,11 +82,11 @@ namespace Bitub.Ifc
                                                                  string representationContext = "Model",
                                                                  string representationContextId = "Body")
         {
-            if (store != product.Model || store != representationItem.Model)
+            if (model != product.Model || model != representationItem.Model)
                 throw new ArgumentException("Model mismatch");
 
             IfcShapeRepresentation shapeRepresentation = null;
-            Wrap(s =>
+            Transactively(s =>
             {
                 var productDefinitionShape = product.Representation;
                 if (null == productDefinitionShape)
@@ -109,7 +118,7 @@ namespace Bitub.Ifc
                     context = contexts.FirstOrDefault();
 
                 if (null == context)
-                    context = store.NewIfc4GeometricContext(representationContextId, representationContext);
+                    context = model.NewIfc4GeometricContext(representationContextId, representationContext);
 
                 shapeRepresentation.ContextOfItems = context;
                 shapeRepresentation.Items.Add(representationItem);

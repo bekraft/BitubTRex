@@ -7,6 +7,7 @@ using Xbim.IO;
 using Xbim.Ifc4.Interfaces;
 using Xbim.Ifc;
 
+using Xbim.Common;
 using Xbim.Common.Step21;
 using Xbim.Common.Geometry;
 
@@ -21,7 +22,7 @@ namespace Bitub.Ifc
     /// </summary>
     public abstract class IfcBuilder
     {
-        public readonly IfcStore store;
+        public readonly IModel model;
         public readonly IfcAssemblyScope ifcAssembly;
 
         #region Internals        
@@ -31,6 +32,7 @@ namespace Bitub.Ifc
         protected readonly Qualifier schema;
         #endregion
 
+        public readonly IfcEntityScope<IPersistEntity> ifcEntityScope;
         public readonly IfcEntityScope<IIfcProduct> ifcProductScope;
         public readonly IfcEntityScope<IIfcProperty> ifcPropertyScope;
         public readonly IfcEntityScope<IIfcValue> ifcValueScope;
@@ -38,26 +40,27 @@ namespace Bitub.Ifc
         /// <summary>
         /// New builder attached to IFC entity assembly given as scope.
         /// </summary>
-        /// <param name="aStore">A store.</param>
+        /// <param name="m">A store.</param>
         /// <param name="loggerFactory">The logger factory</param>
-        protected IfcBuilder(IfcStore aStore, ILoggerFactory loggerFactory = null)
+        protected IfcBuilder(IModel m, ILoggerFactory loggerFactory = null)
         {
             // Principle properties
             log = loggerFactory?.CreateLogger(GetType());
-            store = aStore;
-            schema = aStore.SchemaVersion.ToString().ToQualifier();
-            ifcAssembly = IfcAssemblyScope.SchemaAssemblyScope[aStore.SchemaVersion];
+            model = m;
+            schema = m.SchemaVersion.ToString().ToQualifier();
+            ifcAssembly = IfcAssemblyScope.SchemaAssemblyScope[m.SchemaVersion];
 
             // Type scopes
+            ifcEntityScope = new IfcEntityScope<IPersistEntity>(this);
             ifcProductScope = new IfcEntityScope<IIfcProduct>(this);
             ifcPropertyScope = new IfcEntityScope<IIfcProperty>(this);
             ifcValueScope = new IfcEntityScope<IIfcValue>(this);
 
             // Initialization
-            var project = store.Instances.OfType<IIfcProject>().FirstOrDefault();
+            var project = model.Instances.OfType<IIfcProject>().FirstOrDefault();
             if (null == project)
             {
-                Wrap(s =>
+                Transactively(s =>
                 {
                     project = InitProject();
                     OwnerHistoryTag = NewOwnerHistoryEntry("Initial contribution");
@@ -65,7 +68,7 @@ namespace Bitub.Ifc
             }
             else
             {
-                Wrap(s => OwnerHistoryTag = NewOwnerHistoryEntry("Adding new data"));
+                Transactively(s => OwnerHistoryTag = NewOwnerHistoryEntry("Adding new data"));
             }
             InstanceScopeStack.Push(project);
         }
@@ -74,7 +77,7 @@ namespace Bitub.Ifc
         {
             var scope = CurrentScope;
             InstanceScopeStack.Push(container);
-            store.NewDecomposes(scope).RelatedObjects.Add(container);
+            model.NewDecomposes(scope).RelatedObjects.Add(container);
         }
 
         public Qualifier Schema { get => new Qualifier(schema); }
@@ -94,7 +97,7 @@ namespace Bitub.Ifc
         public static IfcBuilder WithCredentials(XbimEditorCredentials c, XbimSchemaVersion version = XbimSchemaVersion.Ifc4, ILoggerFactory loggerFactory = null)
         {
             var newStore = IfcStore.Create(version, XbimStoreType.InMemoryModel);
-            return WrapStore(newStore, loggerFactory);
+            return WrapModel(newStore, loggerFactory);
         }    
 
         /// <summary>
@@ -103,22 +106,27 @@ namespace Bitub.Ifc
         /// <param name="store">The store</param>
         /// <param name="loggerFactory">The logger factory</param>
         /// <returns>A new builder instance</returns>
-        public static IfcBuilder WrapStore(IfcStore store, ILoggerFactory loggerFactory = null)
+        public static IfcBuilder WrapModel(IModel model, ILoggerFactory loggerFactory = null)
         {
-            switch (store.SchemaVersion)
+            switch (model.SchemaVersion)
             {
                 case XbimSchemaVersion.Ifc2X3:
-                    return new Ifc2x3Builder(store, loggerFactory);
+                    return new Ifc2x3Builder(model, loggerFactory);
                 case XbimSchemaVersion.Ifc4:
                 case XbimSchemaVersion.Ifc4x1:
-                    return new Ifc4Builder(store, loggerFactory);
+                    return new Ifc4Builder(model, loggerFactory);
             }
-            throw new NotImplementedException($"Missing implementation for ${store.SchemaVersion}");
+            throw new NotImplementedException($"Missing implementation for ${model.SchemaVersion}");
         }
 
         abstract protected IIfcProject InitProject();
 
         abstract protected IIfcOwnerHistory NewOwnerHistoryEntry(string comment);
+
+        abstract public IIfcPersonAndOrganization OwningUser { get; set; }
+
+        abstract public IIfcApplication OwningApplication { get; set; }
+
 
         /// <summary>
         /// Current top scope of model hierarchy.
@@ -163,13 +171,13 @@ namespace Bitub.Ifc
         /// Wraps an IfcStore modification into a transaction context.
         /// </summary>
         /// <param name="action">The modification return true, if transaction shall be applied</param>
-        public void Wrap(Func<IfcStore,bool> action)
+        public void Wrap(Func<IModel,bool> action)
         {
-            using (var txn = store.BeginTransaction(TransactionContext))
+            using (var txn = model.BeginTransaction(TransactionContext))
             {
                 try
                 {
-                    if (action(store))
+                    if (action(model))
                     {
                         txn.Commit();
                     }
@@ -191,13 +199,13 @@ namespace Bitub.Ifc
         /// Wraps an IfcStore modification into a transaction context.
         /// </summary>
         /// <param name="action">The modification</param>
-        public void Wrap(Action<IfcStore> action)
+        public void Transactively(Action<IModel> action)
         {
-            using (var txn = store.BeginTransaction(TransactionContext))
+            using (var txn = model.BeginTransaction(TransactionContext))
             {
                 try
                 {
-                    action(store);
+                    action(model);
                     txn.Commit();
                 }
                 catch (Exception e)
@@ -216,7 +224,7 @@ namespace Bitub.Ifc
         public IIfcLocalPlacement NewLocalPlacement(XbimVector3D refPosition, bool scaleUp = false)
         {
             IIfcLocalPlacement placement = null;
-            Wrap(s =>
+            Transactively(s =>
             {
                 var product = CurrentScope as IIfcProduct;
                 var relPlacement = CurrentPlacement;
@@ -244,10 +252,21 @@ namespace Bitub.Ifc
             return placement;
         }
 
+        public E New<E>(Type t, Action<E> modifier = null) where E : IPersistEntity
+        {
+            E entity = default(E);
+            Transactively(s =>
+            {
+                entity = (E)ifcEntityScope.New<E>(t);
+                modifier?.Invoke(entity);
+            });
+            return entity;
+        }
+
         public IIfcSite NewSite(string siteName = null)
         {
             IIfcSite site = null;
-            Wrap(s =>
+            Transactively(s =>
             {
                 site = ifcProductScope.NewOf<IIfcSite>();
                 site.OwnerHistory = OwnerHistoryTag;
@@ -262,7 +281,7 @@ namespace Bitub.Ifc
         public IIfcBuilding NewBuilding(string buildingName = null)
         {
             IIfcBuilding building = null;
-            Wrap(s =>
+            Transactively(s =>
             {
                 building = ifcProductScope.NewOf<IIfcBuilding>();
                 building.OwnerHistory = OwnerHistoryTag;
@@ -277,7 +296,7 @@ namespace Bitub.Ifc
         public IIfcBuildingStorey NewStorey(string name = null, double elevation = 0)
         {
             IIfcBuildingStorey storey = null;
-            Wrap(s =>
+            Transactively(s =>
             {
                 storey = ifcProductScope.NewOf<IIfcBuildingStorey>();
                 storey.Name = name;
@@ -296,12 +315,12 @@ namespace Bitub.Ifc
             if (cScope is IIfcSpatialStructureElement e)
             {
                 // If spatial container at head, create containment
-                store.NewContains(e).RelatedElements.Add(product);
+                model.NewContains(e).RelatedElements.Add(product);
             }
             else
             {
                 // Otherwise create an aggregation relation
-                store.NewDecomposes(cScope).RelatedObjects.Add(product);
+                model.NewDecomposes(cScope).RelatedObjects.Add(product);
             }
         }
 
@@ -315,7 +334,7 @@ namespace Bitub.Ifc
         public P NewProduct<P>(IIfcLocalPlacement placement = null, string name = null) where P : IIfcProduct
         {
             P product = default(P);
-            Wrap(s =>
+            Transactively(s =>
             {
                 product = ifcProductScope.NewOf<P>();
                 product.Name = name;
@@ -336,9 +355,9 @@ namespace Bitub.Ifc
         {
             IIfcProduct product = null;
             if (!schema.IsSuperQualifierOf(productName))
-                throw new ArgumentException($"Wrong schema version of pName. Store is a {store.SchemaVersion}");
+                throw new ArgumentException($"Wrong schema version of pName. Store is a {model.SchemaVersion}");
 
-            Wrap(s =>
+            Transactively(s =>
             {
                 product = ifcProductScope.New(productName);
                 product.Name = name;
@@ -375,7 +394,7 @@ namespace Bitub.Ifc
         public P NewProperty<P>(string propertyName, string description = null) where P : IIfcProperty
         {
             P property = default(P);
-            Wrap(s =>
+            Transactively(s =>
             {
                 property = ifcPropertyScope.NewOf<P>();
                 property.Name = propertyName;
@@ -392,7 +411,7 @@ namespace Bitub.Ifc
         public IIfcRelDefinesByProperties NewPropertySet(string propertySetName, string description = null, IIfcProduct initialProduct = null)
         {
             IIfcRelDefinesByProperties pSetRel = null;
-            Wrap(s =>
+            Transactively(s =>
             {
                 var set = s.NewIfcPropertySet(propertySetName, description);
                 pSetRel = s.NewIfcRelDefinesByProperties(set);

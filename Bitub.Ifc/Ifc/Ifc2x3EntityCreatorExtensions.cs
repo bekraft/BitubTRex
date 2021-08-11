@@ -134,7 +134,9 @@ namespace Bitub.Ifc
             return relation;
         }
 
-        public static IfcOwnerHistory NewIfc2x3OwnerHistoryEntry(this IfcStore s, string version, IfcChangeActionEnum change = IfcChangeActionEnum.ADDED)
+        public static IfcOwnerHistory NewIfc2x3OwnerHistoryEntry(this IModel s, string version,
+            IfcPersonAndOrganization owningUser, IfcApplication owningApplication,
+            IfcChangeActionEnum change = IfcChangeActionEnum.ADDED)
         {
             var newEntry = s.Instances.New<IfcOwnerHistory>();
 
@@ -142,8 +144,8 @@ namespace Bitub.Ifc
             var dateTime = IfcTimeStamp.ToTimeStamp(DateTime.Now);
             newEntry.CreationDate = dateTime;
             newEntry.LastModifiedDate = dateTime;
-            newEntry.OwningUser = s.DefaultOwningUser as IfcPersonAndOrganization;
-            newEntry.OwningApplication = s.DefaultOwningApplication as IfcApplication;
+            newEntry.OwningUser = owningUser;
+            newEntry.OwningApplication = owningApplication;
             return newEntry;
         }
 

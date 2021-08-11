@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 
+using Xbim.Common;
+
 using Bitub.Dto;
 
 namespace Bitub.Ifc
@@ -28,16 +30,23 @@ namespace Bitub.Ifc
             return new IfcEntityScope<E>(builder);
         }
 
+        public E New<E>(Type t, Action<E> mod = null) where E : IPersistEntity
+        {
+            var result = (E)builder.model.Instances.New(this[t.ToQualifier()]);
+            mod(result);
+            return result;
+        }
+
         public E New<E>(Action<E> mod = null) where E : T
         {
-            E result = (E)builder.store.Instances.New(this[typeof(E).ToQualifier()]);
+            E result = (E)builder.model.Instances.New(this[typeof(E).ToQualifier()]);
             mod(result);
             return result;
         }
 
         public T New(Qualifier qualifiedType)
         {
-            return (T)builder.store.Instances.New(this[qualifiedType]);
+            return (T)builder.model.Instances.New(this[qualifiedType]);
         }
 
         public E NewOf<E>(object value) where E : Xbim.Common.IExpressValueType
@@ -49,7 +58,7 @@ namespace Bitub.Ifc
 
         public E NewOf<E>(Action<E> mod = null) where E : T, Xbim.Common.IPersistEntity
         {
-            E result = (E)builder.store.Instances.New(Implementing<E>().First());
+            E result = (E)builder.model.Instances.New(Implementing<E>().First());
             mod?.Invoke(result);            
             return result;
         }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Bitub.Ifc.Transform
 {
-    public class IfcCanonicalSelector
+    public class IfcEntitySelector
     {
     }
 }

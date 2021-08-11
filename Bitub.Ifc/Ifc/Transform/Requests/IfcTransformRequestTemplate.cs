@@ -70,14 +70,30 @@ namespace Bitub.Ifc.Transform.Requests
         /// <param name="property">The meta property descriptor</param>
         /// <param name="hostObject">The hosting object</param>
         /// <param name="package">The task's work package</param>
-        /// <param name="cp">Cancelable progress monitor</param>
+        /// <param name="cancelableProgressing">Cancelable progress monitor</param>
         /// <returns></returns>
-        protected virtual object PropertyTransform(ExpressMetaProperty property, object hostObject, T package, CancelableProgressing cp)
+        protected virtual object PropertyTransform(ExpressMetaProperty property, 
+            object hostObject, T package, CancelableProgressing cancelableProgressing)
         {
-            if (cp?.State.IsAboutCancelling ?? false)
+            if (cancelableProgressing?.State.IsAboutCancelling ?? false)
+            {
                 return null;
+            }
             else
-                return property?.PropertyInfo.GetValue(hostObject);
+            {
+                var value = property?.PropertyInfo.GetValue(hostObject);
+                if (value is IPersistEntity entity)
+                {
+                    if (PassInstance(entity, package, cancelableProgressing) == TransformActionType.Drop)
+                        return null;
+                }
+                else if (value is IEnumerable<PersistEntity> entities)
+                {
+                    return EmptyToNull(entities.Where(e => PassInstance(e, package, cancelableProgressing) != TransformActionType.Drop));
+                }
+
+                return value;
+            }
         }
 
         /// <summary>
@@ -87,11 +103,13 @@ namespace Bitub.Ifc.Transform.Requests
         /// <param name="instance">An instance.</param>
         /// <param name="package">The task's work package</param>
         /// <returns>True, if to include into the transformation</returns>
-        protected abstract TransformActionType PassInstance(IPersistEntity instance, T package);
+        protected abstract TransformActionType PassInstance(IPersistEntity instance, 
+            T package, CancelableProgressing cancelableProgressing);
 
-        protected abstract T CreateTransformPackage(IModel aSource, IModel aTarget);
+        protected abstract T CreateTransformPackage(IModel aSource, IModel aTarget, 
+            CancelableProgressing cancelableProgressing);
 
-        protected virtual TransformResult.Code DoPreprocessTransform(T package, CancelableProgressing progress)
+        protected virtual TransformResult.Code DoPreprocessTransform(T package, CancelableProgressing cancelableProgressing)
         {
             return TransformResult.Code.Finished;
         }
@@ -104,7 +122,7 @@ namespace Bitub.Ifc.Transform.Requests
                 return null;
         }
 
-        protected IPersistEntity Copy(IPersistEntity instance, T package, bool withInverse, CancelableProgressing cp)
+        protected E Copy<E>(E instance, T package, bool withInverse, CancelableProgressing cp) where E : IPersistEntity
         {
             package.Log?.Add(new TransformLogEntry(new XbimInstanceHandle(instance), TransformAction.Transferred));
             try
@@ -123,30 +141,30 @@ namespace Bitub.Ifc.Transform.Requests
             return Copy(instance, package, true, cp);
         }
 
-        protected TransformResult.Code DoTransform(T package, CancelableProgressing progress)
+        protected TransformResult.Code DoTransform(T package, CancelableProgressing cancelableProgressing)
         {
             foreach (var instance in package.Source.Instances)
             {
-                if (progress?.State.IsAboutCancelling ?? false)
+                if (cancelableProgressing?.State.IsAboutCancelling ?? false)
                     return TransformResult.Code.Canceled;
 
-                switch(PassInstance(instance, package))
+                switch(PassInstance(instance, package, cancelableProgressing))
                 {
                     case TransformActionType.Copy:
-                        Copy(instance, package, false, progress);
+                        Copy(instance, package, false, cancelableProgressing);
                         break;
                     case TransformActionType.CopyWithInverse:
-                        Copy(instance, package, true, progress);
+                        Copy(instance, package, true, cancelableProgressing);
                         break;
                     case TransformActionType.Delegate:
-                        DelegateCopy(instance, package, progress);
+                        DelegateCopy(instance, package, cancelableProgressing);
                         break;
                     case TransformActionType.Drop:
                         package.Log?.Add(new TransformLogEntry(new XbimInstanceHandle(instance), TransformAction.NotTransferred));
                         break;
                 }
 
-                progress?.NotifyOnProgressChange(1, Name);
+                cancelableProgressing?.NotifyOnProgressChange(1, Name);
             }
             return TransformResult.Code.Finished;
         }
@@ -188,75 +206,75 @@ namespace Bitub.Ifc.Transform.Requests
             return target;
         }
 
-        protected Func<TransformResult> FastForward(IModel source, CancelableProgressing progress)
+        protected Func<TransformResult> FastForward(IModel source, CancelableProgressing cancelableProgressing)
         {
-            if (!progress?.State.IsAlive ?? false)
+            if (!cancelableProgressing?.State.IsAlive ?? false)
                 throw new NotSupportedException($"Progress monitor already terminated.");
 
             return () =>
             {
-                progress?.State.MarkTerminated();
-                progress?.NotifyOnProgressEnd($"Running fast forward '{Name}' model copy ...");
-                return new TransformResult(TransformResult.Code.Finished, CreateTransformPackage(source, source));
+                cancelableProgressing?.State.MarkTerminated();
+                cancelableProgressing?.NotifyOnProgressEnd($"Running fast forward '{Name}' model copy ...");
+                return new TransformResult(TransformResult.Code.Finished, CreateTransformPackage(source, source, cancelableProgressing));
             };
         }
 
-        private TransformResult CreateResultFromCode(TransformResult.Code code, CancelableProgressing cp)
+        private TransformResult CreateResultFromCode(TransformResult.Code code, CancelableProgressing cancelableProgressing)
         {
-            if (cp?.State.IsAboutCancelling ?? false)
-                cp.State.MarkCanceled();
-            if (cp?.State.HasErrors ?? false)
-                cp.State.MarkBroken();
+            if (cancelableProgressing?.State.IsAboutCancelling ?? false)
+                cancelableProgressing.State.MarkCanceled();
+            if (cancelableProgressing?.State.HasErrors ?? false)
+                cancelableProgressing.State.MarkBroken();
             return new TransformResult(code);
         }
 
-        protected Func<TransformResult> PrepareInternally(IModel aSource, CancelableProgressing cp)
+        protected Func<TransformResult> PrepareInternally(IModel aSource, CancelableProgressing cancelableProgressing)
         {
-            if (!cp?.State.IsAlive ?? false)
+            if (!cancelableProgressing?.State.IsAlive ?? false)
                 throw new NotSupportedException($"Progress monitor already terminated.");
 
             return () =>
             {
                 List<TransformLogEntry> logEntries = new List<TransformLogEntry>();
-                IfcStore target = CreateTargetModel(aSource, cp);
+                IfcStore target = CreateTargetModel(aSource, cancelableProgressing);
 
                 using (ITransaction txStore = target.BeginTransaction(Name))
                 {
                     try
                     {
-                        T package = CreateTransformPackage(aSource, target);
+                        T package = CreateTransformPackage(aSource, target, cancelableProgressing);
                         if (!IsLogEnabled)
                             package.Log = null;
 
                         TransformResult.Code code;
-                        cp?.NotifyOnProgressChange($"Preparing '{Name}' ...");
-                        if (TransformResult.Code.Finished != (code = DoPreprocessTransform(package, cp)))
-                            return CreateResultFromCode(code, cp);
-                        cp?.NotifyOnProgressChange(0, $"Preparation done.");
+                        cancelableProgressing?.NotifyOnProgressChange($"Preparing '{Name}' ...");
+                        if (TransformResult.Code.Finished != (code = DoPreprocessTransform(package, cancelableProgressing)))
+                            return CreateResultFromCode(code, cancelableProgressing);
+                        cancelableProgressing?.NotifyOnProgressChange(0, $"Preparation done.");
 
-                        cp?.NotifyOnProgressChange($"Running '{Name}' ...");
-                        if (TransformResult.Code.Finished != (code = DoTransform(package, cp)))
-                            return CreateResultFromCode(code, cp);
-                        cp?.NotifyOnProgressChange(0, $"Transformation done.");
+                        cancelableProgressing?.NotifyOnProgressChange($"Running '{Name}' ...");
+                        if (TransformResult.Code.Finished != (code = DoTransform(package, cancelableProgressing)))
+                            return CreateResultFromCode(code, cancelableProgressing);
+                        cancelableProgressing?.NotifyOnProgressChange(0, $"Transformation done.");
 
-                        cp?.NotifyOnProgressChange($"Post processing '{Name}' ...");
-                        if (TransformResult.Code.Finished != (code = DoPostTransform(package, cp)))
-                            return CreateResultFromCode(code, cp);
-                        cp?.NotifyOnProgressChange(0, $"Post-processing done.");
+                        cancelableProgressing?.NotifyOnProgressChange($"Post processing '{Name}' ...");
+                        if (TransformResult.Code.Finished != (code = DoPostTransform(package, cancelableProgressing)))
+                            return CreateResultFromCode(code, cancelableProgressing);
+                        cancelableProgressing?.NotifyOnProgressChange(0, $"Post-processing done.");
 
                         txStore.Commit();
                         return new TransformResult(code, package);
                     }
                     catch (Exception e)
                     {
-                        cp?.State.MarkBroken();
+                        cancelableProgressing?.State.MarkBroken();
                         txStore.RollBack();
                         return new TransformResult(TransformResult.Code.ExitWithError, e);
                     }
                     finally
                     {
-                        cp?.State.MarkTerminated();
-                        cp?.NotifyOnProgressEnd($"Transform '{Name}' has been finalized.");
+                        cancelableProgressing?.State.MarkTerminated();
+                        cancelableProgressing?.NotifyOnProgressEnd($"Transform '{Name}' has been finalized.");
                     }
                 }
             };

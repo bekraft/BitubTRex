@@ -107,9 +107,9 @@ namespace Bitub.Ifc.Export
             {                
                 R = new Rotation
                 {   // XbimMatrix is transposed (left hand chaining)
-                    Rx = new XbimVector3D(t.M11, t.M21, t.M31).ToXYZ(),
-                    Ry = new XbimVector3D(t.M12, t.M22, t.M32).ToXYZ(),
-                    Rz = new XbimVector3D(t.M13, t.M23, t.M33).ToXYZ(),
+                    Rx = new XbimVector3D(t.M11, t.M21, t.M31).Normalized().ToXYZ(),
+                    Ry = new XbimVector3D(t.M12, t.M22, t.M32).Normalized().ToXYZ(),
+                    Rz = new XbimVector3D(t.M13, t.M23, t.M33).Normalized().ToXYZ(),
                 },
                 T = t.Translation.ToXYZ(scale)
             };

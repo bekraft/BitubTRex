@@ -11,7 +11,7 @@ using Bitub.Dto;
 
 namespace Bitub.Ifc.Transform.Requests
 {
-    public enum IfcPropertyRemovalStrategy
+    public enum PropertyRemovalStrategy
     {
         /// <summary>
         /// Leaves remaining empty psets untouched.
@@ -26,12 +26,12 @@ namespace Bitub.Ifc.Transform.Requests
     /// <summary>
     /// Property removal packages.
     /// </summary>
-    public class IfcPropertyRemovalPackage : TransformPackage
+    public sealed class PropertyRemovalPackage : TransformPackage
     {
-        public readonly IfcPropertyRemovalStrategy RemovalStrategy;
-        public readonly Qualifier[] RemovePropertyByQualifier;
+        public PropertyRemovalStrategy RemovalStrategy { get; private set; }
+        public Qualifier[] RemovePropertyByQualifier { get; private set; }
 
-        internal IfcPropertyRemovalPackage(IModel aSource, IModel aTarget, Qualifier[] propertyQualifiers) 
+        internal PropertyRemovalPackage(IModel aSource, IModel aTarget, Qualifier[] propertyQualifiers) 
             : base(aSource, aTarget)
         {
             RemovePropertyByQualifier = propertyQualifiers.ToArray();
@@ -42,7 +42,7 @@ namespace Bitub.Ifc.Transform.Requests
     /// <summary>
     /// Removes specifc properties by full qualified names.
     /// </summary>
-    public class IfcPropertyRemovalRequest : IfcTransformRequestTemplate<IfcPropertyRemovalPackage>
+    public class PropertyRemovalRequest : IfcTransformRequestTemplate<PropertyRemovalPackage>
     {
         /// <summary>
         /// The logger.
@@ -51,12 +51,12 @@ namespace Bitub.Ifc.Transform.Requests
 
         public override string Name { get => "Property Removal"; }
 
-        protected override IfcPropertyRemovalPackage CreateTransformPackage(IModel aSource, IModel aTarget)
+        protected override PropertyRemovalPackage CreateTransformPackage(IModel aSource, IModel aTarget, CancelableProgressing cancelableProgressing)
         {
             throw new NotImplementedException();
         }
 
-        protected override TransformActionType PassInstance(IPersistEntity instance, IfcPropertyRemovalPackage package)
+        protected override TransformActionType PassInstance(IPersistEntity instance, PropertyRemovalPackage package, CancelableProgressing cancelableProgressing)
         {
             throw new NotImplementedException();
         }

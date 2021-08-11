@@ -17,8 +17,8 @@ namespace Bitub.Ifc.Transform
     public class IfcAlignReferenceAxis
     {
         #region Internals
-        private XYZ _offset = new XYZ { X = 0, Y = 0, Z = 0 };
-        private XYZ _target = new XYZ { X = 1, Y = 0, Z = 0 };
+        private XYZ offset = new XYZ { X = 0, Y = 0, Z = 0 };
+        private XYZ target = new XYZ { X = 1, Y = 0, Z = 0 };
         #endregion
 
         /// <summary>
@@ -34,10 +34,10 @@ namespace Bitub.Ifc.Transform
         public XYZ Offset
         {
             get {
-                return _offset;
+                return offset;
             }
             set {
-                _offset = value;
+                offset = value;
                 InternallyUpdateAxis();
             }
         }
@@ -49,10 +49,10 @@ namespace Bitub.Ifc.Transform
         public XYZ Target
         {
             get {
-                return _target;
+                return target;
             }
             set {
-                _target = value;
+                target = value;
                 InternallyUpdateAxis();
             }
         }
@@ -63,7 +63,7 @@ namespace Bitub.Ifc.Transform
         [XmlIgnore]
         public XbimVector3D AlignToRay
         {
-            get => _target.ToXbimPoint3D() - _offset.ToXbimPoint3D();
+            get => target.ToXbimPoint3D() - offset.ToXbimPoint3D();
         }
 
         /// <summary>
@@ -104,8 +104,8 @@ namespace Bitub.Ifc.Transform
             if (null == alignReferenceAxis)
                 throw new ArgumentNullException(nameof(alignReferenceAxis));
 
-            _offset = alignReferenceAxis.Offset;
-            _target = alignReferenceAxis.Target;
+            offset = alignReferenceAxis.Offset;
+            target = alignReferenceAxis.Target;
             ReferenceAxis = alignReferenceAxis.ReferenceAxis;
             TangentAxis = alignReferenceAxis.TangentAxis;
         }
@@ -130,12 +130,12 @@ namespace Bitub.Ifc.Transform
         public IfcAlignReferenceAxis(XbimMatrix3D m, double unitsPerMeter = 1.0f)
         {
             // Set offset and target by translation and EX            
-            _offset = m.Translation.ToXYZ(XbimExtensions.ToXbimVector3D(1.0 / unitsPerMeter));
-            _target = new XYZ
+            offset = m.Translation.ToXYZ(XbimExtensions.ToXbimVector3D(1.0 / unitsPerMeter));
+            target = new XYZ
             {
-                X = (float)m.M11 + _offset.X,
-                Y = (float)m.M12 + _offset.Y,
-                Z = (float)m.M13 + _offset.Z
+                X = (float)m.M11 + offset.X,
+                Y = (float)m.M12 + offset.Y,
+                Z = (float)m.M13 + offset.Z
             };
 
             // Set Y & Z from transformation directly
@@ -158,8 +158,8 @@ namespace Bitub.Ifc.Transform
         public void Translate(XbimVector3D deltaOffset, float unitsPerMeter = 1.0f)
         {
             var shift = deltaOffset.ToXYZ(XbimExtensions.ToXbimVector3D(1.0 / unitsPerMeter));
-            _offset = _offset.Add(shift);
-            _target = _target.Add(shift);
+            offset = offset.Add(shift);
+            target = target.Add(shift);
         }
 
         /// <summary>
@@ -168,8 +168,8 @@ namespace Bitub.Ifc.Transform
         /// <param name="shift">The shift in meter</param>        
         public void Translate(XYZ shift)
         {
-            _offset = _offset.Add(shift);
-            _target = _target.Add(shift);
+            offset = offset.Add(shift);
+            target = target.Add(shift);
         }
 
         /// <summary>
@@ -187,7 +187,7 @@ namespace Bitub.Ifc.Transform
 
             // New reference placed at P2-P1 and X1 + d*(-z12) by mirroring at x2
             var deltaAxis = new IfcAlignReferenceAxis(new XYZ { }, new XbimVector3D(x0, -y0, -z0).Normalized().ToXYZ());            
-            deltaAxis.Translate( targetAxis._offset.ToXbimPoint3D() - (_offset.ToXbimPoint3D() * deltaAxis.ToTransform3D()) );
+            deltaAxis.Translate( targetAxis.offset.ToXbimPoint3D() - (offset.ToXbimPoint3D() * deltaAxis.ToTransform3D()) );
             return deltaAxis;
         }
 
@@ -203,7 +203,7 @@ namespace Bitub.Ifc.Transform
                 ex.X, ex.Y, ex.Z, 0,
                 TangentAxis.X, TangentAxis.Y, TangentAxis.Z, 0,
                 ReferenceAxis.X, ReferenceAxis.Y, ReferenceAxis.Z, 0,
-                _offset.X * scale.X, _offset.Y * scale.Y, _offset.Z * scale.Z, 1
+                offset.X * scale.X, offset.Y * scale.Y, offset.Z * scale.Z, 1
             );
         }
 
@@ -218,7 +218,7 @@ namespace Bitub.Ifc.Transform
                 ex.X, ex.Y, ex.Z, 0,
                 TangentAxis.X, TangentAxis.Y, TangentAxis.Z, 0,
                 ReferenceAxis.X, ReferenceAxis.Y, ReferenceAxis.Z, 0,
-                _offset.X, _offset.Y, _offset.Z, 1
+                offset.X, offset.Y, offset.Z, 1
             );
         }
 

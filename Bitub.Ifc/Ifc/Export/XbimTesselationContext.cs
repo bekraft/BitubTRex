@@ -24,51 +24,10 @@ namespace Bitub.Ifc.Export
     /// <summary>
     /// Tesselation context implementing Xbim shape triangulation via Open Cascade.
     /// </summary>
-    public sealed class XbimTesselationContext : ITesselationContext<ExportPreferences>
+    public sealed partial class XbimTesselationContext : ITesselationContext<ExportPreferences>
     {
         #region Internals
         private readonly ILogger logger;
-
-        // Aggregates component and remaining shape labels.
-        private sealed class ComponentShape
-        {
-            // Sorted list
-            readonly List<int> instanceLabels = new List<int>();
-            readonly List<Shape> shapeList = new List<Shape>();
-
-            internal ComponentShape(IEnumerable<XbimShapeInstance> productShapeInstances)
-            {
-                instanceLabels = productShapeInstances.Select(i => i.InstanceLabel).OrderBy(i => i).ToList();
-            }
-
-            internal bool MarkDone(XbimShapeInstance productShapeInstance)
-            {
-                var idx = instanceLabels.BinarySearch(productShapeInstance.InstanceLabel);
-                if (0 > idx)
-                    return false;
-                else
-                    instanceLabels.RemoveAt(idx);
-
-                return true;
-            }
-
-            internal bool Add(XbimShapeInstance productShapeInstance, Shape productShape)
-            {
-                var isHeldAndDone = MarkDone(productShapeInstance);
-                shapeList.Add(productShape);
-                return isHeldAndDone;
-            }
-
-            internal IEnumerable<Shape> Shapes
-            {
-                get => shapeList.ToArray();
-            }
-
-            internal bool IsComplete
-            {
-                get => instanceLabels.Count == 0;
-            }
-        }
         #endregion
 
         /// <summary>
@@ -137,7 +96,7 @@ namespace Bitub.Ifc.Export
                 int totalCount = gReader.ShapeGeometries.Count();
                 int currentCount = 0;
                 // Product label vs. Component and candidate shape labels
-                var componentCache = new SortedDictionary<int, ComponentShape>();
+                var componentCache = new SortedDictionary<int, XbimCompositeShape>();
 
                 // Compute contexts and push them to cache
                 var activeContexts = ec.FilterActiveUserSceneContexts(model, gReader.ContextIds.ToArray()).ToDictionary(g => g.Item1, g => g.Item2);
@@ -217,11 +176,11 @@ namespace Bitub.Ifc.Export
                                 var product = model.Instances[shape.IfcProductLabel] as IIfcProduct;
 
                                 // Try first to find the referenced component
-                                ComponentShape cShape;
+                                XbimCompositeShape cShape;
                                 if (!componentCache.TryGetValue(shape.IfcProductLabel, out cShape))
                                 {
                                     // New component ToDo shape tuple built from component and todo ShapeGeometryLabel
-                                    cShape = new ComponentShape(gReader.ShapeInstancesOfEntity(product)
+                                    cShape = new XbimCompositeShape(gReader.ShapeInstancesOfEntity(product)
                                         .Where(i => 0 > Array.BinarySearch(excludeTypeId, i.IfcTypeId) && 0 <= Array.BinarySearch(geometryTypes, i.RepresentationType)));
                                     componentCache[shape.IfcProductLabel] = cShape;
                                 }
@@ -272,7 +231,7 @@ namespace Bitub.Ifc.Export
         {
             PtArray ptArray = new PtArray();
             foreach (var p in points)
-                ec.CRS.Transform(p).AppendTo(ptArray.Xyz, ec.Scale);
+                p.AppendTo(ptArray.Xyz, ec.Scale);
 
             return ptArray;
         }
@@ -358,7 +317,7 @@ namespace Bitub.Ifc.Export
             XbimMatrix3D shapeTransform = shapeInstance.Transformation;
             if (ec.contextCache.TryGetValue(shapeInstance.RepresentationContext, out ctxTransform))
             {
-                shapeTransform *= ctxTransform.transform * ec.CRS;                
+                shapeTransform *= ctxTransform.transform * ec.CRS;
             }
             else
             {                
