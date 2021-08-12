@@ -16,10 +16,10 @@ using Bitub.Ifc.Validation;
 using Bitub.Ifc.Transform.Requests;
 using Bitub.Dto.Spatial;
 
-namespace Bitub.Ifc.Tests
+namespace Bitub.Ifc.Tests.Transform
 {
     [TestClass]
-    public class IfcPlacementTransformRequestTests : BaseTests<IfcPlacementTransformRequestTests>
+    public class IfcPlacementTransformRequestTests : TestBase<IfcPlacementTransformRequestTests>
     {
         [TestMethod]
         public void IfcAxisAlignmentSerializationTest()

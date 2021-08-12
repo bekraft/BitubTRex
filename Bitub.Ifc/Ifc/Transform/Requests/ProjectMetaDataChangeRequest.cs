@@ -17,7 +17,7 @@ namespace Bitub.Ifc.Transform.Requests
     /// Metadata transformation type.
     /// </summary>
     [Flags]
-    public enum IfcMetadataTransformStrategy : int
+    public enum MetadataTransformStrategy : int
     {
         /// <summary>
         /// Tags the project instance with new owner history.
@@ -40,44 +40,43 @@ namespace Bitub.Ifc.Transform.Requests
     /// <summary>
     /// Metadata transformation package.
     /// </summary>
-    public class IfcMetadataTransformPackage : TransformPackage
+    public sealed class MetadataTransformPackage : TransformPackage
     {
-        public readonly IfcMetadataTransformStrategy AuthoringTransformType;
-        public readonly IfcAuthoringMetadata AuthoringMetadata;
+        public MetadataTransformStrategy AuthoringTransformType { get; private set; }
+        public IfcAuthoringMetadata AuthoringMetadata { get; private set; }
 
-        private IIfcOwnerHistory _ownerHistoryInstance;        
+        public IfcBuilder Builder { get; private set; }
         
-        internal protected IfcMetadataTransformPackage(IModel aSource, IModel aTarget, 
-            IfcAuthoringMetadata metadata, IfcMetadataTransformStrategy transformType) : base(aSource, aTarget)
+        internal MetadataTransformPackage(IModel aSource, IModel aTarget, 
+            IfcAuthoringMetadata metadata, MetadataTransformStrategy transformType) : base(aSource, aTarget)
         {
             AuthoringMetadata = metadata;
             AuthoringTransformType = transformType;
         }
     }
 
-    /// <summary>
-    /// Transformation request which will change the owner history & journal.
-    /// </summary>
-    public class IfcProjectMetaDataChangeRequest : IfcTransformRequestTemplate<IfcMetadataTransformPackage>
+    public class ProjectMetaDataChangeRequest : IfcTransformRequestTemplate<MetadataTransformPackage>
     {
-        /// <summary>
-        /// The logger.
-        /// </summary>
         public override ILogger Log { get; protected set; }
 
         public override string Name => "Project Meta Data Change";
 
-        protected override IfcMetadataTransformPackage CreateTransformPackage(IModel aSource, IModel aTarget)
+        public IfcAuthoringMetadata AuthoringMetadata { get; set; } = new IfcAuthoringMetadata();
+
+        protected override MetadataTransformPackage CreateTransformPackage(IModel aSource, IModel aTarget,
+            CancelableProgressing cancelableProgressing)
         {
             throw new NotImplementedException();
         }
 
-        protected override IPersistEntity DelegateCopy(IPersistEntity instance, IfcMetadataTransformPackage package, CancelableProgressing cp)
+        protected override IPersistEntity DelegateCopy(IPersistEntity instance, 
+            MetadataTransformPackage package, CancelableProgressing cancelableProgressing)
         {
-            return base.DelegateCopy(instance, package, cp);
+            return base.DelegateCopy(instance, package, cancelableProgressing);
         }
 
-        protected override TransformActionType PassInstance(IPersistEntity instance, IfcMetadataTransformPackage package)
+        protected override TransformActionType PassInstance(IPersistEntity instance, 
+            MetadataTransformPackage package, CancelableProgressing cancelableProgressing)
         {
             throw new NotImplementedException();
         }

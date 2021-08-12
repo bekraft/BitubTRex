@@ -32,6 +32,9 @@ namespace Bitub.Ifc
 
         public E New<E>(Type t, Action<E> mod = null) where E : IPersistEntity
         {
+            if (!typeof(E).IsAssignableFrom(t))
+                throw new ArgumentException($"Type '{t.Name}' has to be equal or more specific as '{typeof(E).Name}'");
+
             var result = (E)builder.model.Instances.New(this[t.ToQualifier()]);
             mod(result);
             return result;

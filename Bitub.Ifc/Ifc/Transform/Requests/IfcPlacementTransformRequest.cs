@@ -211,7 +211,8 @@ namespace Bitub.Ifc.Transform.Requests
             Log = loggerFactory?.CreateLogger<IfcPlacementTransformRequest>();
         }
 
-        protected override IfcPlacementTransformPackage CreateTransformPackage(IModel aSource, IModel aTarget)
+        protected override IfcPlacementTransformPackage CreateTransformPackage(IModel aSource, IModel aTarget, 
+            CancelableProgressing cancelableProgressing)
         {
             lock (_monitor)
                 return new IfcPlacementTransformPackage(aSource, aTarget, _placementStrategy, _axisAlignment);
@@ -225,7 +226,8 @@ namespace Bitub.Ifc.Transform.Requests
             return TransformResult.Code.Finished;
         }
 
-        protected override TransformActionType PassInstance(IPersistEntity instance, IfcPlacementTransformPackage package)
+        protected override TransformActionType PassInstance(IPersistEntity instance, 
+            IfcPlacementTransformPackage package, CancelableProgressing cancelableProgressing)
         {
             if (package.IsAffected(instance))
                 return TransformActionType.Delegate;
@@ -233,13 +235,14 @@ namespace Bitub.Ifc.Transform.Requests
                 return TransformActionType.CopyWithInverse;
         }
 
-        protected override IPersistEntity DelegateCopy(IPersistEntity instance, IfcPlacementTransformPackage package, CancelableProgressing cp)
+        protected override IPersistEntity DelegateCopy(IPersistEntity instance, 
+            IfcPlacementTransformPackage package, CancelableProgressing cancelableProgressing)
         {
             if (instance is IIfcLocalPlacement p)
             {
                 Log?.LogInformation($"Changing placement '{p}'");
                 // Don't copy inverse references (products and children)
-                var targetPlacement = Copy(instance, package, false, cp) as IIfcLocalPlacement;
+                var targetPlacement = Copy(instance, package, false, cancelableProgressing) as IIfcLocalPlacement;
                 package.HandlePlacementCopy(p, targetPlacement);
                 return targetPlacement;
             }

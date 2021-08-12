@@ -17,10 +17,10 @@ using Bitub.Ifc.Transform;
 using Bitub.Ifc.Validation;
 using Bitub.Ifc.Transform.Requests;
 
-namespace Bitub.Ifc.Tests
+namespace Bitub.Ifc.Tests.Transform
 {
     [TestClass]
-    public class IfcPropertySetRemovalTransformRequestTests : BaseTests<IfcPropertySetRemovalTransformRequestTests>
+    public class IfcPropertySetRemovalTransformRequestTests : TestBase<IfcPropertySetRemovalTransformRequestTests>
     {
         [TestMethod]
         [DeploymentItem(@"Resources\Ifc4-Storey-With-4Walls.ifc")]

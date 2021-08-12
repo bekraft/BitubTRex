@@ -1,14 +1,20 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+
+using Xbim.Common;
 
 using Xbim.Ifc4.Interfaces;
 using Xbim.Ifc4.Kernel;
 
 namespace Bitub.Ifc
 {
-    public static class IfcProductRelationExtensions
+    public static class IfcRelationShipExtensions
     {
+        #region Decomposition & spatial containment
+
         /// <summary>
         /// Delegates the <i>IsDecomposedBy</i> relationship of a single object.
         /// </summary>
@@ -77,6 +83,10 @@ namespace Bitub.Ifc
                 return productSupers;
         }
 
+        #endregion
+
+        #region Property relations
+
         public static IEnumerable<T> PropertiesAll<T>(this IIfcObject p) where T : IIfcProperty
         {
             return p.IsDefinedBy.SelectMany(r =>
@@ -105,6 +115,12 @@ namespace Bitub.Ifc
             return o.IsDefinedBy.SelectMany(r => r.PropertySet<T>());
         }
 
+        /// <summary>
+        /// All property sets of object. Returns a tuple of set name vs. array of properties.
+        /// </summary>
+        /// <typeparam name="T">Property type scope</typeparam>
+        /// <param name="p">Object in context</param>
+        /// <returns>Sequence of pset names vs. array of hosted properties.</returns>
         public static IEnumerable<Tuple<string, T[]>> PropertiesSets<T>(this IIfcObject p) where T : IIfcProperty
         {
             return p.IsDefinedBy.SelectMany(r =>
@@ -118,6 +134,12 @@ namespace Bitub.Ifc
             });
         }
 
+        /// <summary>
+        /// All properties of type T within property set.
+        /// </summary>
+        /// <typeparam name="T">Property type scope</typeparam>
+        /// <param name="set"></param>
+        /// <returns>Sequence of properties</returns>
         public static IEnumerable<T> Properties<T>(this IIfcPropertySetDefinition set) where T : IIfcProperty
         {
             if (set is IIfcPropertySet pSet)
@@ -125,5 +147,43 @@ namespace Bitub.Ifc
             else
                 return Enumerable.Empty<T>();
         }
+
+        #endregion
+
+        #region General relation handling
+
+        /// <summary>
+        /// Will transfer all existing relations of a (more abstract) template to a (more specific) target instance.
+        /// </summary>
+        /// <typeparam name="T1">Template type</typeparam>
+        /// <typeparam name="T2">Target type as specialisation of T1</typeparam>
+        /// <param name="target">The target instance to attach relations to</param>
+        /// <param name="template">The template instance providing relations (only existing by instance)</param>
+        /// <returns>The modified target instance</returns>
+        public static T2 CreateSameRelationshipsLike<T1, T2>(this T2 target, T1 template) where T1 : IPersistEntity where T2 : T1
+        {
+            // Scan trough hosted indirect relations of template type T
+            foreach (var relationProperty in typeof(T1)
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(property => typeof(IEnumerable).IsAssignableFrom(property.GetMethod.ReturnType) && property.GetMethod.ReturnType.IsGenericType)
+                .Where(property => typeof(IIfcRelationship).IsAssignableFrom(property.GetMethod.ReturnType.GenericTypeArguments[0])))
+            {   
+                // Scan through relation objects of type IEnumerable<? extends IIfcRelationship>
+                foreach (var relation in (relationProperty.GetValue(template) as IEnumerable))
+                {
+                    foreach (var invRelationProperty in relation.GetType()
+                        .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                        .Where(property => typeof(IItemSet).IsAssignableFrom(property.ReflectedType) && property.ReflectedType.IsGenericType)
+                        .Where(property => typeof(T1).IsAssignableFrom(property.ReflectedType.GetGenericArguments()[0])))
+                    {
+                        var itemSet = invRelationProperty.GetValue(relation);
+                        itemSet.GetType().GetMethod("Add").Invoke(itemSet, new object[] { target });
+                    }
+                }                
+            }
+            return target;
+        }
+
+        #endregion
     }
 }

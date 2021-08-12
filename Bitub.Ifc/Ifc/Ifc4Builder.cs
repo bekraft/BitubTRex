@@ -29,9 +29,9 @@ namespace Bitub.Ifc
             OwningApplication = model.Instances.FirstOrDefault<IfcApplication>();
         }
 
-        public IfcPersonAndOrganization OwningUser { get; set; }
+        public override IIfcPersonAndOrganization OwningUser { get; set; }
 
-        public IfcApplication OwningApplication { get; set; }
+        public override IIfcApplication OwningApplication { get; set; }
 
         protected override IIfcProject InitProject()
         {
@@ -52,7 +52,8 @@ namespace Bitub.Ifc
 
         private IfcOwnerHistory NewOwnerHistoryEntry(string version, IfcChangeActionEnum change)
         {
-            IfcOwnerHistory newVersion = model.NewIfc4OwnerHistoryEntry(version, OwningUser, OwningApplication, change);            
+            IfcOwnerHistory newVersion = model.NewIfc4OwnerHistoryEntry(version, 
+                OwningUser as IfcPersonAndOrganization, OwningApplication as IfcApplication, change);            
             return newVersion;
         }
 

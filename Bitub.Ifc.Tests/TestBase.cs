@@ -11,14 +11,14 @@ using Xbim.Common.Geometry;
 
 namespace Bitub.Ifc.Tests
 {
-    public abstract class BaseTests<T>
+    public abstract class TestBase<T>
     {
         protected readonly double precision = 1e-5;
 
         protected static ILoggerFactory LoggerFactory { get; } = Microsoft.Extensions.Logging.LoggerFactory.Create(b => b.AddConsole());
         protected ILogger logger;
 
-        protected BaseTests()
+        protected TestBase()
         {
             logger = LoggerFactory.CreateLogger<T>();
         }

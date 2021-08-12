@@ -14,12 +14,12 @@ using Xbim.Ifc4.Interfaces;
 
 namespace Bitub.Ifc.Transform.Requests
 {
-    public class IfcProductPropertyTransform : TransformPackage
+    public sealed class ProductPropertyTransform : TransformPackage
     {
         private ILookup<string, FeatureEntityMapping> perSetRules;
         private FeatureStageCache featureStageCache;
 
-        internal IfcProductPropertyTransform(FeatureEntityMapping[] mappingRules)
+        internal ProductPropertyTransform(FeatureEntityMapping[] mappingRules)
         {
             featureStageCache = new FeatureStageCache();
         }
@@ -29,7 +29,7 @@ namespace Bitub.Ifc.Transform.Requests
         }
     }
 
-    public class IfcProductPropertyTransformRequest : IfcTransformRequestTemplate<IfcProductPropertyTransform>
+    public class ProductPropertyTransformRequest : IfcTransformRequestTemplate<ProductPropertyTransform>
     {
         public FeatureEntityMapping[] PropertyMappingRules { get; set; }
 
@@ -37,12 +37,14 @@ namespace Bitub.Ifc.Transform.Requests
 
         public override ILogger Log { get; protected set; }
 
-        protected override IfcProductPropertyTransform CreateTransformPackage(IModel aSource, IModel aTarget)
+        protected override ProductPropertyTransform CreateTransformPackage(IModel aSource, IModel aTarget,
+            CancelableProgressing cancelableProgressing)
         {
             throw new NotImplementedException();
         }
 
-        protected override TransformActionType PassInstance(IPersistEntity instance, IfcProductPropertyTransform package)
+        protected override TransformActionType PassInstance(IPersistEntity instance, 
+            ProductPropertyTransform package, CancelableProgressing cancelableProgressing)
         {
             throw new NotImplementedException();
         }

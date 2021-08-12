@@ -27,7 +27,7 @@ namespace Bitub.Ifc
             return (host) =>
             {
                 if (host is IIfcObjectDefinition parent)
-                    return IfcProductRelationExtensions.Children<T>(parent);
+                    return IfcRelationShipExtensions.Children<T>(parent);
                 else
                     return Enumerable.Empty<T>();
             };
@@ -44,7 +44,7 @@ namespace Bitub.Ifc
             return (host) =>
             {
                 if (host is IIfcSpatialElement parent)
-                    return IfcProductRelationExtensions.ChildProducts<T>(parent);
+                    return IfcRelationShipExtensions.ChildProducts<T>(parent);
                 else
                     return Enumerable.Empty<T>();
             };
@@ -61,7 +61,7 @@ namespace Bitub.Ifc
             return (host) =>
             {
                 if (host is IIfcObjectDefinition parent)
-                    return IfcProductRelationExtensions.SubObjects<T>(parent);
+                    return IfcRelationShipExtensions.SubObjects<T>(parent);
                 else
                     return Enumerable.Empty<T>();
             };

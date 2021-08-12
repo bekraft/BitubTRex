@@ -84,8 +84,7 @@ namespace Bitub.Ifc.Export.Tests
                 {
                     Transforming = SceneTransformationStrategy.Quaternion,
                     Positioning = ScenePositioningStrategy.UserCorrection,
-                    UserModelCenter = new Dto.Spatial.XYZ(10, 0, 0),
-                    FeatureToClassifierFilter = filter
+                    UserModelCenter = new Dto.Spatial.XYZ(10, 0, 0)
                 });
         }
 

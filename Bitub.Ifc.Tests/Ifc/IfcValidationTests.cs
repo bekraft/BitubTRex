@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 namespace Bitub.Ifc.Tests
 {
     [TestClass]
-    public class IfcValidationTests : BaseTests<IfcValidationTests>
+    public class IfcValidationTests : TestBase<IfcValidationTests>
     {
         [DeploymentItem(@"Resources\Ifc2x3-Slab-BooleanResult.ifc")]
         [TestMethod]
@@ -64,8 +64,8 @@ namespace Bitub.Ifc.Tests
             }
         }
 
+        /*
         //[DeploymentItem(@"Resources\Ifc4-Rotated-1st-floor.ifc")]
-        //[DeploymentItem(@"P:\2020\2020-0157\Projekt\06\00_IFC_Datadrop\03_Extern\ESB_3_002-(HH-LSBG).ifc")]
         [TestMethod]
         public void GeometryConstraintTest()
         {
@@ -96,5 +96,6 @@ namespace Bitub.Ifc.Tests
                 }
             }
         }
+        */
     }
 }

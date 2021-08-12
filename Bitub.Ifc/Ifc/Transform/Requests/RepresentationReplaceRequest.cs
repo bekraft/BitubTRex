@@ -12,6 +12,7 @@ using Bitub.Dto;
 using Bitub.Ifc;
 
 using Microsoft.Extensions.Logging;
+using System.Collections;
 
 namespace Bitub.Ifc.Transform.Requests
 {
@@ -31,30 +32,33 @@ namespace Bitub.Ifc.Transform.Requests
         /// <summary>
         /// Additionally refactor hierarchy using <see cref="IIfcElementAssembly"/> entities.
         /// </summary>
-        RefactorWithEntityElementAssembly = 2
+        RefactorWithEntityElementAssembly = 2,
     }
 
     /// <summary>
     /// Transformation work package of product replacement request.
     /// </summary>
-    public class RepresentationReplacePackage : TransformPackage
+    public sealed class RepresentationReplacePackage : TransformPackage
     {
         public RepresentationReplaceStrategy Strategy { get; private set; }
 
         public ISet<string> ContextIdentifier { get; private set; }
 
-        protected internal IfcBuilder Builder { get; private set; }
+        internal IfcBuilder Builder { get; private set; }
 
         // Product dropouts in source model
-        protected internal ISet<XbimInstanceHandle> ProductDropouts { get; } = new HashSet<XbimInstanceHandle>();
+        internal ISet<XbimInstanceHandle> ProductDropouts { get; } = new HashSet<XbimInstanceHandle>();
+        // New assembly addins
+        internal IDictionary<XbimInstanceHandle, XbimInstanceHandle> ProductAssemblyAddins { get; } = new Dictionary<XbimInstanceHandle, XbimInstanceHandle>();
+        
         // Reference to products in source model
-        protected internal IDictionary<PropertyReference, XbimInstanceHandle[]> ProductReferences { get; } = new Dictionary<PropertyReference, XbimInstanceHandle[]>();
+        internal IDictionary<PropertyReference, XbimInstanceHandle[]> ProductReferences { get; } = new Dictionary<PropertyReference, XbimInstanceHandle[]>();
         // Product representations of source onto target
-        protected internal IDictionary<XbimInstanceHandle, XbimInstanceHandle[]> ProductRepresentationDisassembly { get; } = new Dictionary<XbimInstanceHandle, XbimInstanceHandle[]>();
+        internal IDictionary<XbimInstanceHandle, XbimInstanceHandle[]> ProductRepresentationDisassembly { get; } = new Dictionary<XbimInstanceHandle, XbimInstanceHandle[]>();
         // Product disassemly from single source to disassembled target
-        protected internal IDictionary<XbimInstanceHandle, XbimInstanceHandle[]> ProductDisassembly { get; } = new Dictionary<XbimInstanceHandle, XbimInstanceHandle[]>();
+        internal IDictionary<XbimInstanceHandle, XbimInstanceHandle[]> ProductDisassembly { get; } = new Dictionary<XbimInstanceHandle, XbimInstanceHandle[]>();
 
-        protected internal RepresentationReplacePackage(IModel aSource, IModel aTarget, 
+        internal RepresentationReplacePackage(IModel aSource, IModel aTarget, 
             RepresentationReplaceStrategy strategy, string[] contextIdentifiers) 
             : base(aSource, aTarget)
         {
@@ -83,7 +87,7 @@ namespace Bitub.Ifc.Transform.Requests
             return false;
         }
 
-        protected internal bool IsMultibodyRepresentation(IIfcRepresentation r)
+        internal bool IsMultibodyRepresentation(IIfcRepresentation r)
         {
             var isInContext = ContextIdentifier.Contains(r.ContextOfItems.ContextIdentifier.ToString().ToLower());
             if (Strategy.HasFlag(RepresentationReplaceStrategy.ReplaceMultipleRepresentations))
@@ -92,12 +96,12 @@ namespace Bitub.Ifc.Transform.Requests
             throw new NotImplementedException($"{Strategy}");
         }
 
-        protected internal bool IsMultibodyRepresentation(IIfcProduct p)
+        internal bool IsMultibodyRepresentation(IIfcProduct p)
         {
             return ProductDropouts.Contains(new XbimInstanceHandle(p)) || IsMultibodyRepresentation(p?.Representation);
         }
 
-        protected internal bool IsMultibodyRepresentation(IIfcProductRepresentation pr)
+        internal bool IsMultibodyRepresentation(IIfcProductRepresentation pr)
         {
             return pr?.Representations.Any(r => IsMultibodyRepresentation(r)) ?? false;
         }
@@ -154,11 +158,18 @@ namespace Bitub.Ifc.Transform.Requests
                 }
 
                 // Register product disassembly
-                var disassembledProducts = FlattenProduct(product, disassembledRepresentations, package, cancelableProgressing)
-                    .Select(e => new XbimInstanceHandle(e))
-                    .ToArray();
-                package.ProductDisassembly.Add(new XbimInstanceHandle(product), disassembledProducts);
-                package.Log?.AddRange(disassembledProducts.Select(h => new TransformLogEntry(h, TransformAction.Added)));
+                var disassembledProducts = FlattenProduct(product, disassembledRepresentations, package, cancelableProgressing).ToArray();
+                package.ProductDisassembly.Add(new XbimInstanceHandle(product), disassembledProducts.Select(e => new XbimInstanceHandle(e)).ToArray());
+
+                if (package.Strategy.HasFlag(RepresentationReplaceStrategy.RefactorWithEntityElementAssembly))
+                {
+                    var newAssembly = InsertIfcElementAssembly(product, disassembledProducts, package, cancelableProgressing);
+                    var assemblyHandle = new XbimInstanceHandle(newAssembly);
+                    package.ProductAssemblyAddins.Add(new XbimInstanceHandle(product), assemblyHandle);
+                    package.Log?.Add(new TransformLogEntry(assemblyHandle, TransformAction.Added));
+                }
+
+                package.Log?.AddRange(disassembledProducts.Select(e => new TransformLogEntry(new XbimInstanceHandle(e), TransformAction.Added)));
                 // Drop current product
                 return TransformActionType.Drop;
             }
@@ -190,21 +201,23 @@ namespace Bitub.Ifc.Transform.Requests
                 if (value is IIfcProduct product && package.IsMultibodyRepresentation(product))
                 {
                     package.ProductReferences.Add(
-                        new PropertyReference(new XbimInstanceHandle(entity), property.PropertyInfo),
+                        new PropertyReference(new XbimInstanceHandle(hostObject as IPersistEntity), property.PropertyInfo), 
                         new[] { new XbimInstanceHandle(product) });
-
                     return null;
                 }
-                else if (value is IEnumerable<IIfcProduct> products)
+                else if (value is IEnumerable instances)
                 {   // or enumerable of product (relations), cast to null if empty
-                    var references = products
+                    var products = instances
+                        .OfType<IIfcProduct>()
                         .Where(p => package.IsMultibodyRepresentation(p))
-                        .Select(p => new XbimInstanceHandle(p))
-                        .ToArray();
-                    if (references.Length > 0)
-                        package.ProductReferences.Add(new PropertyReference(new XbimInstanceHandle(hostObject as IPersistEntity), property.PropertyInfo), references);
+                        .ToHashSet();
 
-                    return EmptyToNull(products.Where(p => !package.IsMultibodyRepresentation(p)));
+                    if (products.Count > 0)
+                        package.ProductReferences.Add(
+                            new PropertyReference(new XbimInstanceHandle(hostObject as IPersistEntity), property.PropertyInfo), 
+                            products.Select(p => new XbimInstanceHandle(p)).ToArray());
+
+                    return EmptyToNull(instances.OfType<IPersist>().Where(e => !products.Contains(e)));
                 }
 
                 // Cut product representation
@@ -232,20 +245,55 @@ namespace Bitub.Ifc.Transform.Requests
                     return TransformResult.Code.Canceled;
                 }
 
-                var (keyHandle, keyPropertyInfo) = referenceInfo.Key;
-                var targetHandle = package.Map[keyHandle];
+                var (hostHandle, hostPropertyInfo) = referenceInfo.Key;
+                var targetHostHandle = package.Map[hostHandle];
                 package.Builder.Transactively(m =>
                 {
-                    var reference = keyPropertyInfo.GetValue(targetHandle.GetEntity());
-                    if (typeof(IIfcProduct).IsAssignableFrom(keyPropertyInfo.PropertyType) && referenceInfo.Value.Length == 1)
+                    if (typeof(IIfcProduct).IsAssignableFrom(hostPropertyInfo.PropertyType) && referenceInfo.Value.Length == 1)
                     {
-                        // Clone relation host entity
+                        var sourceReferenceHandle = referenceInfo.Value[0];
+                        // Find assembly instance first, if present (indicated by strategy)
+                        var targetReferenceHandle = package.ProductAssemblyAddins[sourceReferenceHandle];
+                        if (targetReferenceHandle.IsEmpty)
+                        {
+                            // Fallback to first instance of disassembly
+                            targetReferenceHandle = package.ProductDisassembly[sourceReferenceHandle].FirstOrDefault();
+                        }
+
+                        if (targetReferenceHandle.IsEmpty)
+                        {
+                            Log?.LogWarning("Reference from #{0}.{1} to #{2} ({3}) not found in target.",
+                                hostHandle.EntityLabel, hostPropertyInfo.Name, sourceReferenceHandle.EntityLabel, sourceReferenceHandle.EntityExpressType.Name);
+                        }
+                        else
+                        {
+                            Log?.LogWarning("Having unary reference to disassembled product instance. Using #{0} as proxy relation target of #{1}.{2}.",
+                                targetReferenceHandle.EntityLabel, targetHostHandle.EntityLabel, hostPropertyInfo.Name);
+
+                            package.Builder.Transactively(m =>
+                            {
+                                hostPropertyInfo.SetValue(targetHostHandle.GetEntity(), targetReferenceHandle.GetEntity());
+                            });
+                        }
                     }
-                    else if (reference is IItemSet<IIfcProduct> products)
+                    else if (hostPropertyInfo.GetValue(targetHostHandle.GetEntity()) is IItemSet items)
                     {
-                        products.AddRange(referenceInfo.Value
-                            .Select(h => package.Map[h].GetEntity())
-                            .Cast<IIfcProduct>())
+                        package.Builder.Transactively(m =>
+                        {
+                            items.GetType().GetMethod("AddRange").Invoke(
+                                items,
+                                referenceInfo.Value.SelectMany(h =>
+                                {
+                                    // If assembly is existing use that assembly as proxy, too
+                                    if (package.ProductAssemblyAddins.ContainsKey(h))
+                                        return new[] { package.ProductAssemblyAddins[h].GetEntity() as IIfcProduct };
+                                    else if (package.ProductDisassembly.ContainsKey(h))
+                                        return package.ProductDisassembly[h].Select(p => p.GetEntity()).Cast<IIfcProduct>();
+                                    else
+                                        return Enumerable.Empty<IIfcProduct>();
+                                }).ToArray()
+                            );
+                        });
                     }
                 });
             }
@@ -276,7 +324,6 @@ namespace Bitub.Ifc.Transform.Requests
                 });
                 // Use decomposition relationship
                 m.NewDecomposes(assembly).RelatedObjects.AddRange(products);
-                // TODO Copy properties as well
             });
             return assembly;
         }
@@ -301,6 +348,7 @@ namespace Bitub.Ifc.Transform.Requests
                         e.ObjectType = p.ObjectType;                        
                     });
                 });
+
                 return newProduct;
             });
         }
