@@ -112,6 +112,9 @@
     <None Update="Resources\Ifc4-Multi-Body-House.ifc">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\Ifc4-MultipleBodiesPerProduct.ifc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\Ifc4-SampleHouse.ifc">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -16,7 +16,7 @@ using Bitub.Ifc.Tests;
 namespace Bitub.Ifc.Concept.Tests
 {
     [TestClass]
-    public class ConceptTests : BaseTests<ConceptTests>
+    public class ConceptTests : TestBase<ConceptTests>
     {
         protected CanonicalFilter existsWallFilter;
         protected CanonicalFilter subOrEquivWallFilter;

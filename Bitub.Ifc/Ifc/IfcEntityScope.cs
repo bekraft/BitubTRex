@@ -11,7 +11,7 @@ namespace Bitub.Ifc
     /// Generic Ifc entity creator scope bound to a builder.
     /// </summary>
     /// <typeparam name="T">The type of entity</typeparam>
-    public class IfcEntityScope<T> : TypeScope where T : Xbim.Common.IPersist
+    public class IfcEntityScope<T> : TypeScope where T : IPersist
     {
         #region Internals
 
@@ -35,15 +35,15 @@ namespace Bitub.Ifc
             if (!typeof(E).IsAssignableFrom(t))
                 throw new ArgumentException($"Type '{t.Name}' has to be equal or more specific as '{typeof(E).Name}'");
 
-            var result = (E)builder.model.Instances.New(this[t.ToQualifier()]);
-            mod(result);
+            var result = (E)builder.model.Instances.New(this[GetScopedQualifier(t)]);
+            mod?.Invoke(result);
             return result;
         }
 
         public E New<E>(Action<E> mod = null) where E : T
         {
-            E result = (E)builder.model.Instances.New(this[typeof(E).ToQualifier()]);
-            mod(result);
+            E result = (E)builder.model.Instances.New(this[GetScopedQualifier(typeof(E))]);
+            mod?.Invoke(result);
             return result;
         }
 

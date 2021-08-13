@@ -48,8 +48,8 @@ namespace Bitub.Ifc.Transform.Requests
             get => ImmutableList.ToImmutableList(relDefinesByProperties); 
         }
 
-        internal IfcPropertySetRemovalPackage(IModel source, IModel target, 
-            bool ignoreCase, FilterRuleStrategyType strategy) : base(source, target)
+        internal IfcPropertySetRemovalPackage(IModel source, IModel target, CancelableProgressing progressMonitor,
+            bool ignoreCase, FilterRuleStrategyType strategy) : base(source, target, progressMonitor)
         {
             var comparer = ignoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
             ExcludeName = new HashSet<string>(comparer);
@@ -122,7 +122,7 @@ namespace Bitub.Ifc.Transform.Requests
     /// <summary>
     /// Remove entire IFC property sets by given black list names.
     /// </summary>
-    public class IfcPropertySetRemovalRequest : IfcTransformRequestTemplate<IfcPropertySetRemovalPackage>
+    public class IfcPropertySetRemovalRequest : ModelTransformTemplate<IfcPropertySetRemovalPackage>
     {
         /// <summary>
         /// The logger.
@@ -132,7 +132,7 @@ namespace Bitub.Ifc.Transform.Requests
         /// <summary>
         /// Name is "Property Set Removal"
         /// </summary>
-        public override string Name => "Property Set Removal";
+        public override string Name => "Property Set Removal Transform";
 
         /// <summary>
         /// Whether to use case sensitive matches. Default is <c>false</c>
@@ -166,7 +166,7 @@ namespace Bitub.Ifc.Transform.Requests
         }
 
         protected override TransformActionType PassInstance(IPersistEntity instance, 
-            IfcPropertySetRemovalPackage package, CancelableProgressing cancelableProgressing)
+            IfcPropertySetRemovalPackage package)
         {
             if (instance is IIfcPropertySet set)
             {
@@ -185,8 +185,7 @@ namespace Bitub.Ifc.Transform.Requests
             return TransformActionType.Copy;
         }
 
-        protected override IPersistEntity DelegateCopy(IPersistEntity instance, IfcPropertySetRemovalPackage package, 
-            CancelableProgressing cancelableProgressing)
+        protected override IPersistEntity DelegateCopy(IPersistEntity instance, IfcPropertySetRemovalPackage package)
         {
             if(instance is IIfcRelDefinesByProperties rDefProps)
             {
@@ -215,10 +214,10 @@ namespace Bitub.Ifc.Transform.Requests
                 }
             }
 
-            return Copy(instance, package, false, cancelableProgressing);
+            return Copy(instance, package, false);
         }
 
-        protected override object PropertyTransform(ExpressMetaProperty property, object hostObject, IfcPropertySetRemovalPackage package, CancelableProgressing cp)
+        protected override object PropertyTransform(ExpressMetaProperty property, object hostObject, IfcPropertySetRemovalPackage package)
         {
             if(hostObject is IIfcProduct prod && property.PropertyInfo.Name == nameof(IIfcProduct.IsDefinedBy)) // Inverse
             {
@@ -261,14 +260,14 @@ namespace Bitub.Ifc.Transform.Requests
                 return EmptyToNull(rDefTemplate.RelatedPropertySets.Where(package.PassesNameFilter));
             }
 
-            return base.PropertyTransform(property, hostObject, package, cp);
+            return base.PropertyTransform(property, hostObject, package);
         }
 
-        protected override TransformResult.Code DoPostTransform(IfcPropertySetRemovalPackage package, CancelableProgressing cancelableProgressing)
+        protected override TransformResult.Code DoPostTransform(IfcPropertySetRemovalPackage package)
         {
             foreach(var r in package.relDefinesByProperties)
             {
-                if (cancelableProgressing.State.IsCanceled)
+                if (package.IsCanceledOrBroken)
                     return TransformResult.Code.Canceled;
 
                 if (r.RelatingPropertyDefinition is IfcPropertySetDefinitionSet setOfSet)
@@ -291,9 +290,9 @@ namespace Bitub.Ifc.Transform.Requests
             return TransformResult.Code.Finished;
         }
 
-        protected override IfcPropertySetRemovalPackage CreateTransformPackage(IModel aSource, IModel aTarget, CancelableProgressing cancelableProgressing)
+        protected override IfcPropertySetRemovalPackage CreateTransformPackage(IModel aSource, IModel aTarget, CancelableProgressing progressMonitor)
         {
-            var package = new IfcPropertySetRemovalPackage(aSource, aTarget, !IsNameMatchingCaseSensitive, FilterRuleStrategy);
+            var package = new IfcPropertySetRemovalPackage(aSource, aTarget, progressMonitor, !IsNameMatchingCaseSensitive, FilterRuleStrategy);
             ExludePropertySetByName.ForEach(n => package.ExcludeName.Add(n));
             IncludePropertySetByName.ForEach(n => package.IncludeExclusivelyName.Add(n));            
             return package;

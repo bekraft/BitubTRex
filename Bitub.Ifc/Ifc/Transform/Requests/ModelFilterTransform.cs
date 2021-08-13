@@ -9,7 +9,7 @@ using Bitub.Dto;
 namespace Bitub.Ifc.Transform.Requests
 {
     [Flags]
-    public enum FilteringRelationsStrategy
+    public enum ModelFilterStrategy
     {
         CopyInstanceOnly = 0x00,
         WithDecomposition = 0x01,
@@ -21,27 +21,28 @@ namespace Bitub.Ifc.Transform.Requests
         WithAllRelations = 0x0f
     }
 
-    public class FilteredModelPackage : TransformPackage
+    public class ModelFilterTransformPackage : TransformPackage
     {
         public int[] EntityLabels { get; private set; }
         public ExpressType[] ExpressTypes { get; private set; }
-        public FilteringRelationsStrategy RelationalStrategy { get; private set; }
+        public ModelFilterStrategy RelationalStrategy { get; private set; }
 
-        public FilteredModelPackage(IModel source, IModel target, 
-            int[] labelFilter, ExpressType[] typeFilter, FilteringRelationsStrategy rules = 0) : base(source, target)
+        public ModelFilterTransformPackage(IModel source, IModel target, CancelableProgressing progressMonitor,
+            int[] labelFilter, ExpressType[] typeFilter, ModelFilterStrategy rules = 0) : base(source, target, progressMonitor)
         {
             EntityLabels = labelFilter ?? new int[] { };
             Array.Sort(EntityLabels);
             ExpressTypes = typeFilter ?? new ExpressType[] { };
             Array.Sort(ExpressTypes, (a, b) => Math.Sign(a.TypeId - b.TypeId));
-            RelationalStrategy = rules;        }
+            RelationalStrategy = rules;            
+        }
     }
 
     /// <summary>
     /// Filtering request which will restrict the model output to the given explicitely and exclusively given entity labels and/or express types.
     /// Additionally, the relational strategy will embed decomposition, spatial and semantical references.
     /// </summary>
-    public class FilteredModelRequest : IfcTransformRequestTemplate<FilteredModelPackage>
+    public class ModelFilterTransform : ModelTransformTemplate<ModelFilterTransformPackage>
     {
         public override string Name => "Model filtering";
 
@@ -51,22 +52,22 @@ namespace Bitub.Ifc.Transform.Requests
 
         public ExpressType[] ExclusiveExpressTypes { get; set; } = new ExpressType[] { };
 
-        public FilteringRelationsStrategy RelationalStrategy { get; set; } = FilteringRelationsStrategy.CopyInstanceOnly;
+        public ModelFilterStrategy RelationalStrategy { get; set; } = ModelFilterStrategy.CopyInstanceOnly;
 
-        protected override FilteredModelPackage CreateTransformPackage(IModel aSource, IModel aTarget, 
-            CancelableProgressing cancelableProgressing)
+        protected override ModelFilterTransformPackage CreateTransformPackage(IModel aSource, IModel aTarget, 
+            CancelableProgressing progressMonitor)
         {
-            return new FilteredModelPackage(aSource, aTarget, ExclusiveEntityLabels, ExclusiveExpressTypes, RelationalStrategy);
+            return new ModelFilterTransformPackage(aSource, aTarget, progressMonitor, ExclusiveEntityLabels, ExclusiveExpressTypes, RelationalStrategy);
         }
 
         protected override object PropertyTransform(ExpressMetaProperty property, 
-            object hostObject, FilteredModelPackage package, CancelableProgressing cancelableProgressing)
+            object hostObject, ModelFilterTransformPackage package)
         {
-            return base.PropertyTransform(property, hostObject, package, cancelableProgressing);
+            return base.PropertyTransform(property, hostObject, package);
         }
 
         protected override TransformActionType PassInstance(IPersistEntity instance, 
-            FilteredModelPackage package, CancelableProgressing cancelableProgressing)
+            ModelFilterTransformPackage package)
         {
             throw new NotImplementedException();
         }

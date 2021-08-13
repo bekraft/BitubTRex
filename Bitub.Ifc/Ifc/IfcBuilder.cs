@@ -97,7 +97,7 @@ namespace Bitub.Ifc
         public static IfcBuilder WithCredentials(XbimEditorCredentials c, XbimSchemaVersion version = XbimSchemaVersion.Ifc4, ILoggerFactory loggerFactory = null)
         {
             var newStore = IfcStore.Create(version, XbimStoreType.InMemoryModel);
-            return WrapModel(newStore, loggerFactory);
+            return WithModel(newStore, loggerFactory);
         }    
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace Bitub.Ifc
         /// <param name="store">The store</param>
         /// <param name="loggerFactory">The logger factory</param>
         /// <returns>A new builder instance</returns>
-        public static IfcBuilder WrapModel(IModel model, ILoggerFactory loggerFactory = null)
+        public static IfcBuilder WithModel(IModel model, ILoggerFactory loggerFactory = null)
         {
             switch (model.SchemaVersion)
             {
@@ -201,17 +201,24 @@ namespace Bitub.Ifc
         /// <param name="action">The modification</param>
         public void Transactively(Action<IModel> action)
         {
-            using (var txn = model.BeginTransaction(TransactionContext))
+            if (null != model.CurrentTransaction)
             {
-                try
+                action?.Invoke(model);
+            }
+            else
+            {
+                using (var txn = model.BeginTransaction(TransactionContext))
                 {
-                    action(model);
-                    txn.Commit();
-                }
-                catch (Exception e)
-                {
-                    txn.RollBack();
-                    log?.LogError(e, "Exception caught. Rollback done.");
+                    try
+                    {
+                        action?.Invoke(model);
+                        txn.Commit();
+                    }
+                    catch (Exception e)
+                    {
+                        txn.RollBack();
+                        log?.LogError(e, "Exception caught. Rollback done.");
+                    }
                 }
             }
         }

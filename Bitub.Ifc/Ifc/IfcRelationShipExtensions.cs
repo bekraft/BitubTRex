@@ -184,6 +184,17 @@ namespace Bitub.Ifc
             return target;
         }
 
+        public static PropertyInfo GetLowerConstraintRelationType<TParam>(this Type t, string relationName)
+        {
+            var propertyInfo = t.GetInterfaces()
+                .SelectMany(t => t.GetProperties())
+                .Where(p => p.Name == relationName && typeof(IItemSet).IsAssignableFrom(p.PropertyType))
+                .Where(p => p.PropertyType.GetGenericArguments().All(t => t.IsAssignableFrom(typeof(TParam))))
+                .FirstOrDefault();
+            
+            return propertyInfo;
+        }
+
         #endregion
     }
 }

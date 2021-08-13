@@ -26,13 +26,14 @@ namespace Bitub.Ifc.Transform.Requests
     /// <summary>
     /// Property removal packages.
     /// </summary>
-    public sealed class PropertyRemovalPackage : TransformPackage
+    public sealed class PropertyRemovalTransformPackage : TransformPackage
     {
         public PropertyRemovalStrategy RemovalStrategy { get; private set; }
         public Qualifier[] RemovePropertyByQualifier { get; private set; }
 
-        internal PropertyRemovalPackage(IModel aSource, IModel aTarget, Qualifier[] propertyQualifiers) 
-            : base(aSource, aTarget)
+        internal PropertyRemovalTransformPackage(IModel aSource, IModel aTarget, 
+            CancelableProgressing progressMonitor, Qualifier[] propertyQualifiers) 
+            : base(aSource, aTarget, progressMonitor)
         {
             RemovePropertyByQualifier = propertyQualifiers.ToArray();
         }
@@ -42,7 +43,7 @@ namespace Bitub.Ifc.Transform.Requests
     /// <summary>
     /// Removes specifc properties by full qualified names.
     /// </summary>
-    public class PropertyRemovalRequest : IfcTransformRequestTemplate<PropertyRemovalPackage>
+    public class PropertyRemovalTransform : ModelTransformTemplate<PropertyRemovalTransformPackage>
     {
         /// <summary>
         /// The logger.
@@ -51,12 +52,12 @@ namespace Bitub.Ifc.Transform.Requests
 
         public override string Name { get => "Property Removal"; }
 
-        protected override PropertyRemovalPackage CreateTransformPackage(IModel aSource, IModel aTarget, CancelableProgressing cancelableProgressing)
+        protected override PropertyRemovalTransformPackage CreateTransformPackage(IModel aSource, IModel aTarget, CancelableProgressing progressMonitor)
         {
             throw new NotImplementedException();
         }
 
-        protected override TransformActionType PassInstance(IPersistEntity instance, PropertyRemovalPackage package, CancelableProgressing cancelableProgressing)
+        protected override TransformActionType PassInstance(IPersistEntity instance, PropertyRemovalTransformPackage package)
         {
             throw new NotImplementedException();
         }

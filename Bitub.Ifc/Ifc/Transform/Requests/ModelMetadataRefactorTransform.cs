@@ -17,7 +17,7 @@ namespace Bitub.Ifc.Transform.Requests
     /// Metadata transformation type.
     /// </summary>
     [Flags]
-    public enum MetadataTransformStrategy : int
+    public enum ModelMetadataRefactorStrategy : int
     {
         /// <summary>
         /// Tags the project instance with new owner history.
@@ -40,43 +40,43 @@ namespace Bitub.Ifc.Transform.Requests
     /// <summary>
     /// Metadata transformation package.
     /// </summary>
-    public sealed class MetadataTransformPackage : TransformPackage
+    public sealed class ModelMetadataRefactorTransformPackage : TransformPackage
     {
-        public MetadataTransformStrategy AuthoringTransformType { get; private set; }
+        public ModelMetadataRefactorStrategy AuthoringTransformType { get; private set; }
         public IfcAuthoringMetadata AuthoringMetadata { get; private set; }
 
         public IfcBuilder Builder { get; private set; }
         
-        internal MetadataTransformPackage(IModel aSource, IModel aTarget, 
-            IfcAuthoringMetadata metadata, MetadataTransformStrategy transformType) : base(aSource, aTarget)
+        internal ModelMetadataRefactorTransformPackage(IModel aSource, IModel aTarget, CancelableProgressing progressMonitor,
+            IfcAuthoringMetadata metadata, ModelMetadataRefactorStrategy transformType) : base(aSource, aTarget, progressMonitor)
         {
             AuthoringMetadata = metadata;
             AuthoringTransformType = transformType;
         }
     }
 
-    public class ProjectMetaDataChangeRequest : IfcTransformRequestTemplate<MetadataTransformPackage>
+    public class ModelMetadataRefactorTransform : ModelTransformTemplate<ModelMetadataRefactorTransformPackage>
     {
         public override ILogger Log { get; protected set; }
 
-        public override string Name => "Project Meta Data Change";
+        public override string Name => "Model Metadata Refactoring Transform";
 
         public IfcAuthoringMetadata AuthoringMetadata { get; set; } = new IfcAuthoringMetadata();
 
-        protected override MetadataTransformPackage CreateTransformPackage(IModel aSource, IModel aTarget,
+        protected override ModelMetadataRefactorTransformPackage CreateTransformPackage(IModel aSource, IModel aTarget,
             CancelableProgressing cancelableProgressing)
         {
             throw new NotImplementedException();
         }
 
         protected override IPersistEntity DelegateCopy(IPersistEntity instance, 
-            MetadataTransformPackage package, CancelableProgressing cancelableProgressing)
+            ModelMetadataRefactorTransformPackage package)
         {
-            return base.DelegateCopy(instance, package, cancelableProgressing);
+            return base.DelegateCopy(instance, package);
         }
 
         protected override TransformActionType PassInstance(IPersistEntity instance, 
-            MetadataTransformPackage package, CancelableProgressing cancelableProgressing)
+            ModelMetadataRefactorTransformPackage package)
         {
             throw new NotImplementedException();
         }

@@ -1,13 +1,17 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Extensions.Logging;
-using System.Linq;
+﻿using System.Linq;
 
 using Xbim.Ifc;
 using Xbim.Ifc4.Interfaces;
 
+using Xbim.Common.Geometry;
+
 using Bitub.Ifc;
 using Bitub.Ifc.Transform;
-using Xbim.Common.Geometry;
+
+using Bitub.Dto;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.Extensions.Logging;
 
 namespace Bitub.Ifc.Tests
 {
@@ -15,7 +19,11 @@ namespace Bitub.Ifc.Tests
     {
         protected readonly double precision = 1e-5;
 
-        protected static ILoggerFactory LoggerFactory { get; } = Microsoft.Extensions.Logging.LoggerFactory.Create(b => b.AddConsole());
+        protected static ILoggerFactory LoggerFactory 
+        { 
+            get; 
+        } = Microsoft.Extensions.Logging.LoggerFactory.Create(b => b.AddConsole());
+
         protected ILogger logger;
 
         protected TestBase()
@@ -33,6 +41,13 @@ namespace Bitub.Ifc.Tests
             EditorsGivenName = "Some",
             EditorsOrganisationName = "Selfemployed"
         };
+
+        protected CancelableProgressing NewProgressMonitor(bool cancelable)
+        {
+            var monitor = new CancelableProgressing(cancelable);
+            monitor.OnProgressChange += (sender, e) => logger.LogDebug($"State {e.State}: Percentage = {e.Percentage}; State object = {e.StateObject}");
+            return monitor;
+        }
 
         protected void IsSameArrayElements(object[] asserted, object[] actual)
         {

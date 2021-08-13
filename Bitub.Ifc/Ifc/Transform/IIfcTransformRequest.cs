@@ -24,13 +24,13 @@ namespace Bitub.Ifc.Transform
         public readonly XbimInstanceHandle? InstanceHandle;
         public readonly TransformAction PerformedAction;
 
-        internal TransformLogEntry(XbimInstanceHandle handle, TransformAction result)
+        internal protected TransformLogEntry(XbimInstanceHandle handle, TransformAction result)
         {
             InstanceHandle = handle;
             PerformedAction = result;
         }
 
-        internal TransformLogEntry(TransformAction result)
+        internal protected TransformLogEntry(TransformAction result)
         {
             PerformedAction = result;
         }
@@ -39,9 +39,25 @@ namespace Bitub.Ifc.Transform
     public class TransformPackage : IDisposable
     {
         public List<TransformLogEntry> Log { get; protected internal set; } = new List<TransformLogEntry>();
+
         public XbimInstanceHandleMap Map { get; private set; }
-        public IModel Target { get => Map?.ToModel; }
-        public IModel Source { get => Map?.FromModel; }
+
+        public IModel Target 
+        { 
+            get => Map?.ToModel; 
+        }
+
+        public IModel Source 
+        { 
+            get => Map?.FromModel; 
+        }
+        
+        public CancelableProgressing ProgressMonitor { get; protected set; }
+
+        public bool IsCanceledOrBroken 
+        {
+            get => (null != ProgressMonitor) && (ProgressMonitor.State.IsCanceled || ProgressMonitor.State.IsBroken);
+        }
 
         protected internal TransformPackage()
         {
@@ -58,9 +74,10 @@ namespace Bitub.Ifc.Transform
             Map = map;
         }
 
-        protected internal TransformPackage(IModel aSource, IModel aTarget)
+        protected internal TransformPackage(IModel aSource, IModel aTarget, CancelableProgressing progressMonitor)
         {
             Map = new XbimInstanceHandleMap(aSource, aTarget);
+            ProgressMonitor = progressMonitor;
         }
 
         public void Dispose()
@@ -115,16 +132,5 @@ namespace Bitub.Ifc.Transform
         /// <param name="cancelableProgressing">An optional progress emitter</param>
         /// <returns></returns>
         Task<TransformResult> Run(IModel aSource, CancelableProgressing cancelableProgressing);
-    }
-
-    public interface IProcessingVendorIssue : IIfcTransformRequest
-    {
-        /// <summary>
-        /// Indicates whether a model as the issue targeted by this processing transform or not.
-        /// </summary>
-        /// <param name="aSource">The model</param>
-        /// <param name="cancelableProgressing">An optional progress emitter</param>
-        /// <returns></returns>
-        bool HasIssue(IModel aSource, CancelableProgressing cancelableProgressing);
     }
 }

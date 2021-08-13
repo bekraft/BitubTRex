@@ -48,8 +48,8 @@ namespace Bitub.Ifc.Transform.Requests
         private IIfcLocalPlacement _newRootPlacement;
 
 
-        public IfcPlacementTransformPackage(IModel aSource, IModel aTarget, 
-            IfcPlacementStrategy placementStrategy, IfcAxisAlignment axisAlignment) : base(aSource, aTarget)
+        public IfcPlacementTransformPackage(IModel aSource, IModel aTarget, CancelableProgressing progressMonitor,
+            IfcPlacementStrategy placementStrategy, IfcAxisAlignment axisAlignment) : base(aSource, aTarget, progressMonitor)
         {
             AppliedPlacementStrategy = placementStrategy;
             UnitsPerMeterSource = (float)aSource.ModelFactors.OneMeter;
@@ -154,7 +154,7 @@ namespace Bitub.Ifc.Transform.Requests
     /// <summary>
     /// IFC placement transformation request.
     /// </summary>
-    public class IfcPlacementTransformRequest : IfcTransformRequestTemplate<IfcPlacementTransformPackage>
+    public class IfcPlacementTransformRequest : ModelTransformTemplate<IfcPlacementTransformPackage>
     {
         #region Internals
 
@@ -169,7 +169,7 @@ namespace Bitub.Ifc.Transform.Requests
         /// </summary>
         public override ILogger Log { get; protected set; }
 
-        public override string Name { get => "IFC Model Placement Transform"; }
+        public override string Name { get => "Product Placement Transform"; }
 
         /// <summary>
         /// Default strategy is <see cref="IfcPlacementStrategy.AdjustRootPlacements"/>.
@@ -211,23 +211,23 @@ namespace Bitub.Ifc.Transform.Requests
             Log = loggerFactory?.CreateLogger<IfcPlacementTransformRequest>();
         }
 
-        protected override IfcPlacementTransformPackage CreateTransformPackage(IModel aSource, IModel aTarget, 
-            CancelableProgressing cancelableProgressing)
+        protected override IfcPlacementTransformPackage CreateTransformPackage(IModel aSource, IModel aTarget,
+            CancelableProgressing progressMonitor)
         {
             lock (_monitor)
-                return new IfcPlacementTransformPackage(aSource, aTarget, _placementStrategy, _axisAlignment);
+                return new IfcPlacementTransformPackage(aSource, aTarget, progressMonitor, _placementStrategy, _axisAlignment);
         }
 
-        protected override TransformResult.Code DoPreprocessTransform(IfcPlacementTransformPackage package, CancelableProgressing progress)
+        protected override TransformResult.Code DoPreprocessTransform(IfcPlacementTransformPackage package)
         {
             Log?.LogInformation("({0}) Applying '{1}' strategy to model.", Name, PlacementStrategy);
-            package.Prepare(progress);
+            package.Prepare(package.ProgressMonitor);
             Log?.LogInformation("({0}) Got singleton offset shift of {1} [m].", Name, package.SingletonShift * (1/package.UnitsPerMeterSource));
             return TransformResult.Code.Finished;
         }
 
         protected override TransformActionType PassInstance(IPersistEntity instance, 
-            IfcPlacementTransformPackage package, CancelableProgressing cancelableProgressing)
+            IfcPlacementTransformPackage package)
         {
             if (package.IsAffected(instance))
                 return TransformActionType.Delegate;
@@ -236,13 +236,13 @@ namespace Bitub.Ifc.Transform.Requests
         }
 
         protected override IPersistEntity DelegateCopy(IPersistEntity instance, 
-            IfcPlacementTransformPackage package, CancelableProgressing cancelableProgressing)
+            IfcPlacementTransformPackage package)
         {
             if (instance is IIfcLocalPlacement p)
             {
                 Log?.LogInformation($"Changing placement '{p}'");
                 // Don't copy inverse references (products and children)
-                var targetPlacement = Copy(instance, package, false, cancelableProgressing) as IIfcLocalPlacement;
+                var targetPlacement = Copy(instance, package, false) as IIfcLocalPlacement;
                 package.HandlePlacementCopy(p, targetPlacement);
                 return targetPlacement;
             }

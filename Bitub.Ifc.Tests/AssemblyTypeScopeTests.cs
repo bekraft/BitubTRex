@@ -18,7 +18,7 @@ using Bitub.Ifc.Concept;
 namespace Bitub.Ifc.Tests
 {
     [TestClass]
-    public class AssemblyTypeScopeTests : BaseTests<AssemblyTypeScopeTests>
+    public class AssemblyTypeScopeTests : TestBase<AssemblyTypeScopeTests>
     {
         [TestMethod]
         public void Ifc4IfcWallTest()
