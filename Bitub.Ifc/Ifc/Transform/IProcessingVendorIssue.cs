@@ -5,7 +5,7 @@ using Bitub.Dto;
 
 namespace Bitub.Ifc.Transform
 {
-    public interface IProcessingVendorIssue : IIfcTransformRequest
+    public interface IProcessingVendorIssue : IModelTransform
     {
         /// <summary>
         /// Indicates whether a model as the issue targeted by this processing transform or not.

@@ -58,6 +58,13 @@
     <EmbeddedResource Include="Resources\Bcf21\visinfo.xsd" />
   </ItemGroup>
 
+
+  <ItemGroup Condition="$(TargetFramework.StartsWith('net4'))" >
+    <Reference Include="System.Net" Version="4.0.0.0" />
+    <Reference Include="System.Net.Http" Version="4.0.0.0" />
+    <Reference Include="System.IO.Compression" Version="4.0.0.0" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Bitub.Dto\Bitub.Dto.csproj" />
   </ItemGroup>

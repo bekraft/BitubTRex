@@ -32,7 +32,7 @@ namespace Bitub.Ifc
         {
             assemblyScope = scope;
             baseType = typeScope;
-            modules = scopeModules;            
+            modules = scopeModules;
 
             typeRegistry = scope
                 .Implementing(baseType)

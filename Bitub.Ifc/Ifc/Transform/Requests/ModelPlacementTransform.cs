@@ -17,7 +17,7 @@ namespace Bitub.Ifc.Transform.Requests
     /// Placement strategy options. Exclusive alternatives of either adding a correction as a new
     /// placement or to change existing placements.
     /// </summary>
-    public enum IfcPlacementStrategy
+    public enum ModelPlacementStrategy
     {
         /// <summary>
         /// A new root placement wich adapts the correction. Only available for IFC4. Coordinate values
@@ -39,17 +39,17 @@ namespace Bitub.Ifc.Transform.Requests
     /// <summary>
     /// IFC placement transforming package bundling needed information per request.
     /// </summary>
-    public sealed class IfcPlacementTransformPackage : TransformPackage
+    public sealed class ModelPlacementTransformPackage : TransformPackage
     {
-        public IfcPlacementStrategy AppliedPlacementStrategy { get; private set; }
+        public ModelPlacementStrategy AppliedPlacementStrategy { get; private set; }
         public IfcAxisAlignment AppliedAxisAlignment { get; private set; }
         public int[] SourceRootPlacementsLabels { get; private set; }
 
         private IIfcLocalPlacement _newRootPlacement;
 
 
-        public IfcPlacementTransformPackage(IModel aSource, IModel aTarget, CancelableProgressing progressMonitor,
-            IfcPlacementStrategy placementStrategy, IfcAxisAlignment axisAlignment) : base(aSource, aTarget, progressMonitor)
+        public ModelPlacementTransformPackage(IModel aSource, IModel aTarget, CancelableProgressing progressMonitor,
+            ModelPlacementStrategy placementStrategy, IfcAxisAlignment axisAlignment) : base(aSource, aTarget, progressMonitor)
         {
             AppliedPlacementStrategy = placementStrategy;
             UnitsPerMeterSource = (float)aSource.ModelFactors.OneMeter;
@@ -67,13 +67,13 @@ namespace Bitub.Ifc.Transform.Requests
 
             switch (AppliedPlacementStrategy)
             {
-                case IfcPlacementStrategy.NewRootPlacement:
+                case ModelPlacementStrategy.NewRootPlacement:
                     if (Source.SchemaVersion == Xbim.Common.Step21.XbimSchemaVersion.Ifc2X3)
                         throw new NotSupportedException("IFC2x3 doesn't support new placements without object context. Consider using 'IfcPlacementStrategy.ChangeRootPlacements'");
                     // Shift is absorbed by new placement
                     SingletonShift = XbimVector3D.Zero;
                     break;
-                case IfcPlacementStrategy.ChangeRootPlacements:                    
+                case ModelPlacementStrategy.ChangeRootPlacements:                    
                     if (SourceRootPlacementsLabels.Length > 1)
                     {   // Mean, if more than one
                         var entireTranslation = SourceRootPlacementsLabels.Select(l => PlacementTree[l].Translation).Aggregate((a, b) => a + b);
@@ -111,18 +111,18 @@ namespace Bitub.Ifc.Transform.Requests
         {
             switch(AppliedPlacementStrategy)
             {
-                case IfcPlacementStrategy.NewRootPlacement:
+                case ModelPlacementStrategy.NewRootPlacement:
                     if (null == _newRootPlacement)
                     {
                         _newRootPlacement = AppliedAxisAlignment.NewRootIfcLocalPlacement(Target);
-                        Log?.Add(new TransformLogEntry(new XbimInstanceHandle(_newRootPlacement), TransformAction.Added));
+                        LogAction(new XbimInstanceHandle(_newRootPlacement), TransformActionResult.Added);
                     }
-                    Log?.Add(new TransformLogEntry(new XbimInstanceHandle(sourcePlacement), TransformAction.Modified));
+                    LogAction(new XbimInstanceHandle(sourcePlacement), TransformActionResult.Modified);
                     targetPlacement.PlacementRelTo = _newRootPlacement;
                     break;
 
-                case IfcPlacementStrategy.ChangeRootPlacements:
-                    Log?.Add(new TransformLogEntry(new XbimInstanceHandle(sourcePlacement), TransformAction.Modified));
+                case ModelPlacementStrategy.ChangeRootPlacements:
+                    LogAction(new XbimInstanceHandle(sourcePlacement), TransformActionResult.Modified);
                     ChangePlacement(sourcePlacement, targetPlacement);
                     break;
 
@@ -154,12 +154,12 @@ namespace Bitub.Ifc.Transform.Requests
     /// <summary>
     /// IFC placement transformation request.
     /// </summary>
-    public class IfcPlacementTransformRequest : ModelTransformTemplate<IfcPlacementTransformPackage>
+    public class ModelPlacementTransform : ModelTransformTemplate<ModelPlacementTransformPackage>
     {
         #region Internals
 
         private readonly object _monitor = new object();
-        private IfcPlacementStrategy _placementStrategy = IfcPlacementStrategy.ChangeRootPlacements;
+        private ModelPlacementStrategy _placementStrategy = ModelPlacementStrategy.ChangeRootPlacements;
         private IfcAxisAlignment _axisAlignment = new IfcAxisAlignment();
 
         #endregion
@@ -172,9 +172,9 @@ namespace Bitub.Ifc.Transform.Requests
         public override string Name { get => "Product Placement Transform"; }
 
         /// <summary>
-        /// Default strategy is <see cref="IfcPlacementStrategy.AdjustRootPlacements"/>.
+        /// Default strategy is <see cref="ModelPlacementStrategy.AdjustRootPlacements"/>.
         /// </summary>
-        public IfcPlacementStrategy PlacementStrategy
+        public ModelPlacementStrategy PlacementStrategy
         {
             get {
                 return _placementStrategy;
@@ -206,19 +206,19 @@ namespace Bitub.Ifc.Transform.Requests
         /// The model axis alignment transformation request.
         /// </summary>
         /// <param name="loggerFactory">Logger factory</param>
-        public IfcPlacementTransformRequest(ILoggerFactory loggerFactory = null)
+        public ModelPlacementTransform(ILoggerFactory loggerFactory = null)
         {
-            Log = loggerFactory?.CreateLogger<IfcPlacementTransformRequest>();
+            Log = loggerFactory?.CreateLogger<ModelPlacementTransform>();
         }
 
-        protected override IfcPlacementTransformPackage CreateTransformPackage(IModel aSource, IModel aTarget,
+        protected override ModelPlacementTransformPackage CreateTransformPackage(IModel aSource, IModel aTarget,
             CancelableProgressing progressMonitor)
         {
             lock (_monitor)
-                return new IfcPlacementTransformPackage(aSource, aTarget, progressMonitor, _placementStrategy, _axisAlignment);
+                return new ModelPlacementTransformPackage(aSource, aTarget, progressMonitor, _placementStrategy, _axisAlignment);
         }
 
-        protected override TransformResult.Code DoPreprocessTransform(IfcPlacementTransformPackage package)
+        protected override TransformResult.Code DoPreprocessTransform(ModelPlacementTransformPackage package)
         {
             Log?.LogInformation("({0}) Applying '{1}' strategy to model.", Name, PlacementStrategy);
             package.Prepare(package.ProgressMonitor);
@@ -227,7 +227,7 @@ namespace Bitub.Ifc.Transform.Requests
         }
 
         protected override TransformActionType PassInstance(IPersistEntity instance, 
-            IfcPlacementTransformPackage package)
+            ModelPlacementTransformPackage package)
         {
             if (package.IsAffected(instance))
                 return TransformActionType.Delegate;
@@ -236,7 +236,7 @@ namespace Bitub.Ifc.Transform.Requests
         }
 
         protected override IPersistEntity DelegateCopy(IPersistEntity instance, 
-            IfcPlacementTransformPackage package)
+            ModelPlacementTransformPackage package)
         {
             if (instance is IIfcLocalPlacement p)
             {

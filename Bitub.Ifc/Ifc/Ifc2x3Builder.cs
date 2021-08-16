@@ -26,21 +26,12 @@ namespace Bitub.Ifc
     {
         public Ifc2x3Builder(IModel model, ILoggerFactory loggerFactory = null)
             : base(model, loggerFactory)
+        { }
+
+        protected override IIfcProject InitNewProject(string projectName)
         {
-            OwningUser = model.Instances.FirstOrDefault<IfcPersonAndOrganization>();
-            OwningApplication = model.Instances.FirstOrDefault<IfcApplication>();
-        }
-
-        public override IIfcPersonAndOrganization OwningUser { get; set; }
-
-        public override IIfcApplication OwningApplication { get; set; }
-
-        protected override IIfcProject InitProject()
-        {
-            IfcProject project = model.Instances.OfType<IfcProject>().FirstOrDefault();
-            if (null == project)
-                project = model.Instances.New<IfcProject>();
-
+            IfcProject project = model.Instances.New<IfcProject>();
+            project.Name = projectName;
             ChangeOrNewLengthUnit(IfcSIUnitName.METRE);
             if (null == project.ModelContext)
                 project.RepresentationContexts.Add(model.NewIfc2x3GeometricContext("Body", "Model"));

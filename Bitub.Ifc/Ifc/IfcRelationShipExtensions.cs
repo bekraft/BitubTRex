@@ -184,6 +184,13 @@ namespace Bitub.Ifc
             return target;
         }
 
+        /// <summary>
+        /// Finds a relation typed by lower constraint <c>TParam</c> which implements <see cref="IItemSet"/>.
+        /// </summary>
+        /// <typeparam name="TParam">The relation type</typeparam>
+        /// <param name="t">The host type</param>
+        /// <param name="relationName">The relation name</param>
+        /// <returns>Reflected property info.</returns>
         public static PropertyInfo GetLowerConstraintRelationType<TParam>(this Type t, string relationName)
         {
             var propertyInfo = t.GetInterfaces()
@@ -193,6 +200,28 @@ namespace Bitub.Ifc
                 .FirstOrDefault();
             
             return propertyInfo;
+        }
+
+        /// <summary>
+        /// Will add related instances to host instance using given <c>relationName</c> and lower constraint type <c>TParam</c>.
+        /// </summary>
+        /// <typeparam name="TParam">The relation type</typeparam>
+        /// <typeparam name="T">The host type (implicit)</typeparam>
+        /// <param name="hostInstance">The host instance</param>
+        /// <param name="relationName">The relation name</param>
+        /// <param name="instances">The related instances</param>
+        /// <returns>The modifid host instance</returns>
+        public static T AddRelationsByLowerConstraint<TParam, T>(this T hostInstance, string relationName, IEnumerable<TParam> instances) where T: IPersistEntity
+        {
+            var propertyInfo = hostInstance.GetType().GetLowerConstraintRelationType<TParam>(relationName);
+            if (null == propertyInfo)
+                throw new ArgumentException($"Relation '{relationName}' is know implementing type of '{typeof(TParam).Name}' or not existing.");
+
+            var items = propertyInfo.GetValue(hostInstance);
+
+            items.GetType().GetMethod("AddRange").Invoke(items, new object[] { instances.Cast<TParam>().ToList() });
+
+            return hostInstance;
         }
 
         #endregion

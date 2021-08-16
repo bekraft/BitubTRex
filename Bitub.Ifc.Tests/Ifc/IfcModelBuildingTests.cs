@@ -74,7 +74,7 @@ namespace Bitub.Ifc.Tests
 
                 builder.Transactively(m =>
                 {
-                    var fixture2 = builder.ifcProductScope.New<IIfcWallStandardCase>(fixture1.GetType(), e =>
+                    var fixture2 = builder.ifcEntityScope.New<IIfcWallStandardCase>(fixture1.GetType(), e =>
                     {
                         e.ObjectPlacement = globalPlacement;
                     });

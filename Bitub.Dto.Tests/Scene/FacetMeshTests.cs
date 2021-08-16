@@ -52,7 +52,7 @@ namespace Bitub.Dto.Scene.Tests
 
                 facets.Add(f);
                 Assert.AreEqual(SHIFT, f.Shift);
-                Assert.IsTrue(f.IsTriangle(), "Is Triangle");
+                Assert.IsTrue(f.IsTriangle, "Is Triangle");
                 Assert.IsTrue(f.IsValid(), "Is Valid");
             }
 

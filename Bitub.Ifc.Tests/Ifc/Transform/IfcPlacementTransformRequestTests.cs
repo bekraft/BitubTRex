@@ -58,12 +58,11 @@ namespace Bitub.Ifc.Tests.Transform
                 Assert.IsNotNull(testConfig.SourceReferenceAxis);
                 Assert.IsNotNull(testConfig.TargetReferenceAxis);
 
-                var request = new IfcPlacementTransformRequest(LoggerFactory)                
+                var request = new ModelPlacementTransform(LoggerFactory)                
                 {
                     AxisAlignment = testConfig,
-                    PlacementStrategy = IfcPlacementStrategy.ChangeRootPlacements,
+                    PlacementStrategy = ModelPlacementStrategy.ChangeRootPlacements,
                     // Common config
-                    IsLogEnabled = true,
                     TargetStoreType = Xbim.IO.XbimStoreType.InMemoryModel,
                     EditorCredentials = EditorCredentials
                 };
@@ -104,12 +103,11 @@ namespace Bitub.Ifc.Tests.Transform
                 Assert.IsNotNull(testConfig.SourceReferenceAxis);
                 Assert.IsNotNull(testConfig.TargetReferenceAxis);
 
-                var request = new IfcPlacementTransformRequest(LoggerFactory)
+                var request = new ModelPlacementTransform(LoggerFactory)
                 {
                     AxisAlignment = testConfig,
-                    PlacementStrategy = IfcPlacementStrategy.ChangeRootPlacements,
+                    PlacementStrategy = ModelPlacementStrategy.ChangeRootPlacements,
                     // Common config
-                    IsLogEnabled = true,
                     TargetStoreType = Xbim.IO.XbimStoreType.InMemoryModel,
                     EditorCredentials = EditorCredentials
                 };
@@ -154,12 +152,11 @@ namespace Bitub.Ifc.Tests.Transform
                 Assert.IsNotNull(testConfig.SourceReferenceAxis);
                 Assert.IsNotNull(testConfig.TargetReferenceAxis);
 
-                var request = new IfcPlacementTransformRequest(LoggerFactory)
+                var request = new ModelPlacementTransform(LoggerFactory)
                 {
                     AxisAlignment = testConfig,
-                    PlacementStrategy = IfcPlacementStrategy.NewRootPlacement,
+                    PlacementStrategy = ModelPlacementStrategy.NewRootPlacement,
                     // Common config
-                    IsLogEnabled = true,
                     TargetStoreType = Xbim.IO.XbimStoreType.InMemoryModel,
                     EditorCredentials = EditorCredentials
                 };

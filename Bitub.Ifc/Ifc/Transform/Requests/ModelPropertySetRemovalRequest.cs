@@ -23,7 +23,7 @@ namespace Bitub.Ifc.Transform.Requests
     /// <summary>
     /// Property set removal package
     /// </summary>
-    public class IfcPropertySetRemovalPackage : TransformPackage
+    public sealed class ProductPropertySetRemovalPackage : TransformPackage
     {
         #region Internals
         private FilterRuleStrategyType removalStrategy;
@@ -48,7 +48,7 @@ namespace Bitub.Ifc.Transform.Requests
             get => ImmutableList.ToImmutableList(relDefinesByProperties); 
         }
 
-        internal IfcPropertySetRemovalPackage(IModel source, IModel target, CancelableProgressing progressMonitor,
+        internal ProductPropertySetRemovalPackage(IModel source, IModel target, CancelableProgressing progressMonitor,
             bool ignoreCase, FilterRuleStrategyType strategy) : base(source, target, progressMonitor)
         {
             var comparer = ignoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
@@ -122,7 +122,7 @@ namespace Bitub.Ifc.Transform.Requests
     /// <summary>
     /// Remove entire IFC property sets by given black list names.
     /// </summary>
-    public class IfcPropertySetRemovalRequest : ModelTransformTemplate<IfcPropertySetRemovalPackage>
+    public class ModelPropertySetRemovalRequest : ModelTransformTemplate<ProductPropertySetRemovalPackage>
     {
         /// <summary>
         /// The logger.
@@ -132,7 +132,7 @@ namespace Bitub.Ifc.Transform.Requests
         /// <summary>
         /// Name is "Property Set Removal"
         /// </summary>
-        public override string Name => "Property Set Removal Transform";
+        public override string Name => "Model Property Set Removal Transform";
 
         /// <summary>
         /// Whether to use case sensitive matches. Default is <c>false</c>
@@ -160,13 +160,13 @@ namespace Bitub.Ifc.Transform.Requests
         /// <summary>
         /// New property cut task request.
         /// </summary>
-        public IfcPropertySetRemovalRequest(ILoggerFactory factory = null)
+        public ModelPropertySetRemovalRequest(ILoggerFactory factory = null)
         {
-            Log = factory?.CreateLogger<IfcPropertySetRemovalRequest>();
+            Log = factory?.CreateLogger<ModelPropertySetRemovalRequest>();
         }
 
         protected override TransformActionType PassInstance(IPersistEntity instance, 
-            IfcPropertySetRemovalPackage package)
+            ProductPropertySetRemovalPackage package)
         {
             if (instance is IIfcPropertySet set)
             {
@@ -185,7 +185,7 @@ namespace Bitub.Ifc.Transform.Requests
             return TransformActionType.Copy;
         }
 
-        protected override IPersistEntity DelegateCopy(IPersistEntity instance, IfcPropertySetRemovalPackage package)
+        protected override IPersistEntity DelegateCopy(IPersistEntity instance, ProductPropertySetRemovalPackage package)
         {
             if(instance is IIfcRelDefinesByProperties rDefProps)
             {
@@ -194,13 +194,13 @@ namespace Bitub.Ifc.Transform.Requests
                     if (setOfSet.PropertySetDefinitions.Any(package.HitsNameFilter))
                     {
                         package.relDefinesByProperties.Add(rDefProps);
-                        package.Log?.Add(new TransformLogEntry(new XbimInstanceHandle(rDefProps), TransformAction.Modified));
+                        package.LogAction(new XbimInstanceHandle(rDefProps), TransformActionResult.Modified);
                         return null;
                     }
                 }
                 else if (rDefProps.RelatingPropertyDefinition.PropertySetDefinitions.All(package.HitsNameFilter))
                 {   //Reject relation if no property set remains after removal
-                    package.Log?.Add(new TransformLogEntry(new XbimInstanceHandle(rDefProps), TransformAction.NotTransferred));
+                    package.LogAction(new XbimInstanceHandle(rDefProps), TransformActionResult.NotTransferred);
                     return null;
                 }
             } 
@@ -209,7 +209,7 @@ namespace Bitub.Ifc.Transform.Requests
                 if (prop.PartOfPset.All(package.HitsNameFilter))
                 {
                     // Drop completely if only reference by dropped property sets
-                    package.Log?.Add(new TransformLogEntry(new XbimInstanceHandle(prop), TransformAction.NotTransferred));
+                    package.LogAction(new XbimInstanceHandle(prop), TransformActionResult.NotTransferred);
                     return null;
                 }
             }
@@ -217,7 +217,7 @@ namespace Bitub.Ifc.Transform.Requests
             return Copy(instance, package, false);
         }
 
-        protected override object PropertyTransform(ExpressMetaProperty property, object hostObject, IfcPropertySetRemovalPackage package)
+        protected override object PropertyTransform(ExpressMetaProperty property, object hostObject, ProductPropertySetRemovalPackage package)
         {
             if(hostObject is IIfcProduct prod && property.PropertyInfo.Name == nameof(IIfcProduct.IsDefinedBy)) // Inverse
             {
@@ -263,7 +263,7 @@ namespace Bitub.Ifc.Transform.Requests
             return base.PropertyTransform(property, hostObject, package);
         }
 
-        protected override TransformResult.Code DoPostTransform(IfcPropertySetRemovalPackage package)
+        protected override TransformResult.Code DoPostTransform(ProductPropertySetRemovalPackage package)
         {
             foreach(var r in package.relDefinesByProperties)
             {
@@ -290,9 +290,9 @@ namespace Bitub.Ifc.Transform.Requests
             return TransformResult.Code.Finished;
         }
 
-        protected override IfcPropertySetRemovalPackage CreateTransformPackage(IModel aSource, IModel aTarget, CancelableProgressing progressMonitor)
+        protected override ProductPropertySetRemovalPackage CreateTransformPackage(IModel aSource, IModel aTarget, CancelableProgressing progressMonitor)
         {
-            var package = new IfcPropertySetRemovalPackage(aSource, aTarget, progressMonitor, !IsNameMatchingCaseSensitive, FilterRuleStrategy);
+            var package = new ProductPropertySetRemovalPackage(aSource, aTarget, progressMonitor, !IsNameMatchingCaseSensitive, FilterRuleStrategy);
             ExludePropertySetByName.ForEach(n => package.ExcludeName.Add(n));
             IncludePropertySetByName.ForEach(n => package.IncludeExclusivelyName.Add(n));            
             return package;

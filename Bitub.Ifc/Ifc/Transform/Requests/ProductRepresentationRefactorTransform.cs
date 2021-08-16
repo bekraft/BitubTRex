@@ -64,7 +64,7 @@ namespace Bitub.Ifc.Transform.Requests
         {
             Strategy = strategy;
             ContextIdentifier = new HashSet<string>(contextIdentifiers.Select(s => s.ToLower()));
-            Builder = IfcBuilder.WithModel(aTarget);
+            Builder = IfcBuilder.WithModel(aTarget);            
         }
 
         public bool TryGetReplacedRepresentation(IIfcProductRepresentation sourceRepresentation, 
@@ -132,7 +132,9 @@ namespace Bitub.Ifc.Transform.Requests
         protected override ProductRepresentationRefactorTransformPackage CreateTransformPackage(IModel aSource, IModel aTarget, 
             CancelableProgressing progressMonitor)
         {
-            return new ProductRepresentationRefactorTransformPackage(aSource, aTarget, progressMonitor, Strategy, ContextIdentifiers);
+            var package = new ProductRepresentationRefactorTransformPackage(aSource, aTarget, 
+                progressMonitor, Strategy, ContextIdentifiers);
+            return package;
         }
 
         #region Transformation handling
@@ -166,10 +168,12 @@ namespace Bitub.Ifc.Transform.Requests
                     var newAssembly = InsertIfcElementAssembly(product, disassembledProducts, package);
                     var assemblyHandle = new XbimInstanceHandle(newAssembly);
                     package.ProductAssemblyAddins.Add(new XbimInstanceHandle(product), assemblyHandle);
-                    package.Log?.Add(new TransformLogEntry(assemblyHandle, TransformAction.Added));
+                    package.LogAction(assemblyHandle, TransformActionResult.Added);
                 }
 
-                package.Log?.AddRange(disassembledProducts.Select(e => new TransformLogEntry(new XbimInstanceHandle(e), TransformAction.Added)));
+                foreach (var e in disassembledProducts)
+                    package.LogAction(new XbimInstanceHandle(e), TransformActionResult.Added);
+
                 // Drop current product
                 return TransformActionType.Drop;
             }
@@ -286,8 +290,6 @@ namespace Bitub.Ifc.Transform.Requests
                             .Where(p => p.PropertyType.GetGenericArguments().All(t => t.IsAssignableFrom(typeof(IIfcProduct))))
                             .FirstOrDefault();
 
-                        //var testProp = targetType.GetLowerConstraintRelationType<IIfcProduct>(hostPropertyInfo.Name);
-
                         var items = propertyInfo.GetValue(targetHostHandle.GetEntity());
 
                         package.Builder.Transactively(m =>
@@ -298,13 +300,21 @@ namespace Bitub.Ifc.Transform.Requests
                                 {
                                     referenceInfo.Value.SelectMany(h =>
                                     {
+                                        // Containment relations
+                                        bool isContainmentRelation = typeof(IIfcRelDecomposes).IsAssignableFrom(targetHostHandle.EntityExpressType.Type) 
+                                            || typeof(IIfcRelContainedInSpatialStructure).IsAssignableFrom(targetHostHandle.EntityExpressType.Type);
+
+                                        bool hasAssemblyParent = package.ProductAssemblyAddins.ContainsKey(h);
+
                                         // If assembly is existing use that assembly as proxy, too
-                                        if (package.ProductAssemblyAddins.ContainsKey(h))
-                                            return new[] { package.ProductAssemblyAddins[h].GetEntity() as IIfcProduct };
-                                        else if (package.ProductDisassembly.ContainsKey(h))
-                                            return package.ProductDisassembly[h].Select(p => p.GetEntity()).Cast<IIfcProduct>();
-                                        else
-                                            return Enumerable.Empty<IIfcProduct>();
+                                        IEnumerable<IIfcProduct> candidates = Enumerable.Empty<IIfcProduct>();
+                                        if (hasAssemblyParent)
+                                            candidates = candidates.Concat( new[] { package.ProductAssemblyAddins[h].GetEntity() as IIfcProduct } );
+                                        if (package.ProductDisassembly.ContainsKey(h) && (!isContainmentRelation || !hasAssemblyParent))
+                                            // Don't propagate contaiment concepts to children (if they are children)
+                                            candidates = candidates.Concat( package.ProductDisassembly[h].Select(p => p.GetEntity()).Cast<IIfcProduct>() );
+
+                                        return candidates;
                                     }).ToList()
                                 }
                             );
@@ -316,29 +326,6 @@ namespace Bitub.Ifc.Transform.Requests
             return base.DoPostTransform(package);
         }
 
-        /*
-        private static bool IsCovariant(Type expectedUpper, Type lower)
-        {
-            if (lower.IsGenericType)
-            {
-                var upArgs = expectedUpper.GetGenericArguments();
-                return expectedUpper.IsAssignableFrom(lower.Ba) 
-                    && (upArgs.Length == 0 || lower.GetGenericArguments().Select((t, i) => IsCovariant(upArgs[i], t)).All(r => r));
-            }
-            return expectedUpper.IsAssignableFrom(lower);
-        }
-        /*
-        private static System.Reflection.PropertyInfo FindInterfaceEnumerableProperty<TParam>(Type t, string propertyName)
-        {
-            System.Reflection.PropertyInfo propInfo;
-            var interfaces = new Queue(t.GetInterfaces());
-            do
-            {
-                propInfo = t.GetProperty(propertyName);
-            } while (null != methodInfo);
-            return methodInfo;
-        }
-        */
         #endregion
 
         #region Modification helpers
@@ -352,7 +339,7 @@ namespace Bitub.Ifc.Transform.Requests
 
             package.Builder.Transactively(m =>
             {
-                assembly = package.Builder.ifcProductScope.NewOf<IIfcElementAssembly>(e =>
+                assembly = package.Builder.ifcEntityScope.NewOf<IIfcElementAssembly>(e =>
                 {
                     e.Name = p.Name;
                     e.GlobalId = p.GlobalId;
@@ -376,7 +363,7 @@ namespace Bitub.Ifc.Transform.Requests
                 IIfcProduct newProduct = null;
                 package.Builder.Transactively(m =>
                 {
-                    newProduct = package.Builder.ifcProductScope.New<IIfcProduct>(p.GetType(), e =>
+                    newProduct = package.Builder.ifcEntityScope.New<IIfcProduct>(p.GetType(), e =>
                     {
                         e.Name = p.Name;
                         e.GlobalId = IfcGloballyUniqueId.ConvertToBase64(System.Guid.NewGuid());

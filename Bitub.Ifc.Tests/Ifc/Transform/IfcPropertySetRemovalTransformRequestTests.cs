@@ -37,12 +37,11 @@ namespace Bitub.Ifc.Tests.Transform
                     .Where(s => s.Name == "AllplanAttributes")
                     .Count());
 
-                var request = new IfcPropertySetRemovalRequest(LoggerFactory)
+                var request = new ModelPropertySetRemovalRequest(LoggerFactory)
                 {
                     ExludePropertySetByName = new string[] { "AllplanAttributes" },
                     IsNameMatchingCaseSensitive = false,
                     // Common config
-                    IsLogEnabled = true,
                     TargetStoreType = Xbim.IO.XbimStoreType.InMemoryModel,
                     EditorCredentials = EditorCredentials
                 };
@@ -89,14 +88,13 @@ namespace Bitub.Ifc.Tests.Transform
                 var stampBefore = SchemaValidator.OfModel(source);
                 Assert.IsTrue(stampBefore.IsCompliantToSchema);
 
-                var request = new IfcPropertySetRemovalRequest(LoggerFactory)
+                var request = new ModelPropertySetRemovalRequest(LoggerFactory)
                 {
                     ExludePropertySetByName = new string[] { "AllplanAttributes" },
                     IncludePropertySetByName = new string[] { "AllplanAttributes", "AllplanAttributes Copy" },
                     IsNameMatchingCaseSensitive = false,
                     FilterRuleStrategy = FilterRuleStrategyType.ExcludeBeforeInclude,
                     // Common config
-                    IsLogEnabled = true,
                     TargetStoreType = Xbim.IO.XbimStoreType.InMemoryModel,
                     EditorCredentials = EditorCredentials
                 };
@@ -144,14 +142,13 @@ namespace Bitub.Ifc.Tests.Transform
                 var stampBefore = SchemaValidator.OfModel(source);
                 Assert.IsTrue(stampBefore.IsCompliantToSchema);
 
-                var request = new IfcPropertySetRemovalRequest(LoggerFactory)
+                var request = new ModelPropertySetRemovalRequest(LoggerFactory)
                 {
                     ExludePropertySetByName = new string[] { "Other" },
                     IncludePropertySetByName = new string[] { "Pset_SpaceCommon", "Other" },
                     IsNameMatchingCaseSensitive = false,
                     FilterRuleStrategy = FilterRuleStrategyType.ExcludeBeforeInclude,
                     // Common config
-                    IsLogEnabled = true,
                     TargetStoreType = Xbim.IO.XbimStoreType.InMemoryModel,
                     EditorCredentials = EditorCredentials
                 };

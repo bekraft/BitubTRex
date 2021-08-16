@@ -66,6 +66,6 @@ namespace Bitub.Ifc
                 EditorsGivenName = Editor?.GivenName,
                 EditorsOrganisationName = string.Join("/", Editor?.Organisations?.Select(o => o.Name) ?? new string[0])
             };
-        }
+        }        
     }
 }

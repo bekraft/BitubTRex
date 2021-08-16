@@ -22,11 +22,9 @@ namespace Bitub.Ifc.Transform.Requests
     /// is available by overriding <see cref="DelegateCopy(IPersistEntity, T)"/></para>
     /// </summary>
     /// <typeparam name="T">The package type</typeparam>
-    public abstract class ModelTransformTemplate<T> : IIfcTransformRequest where T : TransformPackage
+    public abstract class ModelTransformTemplate<T> : IModelTransform where T : TransformPackage
     {
         public abstract string Name { get; }
-
-        public bool IsLogEnabled { get; set; } = true;
 
         /// <summary>
         /// The preferred storage type. If not set, source storage type will be used.
@@ -39,6 +37,11 @@ namespace Bitub.Ifc.Transform.Requests
         public XbimEditorCredentials EditorCredentials { get; set; }
 
         public abstract ILogger Log { get; protected set; }
+
+        /// <summary>
+        /// Actions to be logged by transformation process.
+        /// </summary>
+        public ISet<TransformActionResult> LogFilter { get; } = new HashSet<TransformActionResult>();
 
         /// <summary>
         /// Transformation action type.
@@ -122,7 +125,7 @@ namespace Bitub.Ifc.Transform.Requests
 
         protected E Copy<E>(E instance, T package, bool withInverse) where E : IPersistEntity
         {
-            package.Log?.Add(new TransformLogEntry(new XbimInstanceHandle(instance), TransformAction.Transferred));
+            package.LogAction(new XbimInstanceHandle(instance), TransformActionResult.Transferred);
             try
             {
                 return package.Target.InsertCopy(instance, package.Map, (p, o) => PropertyTransform(p, o, package), withInverse, false);
@@ -158,7 +161,7 @@ namespace Bitub.Ifc.Transform.Requests
                         DelegateCopy(instance, package);
                         break;
                     case TransformActionType.Drop:
-                        package.Log?.Add(new TransformLogEntry(new XbimInstanceHandle(instance), TransformAction.NotTransferred));
+                        package.LogAction(new XbimInstanceHandle(instance), TransformActionResult.NotTransferred);
                         break;
                 }
 
@@ -204,16 +207,16 @@ namespace Bitub.Ifc.Transform.Requests
             return target;
         }
 
-        protected Func<TransformResult> FastForward(IModel source, CancelableProgressing cancelableProgressing)
+        protected Func<TransformResult> FastForward(IModel source, CancelableProgressing progressMonitor)
         {
-            if (!cancelableProgressing?.State.IsAlive ?? false)
+            if (!progressMonitor?.State.IsAlive ?? false)
                 throw new NotSupportedException($"Progress monitor already terminated.");
 
             return () =>
             {
-                cancelableProgressing?.State.MarkTerminated();
-                cancelableProgressing?.NotifyOnProgressEnd($"Running fast forward '{Name}' model copy ...");
-                return new TransformResult(TransformResult.Code.Finished, CreateTransformPackage(source, source, cancelableProgressing));
+                progressMonitor?.State.MarkTerminated();
+                progressMonitor?.NotifyOnProgressEnd($"Running fast forward '{Name}' model copy ...");
+                return new TransformResult(TransformResult.Code.Finished, CreateTransformPackage(source, source, progressMonitor), progressMonitor);
             };
         }
 
@@ -241,8 +244,6 @@ namespace Bitub.Ifc.Transform.Requests
                     try
                     {
                         T package = CreateTransformPackage(aSource, target, progressMonitor);
-                        if (!IsLogEnabled)
-                            package.Log = null;
 
                         TransformResult.Code code;
                         progressMonitor?.NotifyOnProgressChange($"Preparing '{Name}' ...");
@@ -261,7 +262,7 @@ namespace Bitub.Ifc.Transform.Requests
                         progressMonitor?.NotifyOnProgressChange(0, $"Post-processing done.");
 
                         txStore.Commit();
-                        return new TransformResult(code, package);
+                        return new TransformResult(code, package, progressMonitor);
                     }
                     catch (Exception e)
                     {

@@ -25,17 +25,34 @@ namespace Bitub.Ifc
         public readonly IModel model;
         public readonly IfcAssemblyScope ifcAssembly;
 
+        /// <summary>
+        /// Default application.
+        /// </summary>
+        public static readonly ApplicationData defaultApplication = new ApplicationData 
+        {
+            ApplicationID = "trex",
+            ApplicationName = "BitubTRex"
+        };
+
+        /// <summary>
+        /// Default author.
+        /// </summary>
+        public static readonly AuthorData defaultAuthorData = new AuthorData
+        {
+            Name = "(anonymous)",
+            GivenName = ""
+        };
+
+        /// <summary>
+        /// The main IFC entity factory scoped to <see cref="IPersistEntity"/> as base implementation of any Xbim IFC persistent object.
+        /// </summary>
+        public readonly IfcEntityScope<IPersistEntity> ifcEntityScope;
+
         #region Internals        
         protected Stack<IIfcObjectDefinition> InstanceScopeStack { get; private set; } = new Stack<IIfcObjectDefinition>();
 
         protected readonly ILogger log;
         protected readonly Qualifier schema;
-        #endregion
-
-        public readonly IfcEntityScope<IPersistEntity> ifcEntityScope;
-        public readonly IfcEntityScope<IIfcProduct> ifcProductScope;
-        public readonly IfcEntityScope<IIfcProperty> ifcPropertyScope;
-        public readonly IfcEntityScope<IIfcValue> ifcValueScope;
 
         /// <summary>
         /// New builder attached to IFC entity assembly given as scope.
@@ -52,25 +69,17 @@ namespace Bitub.Ifc
 
             // Type scopes
             ifcEntityScope = new IfcEntityScope<IPersistEntity>(this);
-            ifcProductScope = new IfcEntityScope<IIfcProduct>(this);
-            ifcPropertyScope = new IfcEntityScope<IIfcProperty>(this);
-            ifcValueScope = new IfcEntityScope<IIfcValue>(this);
 
-            // Initialization
-            var project = model.Instances.OfType<IIfcProject>().FirstOrDefault();
-            if (null == project)
+            OwningUser = model.Instances.OfType<IIfcPersonAndOrganization>().FirstOrDefault();
+            OwningApplication = model.Instances.OfType<IIfcApplication>().FirstOrDefault();
+
+            if (m is IfcStore s)
             {
-                Transactively(s =>
-                {
-                    project = InitProject();
-                    OwnerHistoryTag = NewOwnerHistoryEntry("Initial contribution");
-                });
-            }
-            else
-            {
-                Transactively(s => OwnerHistoryTag = NewOwnerHistoryEntry("Adding new data"));
-            }
-            InstanceScopeStack.Push(project);
+                if (null == OwningUser)
+                    OwningUser = s.DefaultOwningUser;
+                if (null == OwningApplication)
+                    OwningApplication = s.DefaultOwningApplication;
+            }        
         }
 
         protected void NewContainer(IIfcObjectDefinition container)
@@ -79,6 +88,17 @@ namespace Bitub.Ifc
             InstanceScopeStack.Push(container);
             model.NewDecomposes(scope).RelatedObjects.Add(container);
         }
+
+        abstract protected IIfcProject InitNewProject(string projectName);
+
+        /// <summary>
+        /// New adding owner history (versioning) entry. Needs be specific to the IFC version since some enums are specific.
+        /// </summary>
+        /// <param name="comment">A textual comment</param>
+        /// <returns></returns>
+        abstract protected IIfcOwnerHistory NewOwnerHistoryEntry(string comment);
+
+        #endregion
 
         public Qualifier Schema { get => new Qualifier(schema); }
 
@@ -119,14 +139,81 @@ namespace Bitub.Ifc
             throw new NotImplementedException($"Missing implementation for ${model.SchemaVersion}");
         }
 
-        abstract protected IIfcProject InitProject();
+        /// <summary>
+        /// Will start a new <see cref="IIfcProject"/> from scratch.
+        /// </summary>
+        /// <param name="projectName">The name of the project.</param>
+        /// <param name="c">Editor's name and identification data</param>
+        /// <param name="version">The schema version</param>
+        /// <param name="loggerFactory">Optional logger factory</param>
+        /// <returns>A builder wrapping a pre-filled model.</returns>
+        public static IfcBuilder WithNewProject(string projectName, XbimEditorCredentials c,
+            XbimSchemaVersion version = XbimSchemaVersion.Ifc4, ILoggerFactory loggerFactory = null)
+        {
+            var builder = WithCredentials(c, version, loggerFactory);
+            // Initialization
+            builder.Transactively(s =>
+            {
+                var project = builder.InitNewProject(projectName);
+                builder.OwnerHistoryTag = builder.NewOwnerHistoryEntry("Initial contribution");
+                project.OwnerHistory = builder.OwnerHistoryTag;
+                builder.InstanceScopeStack.Push(project);
+            });
+            return builder;
+        }
 
-        abstract protected IIfcOwnerHistory NewOwnerHistoryEntry(string comment);
+        /// <summary>
+        /// Current known user.
+        /// </summary>
+        public virtual IIfcPersonAndOrganization OwningUser { get; set; }
 
-        abstract public IIfcPersonAndOrganization OwningUser { get; set; }
+        /// <summary>
+        /// Current known application.
+        /// </summary>
+        public virtual IIfcApplication OwningApplication { get; set; }
 
-        abstract public IIfcApplication OwningApplication { get; set; }
+        public virtual IEnumerable<IIfcPersonAndOrganization> NewAuthorEngagement(AuthorData author)
+        {
+            IIfcPersonAndOrganization[] personAndOrganizations = null;
+            Transactively(m => {
+                var person = ifcEntityScope.NewOf<IIfcPerson>(e =>
+                {
+                    e.FamilyName = author.Name;
+                    e.GivenName = author.GivenName;                   
+                });
+                personAndOrganizations = author.Organisations?.Select(o => ifcEntityScope.NewOf<IIfcPersonAndOrganization>(e1 =>
+                {
+                    e1.ThePerson = person;
+                    e1.TheOrganization = ifcEntityScope.NewOf<IIfcOrganization>(e2 =>
+                    {
+                        e2.Name = o.Name;
+                        e2.Identification = o.Id;
+                        e2.Description = o.Description;                        
+                        e2.Addresses.AddRange(o.Addresses.Select(a => ifcEntityScope.NewOf<IIfcAddress>(e3 =>
+                        {
+                            e3.Purpose = a.Type;
+                            e3.Description = a.Address;
+                        })));
+                    });
+                })).ToArray();
+            });
+            return personAndOrganizations;
+        }
 
+        public virtual IIfcApplication NewApplicationData(ApplicationData application)
+        {
+            IIfcApplication app = null;
+            Transactively(m =>
+            {
+                app = ifcEntityScope.NewOf<IIfcApplication>(e =>
+                {
+                    e.ApplicationIdentifier = application.ApplicationID;
+                    e.ApplicationFullName = application.ApplicationName;
+                    e.Version = application.Version;
+                });
+            });
+            return app;
+        }
 
         /// <summary>
         /// Current top scope of model hierarchy.
@@ -149,7 +236,7 @@ namespace Bitub.Ifc
         /// </summary>
         public IEnumerable<Type> InstanstiableProducts
         {
-            get => ifcProductScope.Implementing<IIfcProduct>();
+            get => ifcEntityScope.Implementing<IIfcProduct>();
         }
 
         /// <summary>
@@ -157,7 +244,7 @@ namespace Bitub.Ifc
         /// </summary>
         public IEnumerable<Type> InstanstiableElements
         {
-            get => ifcProductScope.Implementing<IIfcElement>();
+            get => ifcEntityScope.Implementing<IIfcElement>();
         }
 
         public string TransactionContext
@@ -275,7 +362,7 @@ namespace Bitub.Ifc
             IIfcSite site = null;
             Transactively(s =>
             {
-                site = ifcProductScope.NewOf<IIfcSite>();
+                site = ifcEntityScope.NewOf<IIfcSite>();
                 site.OwnerHistory = OwnerHistoryTag;
                 site.Name = siteName;
 
@@ -290,7 +377,7 @@ namespace Bitub.Ifc
             IIfcBuilding building = null;
             Transactively(s =>
             {
-                building = ifcProductScope.NewOf<IIfcBuilding>();
+                building = ifcEntityScope.NewOf<IIfcBuilding>();
                 building.OwnerHistory = OwnerHistoryTag;
                 building.Name = buildingName;
 
@@ -305,7 +392,7 @@ namespace Bitub.Ifc
             IIfcBuildingStorey storey = null;
             Transactively(s =>
             {
-                storey = ifcProductScope.NewOf<IIfcBuildingStorey>();
+                storey = ifcEntityScope.NewOf<IIfcBuildingStorey>();
                 storey.Name = name;
                 storey.OwnerHistory = OwnerHistoryTag;
                 storey.Elevation = elevation;
@@ -343,7 +430,7 @@ namespace Bitub.Ifc
             P product = default(P);
             Transactively(s =>
             {
-                product = ifcProductScope.NewOf<P>();
+                product = ifcEntityScope.NewOf<P>();
                 product.Name = name;
                 product.ObjectPlacement = placement;
                 InitProduct(product);
@@ -366,7 +453,7 @@ namespace Bitub.Ifc
 
             Transactively(s =>
             {
-                product = ifcProductScope.New(productName);
+                product = ifcEntityScope.New(productName) as IIfcProduct;
                 product.Name = name;
                 product.ObjectPlacement = placement;
                 InitProduct(product);
@@ -403,7 +490,7 @@ namespace Bitub.Ifc
             P property = default(P);
             Transactively(s =>
             {
-                property = ifcPropertyScope.NewOf<P>();
+                property = ifcEntityScope.NewOf<P>();
                 property.Name = propertyName;
                 property.Description = description;
             });
@@ -412,7 +499,7 @@ namespace Bitub.Ifc
 
         public T NewValueType<T>(object value) where T : IIfcValue
         {
-            return ifcValueScope.NewOf<T>(value);
+            return ifcEntityScope.NewOf<T>(value);
         }
 
         public IIfcRelDefinesByProperties NewPropertySet(string propertySetName, string description = null, IIfcProduct initialProduct = null)
