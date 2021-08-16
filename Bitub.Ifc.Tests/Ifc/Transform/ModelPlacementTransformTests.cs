@@ -19,10 +19,10 @@ using Bitub.Dto.Spatial;
 namespace Bitub.Ifc.Tests.Transform
 {
     [TestClass]
-    public class IfcPlacementTransformRequestTests : TestBase<IfcPlacementTransformRequestTests>
+    public class ModelPlacementTransformTests : TestBase<ModelPlacementTransformTests>
     {
         [TestMethod]
-        public void IfcAxisAlignmentSerializationTest()
+        public void AxisAlignmentSerializationTest()
         {
             var axis1 = new IfcAxisAlignment()
             {

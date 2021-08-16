@@ -20,7 +20,7 @@ using Bitub.Ifc.Transform.Requests;
 namespace Bitub.Ifc.Tests.Transform
 {
     [TestClass]
-    public class IfcPropertySetRemovalTransformRequestTests : TestBase<IfcPropertySetRemovalTransformRequestTests>
+    public class ModelPropertySetRemovalTransformTests : TestBase<ModelPropertySetRemovalTransformTests>
     {
         [TestMethod]
         [DeploymentItem(@"Resources\Ifc4-Storey-With-4Walls.ifc")]

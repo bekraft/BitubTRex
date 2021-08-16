@@ -15,7 +15,7 @@ using Bitub.Ifc.Validation;
 namespace Bitub.Ifc.Tests.Transform
 {
     [TestClass]
-    public class RepresentationReplaceRequestTests : TestBase<RepresentationReplaceRequestTests>
+    public class ProductRepresentationRefactorTests : TestBase<ProductRepresentationRefactorTests>
     {
 
         private static bool IsMultiRepresentation(IIfcProduct product, params string[] contexts)
@@ -57,6 +57,26 @@ namespace Bitub.Ifc.Tests.Transform
                 result.Target.SaveAsIfc(new FileStream("Ifc4-MultipleBodiesPerProduct-1.ifc", FileMode.Create));
             }
         }
+
+        /*
+        [TestMethod]
+        public async Task RefactorOnly2()
+        {
+            using (var source = IfcStore.Open(@"P:\2018\2018-0057\Projekt\06\00_IFC_Datadrop\01_Intern\IL-CIVIL\BAU-LP03-0010_Ersatznaubau.IFC"))
+            {
+                var transform = new ProductRepresentationRefactorTransform(LoggerFactory)
+                {
+                    ContextIdentifiers = new[] { "Body" },
+                    Strategy = ProductRepresentationRefactorStrategy.ReplaceMultipleRepresentations,
+                    TargetStoreType = Xbim.IO.XbimStoreType.InMemoryModel,
+                    EditorCredentials = EditorCredentials
+                };
+
+                var result = await transform.Run(source, NewProgressMonitor(true));
+                result.Target.SaveAsIfc(new FileStream(@"P:\2018\2018-0057\Projekt\06\00_IFC_Datadrop\01_Intern\IL-CIVIL\BAU-LP03-0010_Ersatznaubau-1.IFC", FileMode.Create));
+            }
+        }
+        */
 
         [TestMethod]
         [DeploymentItem(@"Resources\Ifc4-MultipleBodiesPerProduct.ifc")]
