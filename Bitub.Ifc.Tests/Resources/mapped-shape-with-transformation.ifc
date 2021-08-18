@@ -94,10 +94,14 @@ DATA;
 #5000= IFCBUILDINGELEMENTPROXYTYPE('241tWGhBr3rvJJzQGOOY_x',$,'Type-P',$,$,$,(#5010),$,$,.NOTDEFINED.);
 #5010= IFCREPRESENTATIONMAP(#5011,#5100);
 #5011= IFCAXIS2PLACEMENT3D(#901,$,$);
-#5100= IFCSHAPEREPRESENTATION(#202,'Body','SweptSolid',(#5021));
+#5100= IFCSHAPEREPRESENTATION(#202,'Body','SweptSolid',(#5021,#5023));
 /* based on a profile (or cross section) of 1m by 1m being extruded by 2m ---------------------- */
 #5021= IFCEXTRUDEDAREASOLID(#5022,$,#904,2000.);
-#5022= IFCRECTANGLEPROFILEDEF(.AREA.,'1m x 1m rectangle',$,1000.,1000.);
+#5022= IFCRECTANGLEPROFILEDEF(.AREA.,'1m x 1m rectangle +Z',$,1000.,1000.);
+/* ! additionally added to have multiple shapes per representation */
+#5023= IFCEXTRUDEDAREASOLID(#5024,$,#907,2000.);
+#5024= IFCRECTANGLEPROFILEDEF(.AREA.,'1m x 1m rectangle -Z',$,1000.,1000.);
+
 /* extrusion body is placed centric with no rotation inside the object coordinate placement ---- */
 /* extrusion position z = default = (0.,0.,1.), x = default = (1.,0.,0.) ----------------------- */
 /* since IFC4 this is the default, therefore the Position can be nil --------------------------- */

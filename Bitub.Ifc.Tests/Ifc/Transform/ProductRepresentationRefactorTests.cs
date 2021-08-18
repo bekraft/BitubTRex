@@ -22,12 +22,29 @@ namespace Bitub.Ifc.Tests.Transform
         {
             return product.Representation.Representations
                 .Where(r => contexts.Contains(r.ContextOfItems.ContextIdentifier.ToString()))
-                .Any(r => r.Items.Count() > 1);
+                .Any(r => r.Items.Select(i => CountOfNestedItems(i)).Sum() > 1);
+        }
+
+        private static int CountOfNestedItems(IIfcRepresentationItem item)
+        {
+            if (item is IIfcMappedItem mappedItem)
+            {
+                return mappedItem
+                    .MappingSource
+                    .MappedRepresentation
+                    .Items
+                    .Select(i => CountOfNestedItems(i))
+                    .Sum();
+            }
+            else
+            {
+                return 1;
+            }
         }
 
         [TestMethod]
         [DeploymentItem(@"Resources\Ifc4-MultipleBodiesPerProduct.ifc")]
-        public async Task RefactorOnly()
+        public async Task RefactorBody()
         {
             IfcStore.ModelProviderFactory.UseMemoryModelProvider();
             using (var source = IfcStore.Open(@"Resources\Ifc4-MultipleBodiesPerProduct.ifc"))
@@ -58,12 +75,16 @@ namespace Bitub.Ifc.Tests.Transform
             }
         }
 
-        /*
         [TestMethod]
-        public async Task RefactorOnly2()
+        [DeploymentItem(@"Resources\mapped-shape-with-transformation.ifc")]
+        public async Task RefactorMappedBody()
         {
-            using (var source = IfcStore.Open(@"P:\2018\2018-0057\Projekt\06\00_IFC_Datadrop\01_Intern\IL-CIVIL\BAU-LP03-0010_Ersatznaubau.IFC"))
+            IfcStore.ModelProviderFactory.UseMemoryModelProvider();
+            using (var source = IfcStore.Open(@"Resources\mapped-shape-with-transformation.ifc"))
             {
+                var stampBefore = SchemaValidator.OfModel(source);
+                Assert.IsTrue(stampBefore.IsCompliantToSchema);
+
                 var transform = new ProductRepresentationRefactorTransform(LoggerFactory)
                 {
                     ContextIdentifiers = new[] { "Body" },
@@ -72,15 +93,24 @@ namespace Bitub.Ifc.Tests.Transform
                     EditorCredentials = EditorCredentials
                 };
 
+                Assert.AreEqual(1, source.Instances.OfType<IIfcBuildingElementProxy>().Count(p => IsMultiRepresentation(p, "Body")));
+                Assert.AreEqual(1, source.Instances.OfType<IIfcBuildingElementProxy>().Count());
+
                 var result = await transform.Run(source, NewProgressMonitor(true));
-                result.Target.SaveAsIfc(new FileStream(@"P:\2018\2018-0057\Projekt\06\00_IFC_Datadrop\01_Intern\IL-CIVIL\BAU-LP03-0010_Ersatznaubau-1.IFC", FileMode.Create));
+
+                Assert.AreEqual(0, result.Target.Instances.OfType<IIfcBuildingElementProxy>().Count(p => IsMultiRepresentation(p, "Body")));
+                Assert.AreEqual(2, result.Target.Instances.OfType<IIfcBuildingElementProxy>().Count());
+
+                var stampAfter = SchemaValidator.OfModel(result.Target);
+                Assert.IsTrue(stampAfter.IsCompliantToSchema);
+
+                result.Target.SaveAsIfc(new FileStream("mapped-shape-with-transformation-1.ifc", FileMode.Create));
             }
         }
-        */
 
         [TestMethod]
         [DeploymentItem(@"Resources\Ifc4-MultipleBodiesPerProduct.ifc")]
-        public async Task RefactorWithIfcAssembly()
+        public async Task RefactorBodyWithIfcAssembly()
         {
             IfcStore.ModelProviderFactory.UseMemoryModelProvider();
             using (var source = IfcStore.Open(@"Resources\Ifc4-MultipleBodiesPerProduct.ifc"))

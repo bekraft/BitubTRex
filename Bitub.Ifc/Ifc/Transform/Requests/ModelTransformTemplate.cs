@@ -66,6 +66,11 @@ namespace Bitub.Ifc.Transform.Requests
             Delegate
         }
 
+        protected ModelTransformTemplate(params TransformActionResult[] logActions)
+        {
+            LogFilter = new HashSet<TransformActionResult>(logActions);
+        }
+
         /// <summary>
         /// Delegate handling the instance's property transformation. By default all properties (relations and data) are
         /// forwarded as they are into the transformation queue.

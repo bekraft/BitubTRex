@@ -206,7 +206,8 @@ namespace Bitub.Ifc.Transform.Requests
         /// The model axis alignment transformation request.
         /// </summary>
         /// <param name="loggerFactory">Logger factory</param>
-        public ModelPlacementTransform(ILoggerFactory loggerFactory = null)
+        /// <param name="logFilter">The events to log</param>
+        public ModelPlacementTransform(ILoggerFactory loggerFactory, params TransformActionResult[] logFilter) : base(logFilter)
         {
             Log = loggerFactory?.CreateLogger<ModelPlacementTransform>();
         }

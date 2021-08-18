@@ -37,7 +37,7 @@ namespace Bitub.Ifc.Tests.Transform
                     .Where(s => s.Name == "AllplanAttributes")
                     .Count());
 
-                var request = new ModelPropertySetRemovalRequest(LoggerFactory)
+                var request = new ModelPropertySetRemovalTransform(LoggerFactory)
                 {
                     ExludePropertySetByName = new string[] { "AllplanAttributes" },
                     IsNameMatchingCaseSensitive = false,
@@ -88,7 +88,7 @@ namespace Bitub.Ifc.Tests.Transform
                 var stampBefore = SchemaValidator.OfModel(source);
                 Assert.IsTrue(stampBefore.IsCompliantToSchema);
 
-                var request = new ModelPropertySetRemovalRequest(LoggerFactory)
+                var request = new ModelPropertySetRemovalTransform(LoggerFactory)
                 {
                     ExludePropertySetByName = new string[] { "AllplanAttributes" },
                     IncludePropertySetByName = new string[] { "AllplanAttributes", "AllplanAttributes Copy" },
@@ -142,7 +142,7 @@ namespace Bitub.Ifc.Tests.Transform
                 var stampBefore = SchemaValidator.OfModel(source);
                 Assert.IsTrue(stampBefore.IsCompliantToSchema);
 
-                var request = new ModelPropertySetRemovalRequest(LoggerFactory)
+                var request = new ModelPropertySetRemovalTransform(LoggerFactory)
                 {
                     ExludePropertySetByName = new string[] { "Other" },
                     IncludePropertySetByName = new string[] { "Pset_SpaceCommon", "Other" },

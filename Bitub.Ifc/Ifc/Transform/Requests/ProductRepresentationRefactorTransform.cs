@@ -42,7 +42,9 @@ namespace Bitub.Ifc.Transform.Requests
     {
         public ProductRepresentationRefactorStrategy Strategy { get; private set; }
 
-        public ISet<string> ContextIdentifier { get; private set; }
+        internal Func<string, int, string> NameRefactorFunction { get; set; }
+
+        internal ISet<string> ContextIdentifier { get; private set; }
 
         internal IfcBuilder Builder { get; private set; }
 
@@ -57,6 +59,8 @@ namespace Bitub.Ifc.Transform.Requests
         internal IDictionary<XbimInstanceHandle, XbimInstanceHandle[]> ProductRepresentationDisassembly { get; } = new Dictionary<XbimInstanceHandle, XbimInstanceHandle[]>();
         // Product disassemly from single source to disassembled target
         internal IDictionary<XbimInstanceHandle, XbimInstanceHandle[]> ProductDisassembly { get; } = new Dictionary<XbimInstanceHandle, XbimInstanceHandle[]>();
+        // Representation map disassembly mapping
+        internal IDictionary<XbimInstanceHandle, XbimInstanceHandle[]> RepresentationMapDisassambly { get; } = new Dictionary<XbimInstanceHandle, XbimInstanceHandle[]>();
 
         internal ProductRepresentationRefactorTransformPackage(IModel aSource, IModel aTarget, CancelableProgressing progressMonitor,
             ProductRepresentationRefactorStrategy strategy, string[] contextIdentifiers) 
@@ -87,13 +91,42 @@ namespace Bitub.Ifc.Transform.Requests
             return false;
         }
 
+        // Is multi-body if there are more than 1 (nested) item(s) included
         internal bool IsMultibodyRepresentation(IIfcRepresentation r)
         {
             var isInContext = ContextIdentifier.Contains(r.ContextOfItems.ContextIdentifier.ToString().ToLower());
             if (Strategy.HasFlag(ProductRepresentationRefactorStrategy.ReplaceMultipleRepresentations))
-                return isInContext && r.Items.Count > 1;
+                return isInContext && r.Items.Select(i => CountOfNestedItems(i)).Sum() > 1;
 
             throw new NotImplementedException($"{Strategy}");
+        }
+
+        // Special mapped representation handling
+        internal bool IsMultibodyRepresentation(IIfcRepresentationMap map)
+        {   // Solely depends on mapped representation
+            return RepresentationMapDisassambly.ContainsKey(new XbimInstanceHandle(map)) || IsMultibodyRepresentation(map.MappedRepresentation);
+        }
+
+        internal bool IsMultibodyRepresentationItem(IIfcRepresentationItem item)
+        {
+            return CountOfNestedItems(item) > 1;
+        }
+
+        internal static int CountOfNestedItems(IIfcRepresentationItem item)
+        {
+            if (item is IIfcMappedItem mappedItem)
+            {
+                return mappedItem
+                    .MappingSource
+                    .MappedRepresentation
+                    .Items
+                    .Select(i => CountOfNestedItems(i))
+                    .Sum();
+            }
+            else
+            {
+                return 1;
+            }
         }
 
         internal bool IsMultibodyRepresentation(IIfcProduct p)
@@ -120,20 +153,35 @@ namespace Bitub.Ifc.Transform.Requests
 
         public override ILogger Log { get; protected set; }
 
-        public ProductRepresentationRefactorTransform(ILoggerFactory loggerFactory)
+        public ProductRepresentationRefactorTransform(ILoggerFactory loggerFactory, params TransformActionResult[] logFilter) : base(logFilter)
         {
             Log = loggerFactory.CreateLogger<ProductRepresentationRefactorTransform>();
         }
 
+        /// <summary>
+        /// Strategy to refactor by.
+        /// </summary>
         public ProductRepresentationRefactorStrategy Strategy { get; set; } = ProductRepresentationRefactorStrategy.ReplaceMultipleRepresentations;
 
+        /// <summary>
+        /// Context identifiers to refactor. By default set to "Body".
+        /// </summary>
         public string[] ContextIdentifiers { get; set; } = new[] { "Body" };
 
-        protected override ProductRepresentationRefactorTransformPackage CreateTransformPackage(IModel aSource, IModel aTarget, 
+        /// <summary>
+        /// The product name refactoring function. Takes the original product name and a progressive counter index as input.
+        /// </summary>
+        public Func<string, int, string> NameRefactorFunction { get; set; } = (label, idx) => string.IsNullOrWhiteSpace(label) ? $"{idx}" : $"{label}-{idx}";
+
+        protected override ProductRepresentationRefactorTransformPackage CreateTransformPackage(IModel aSource, IModel aTarget,
             CancelableProgressing progressMonitor)
         {
-            var package = new ProductRepresentationRefactorTransformPackage(aSource, aTarget, 
-                progressMonitor, Strategy, ContextIdentifiers);
+            var package = new ProductRepresentationRefactorTransformPackage(aSource, aTarget,
+                progressMonitor, Strategy, ContextIdentifiers)
+            {
+                NameRefactorFunction = NameRefactorFunction
+            };
+
             return package;
         }
 
@@ -187,6 +235,16 @@ namespace Bitub.Ifc.Transform.Requests
                 // Drop only, reproduction is done through product handling            
                 return TransformActionType.Drop;
             }
+            else if (instance is IIfcRepresentationItem item && package.IsMultibodyRepresentationItem(item))
+            {
+                // Should only apply to mapped items with nested representations
+                return TransformActionType.Drop;
+            }
+            else if (instance is IIfcRepresentationMap map && package.IsMultibodyRepresentation(map))
+            {   
+                // If map refers to a multibody representation.
+                return TransformActionType.Drop;
+            }
 
             return TransformActionType.Copy;
         }
@@ -210,18 +268,36 @@ namespace Bitub.Ifc.Transform.Requests
                     return null;
                 }
                 else if (value is IEnumerable instances)
-                {   // or enumerable of product (relations), cast to null if empty
-                    var products = instances
-                        .OfType<IIfcProduct>()
-                        .Where(p => package.IsMultibodyRepresentation(p))
-                        .ToHashSet();                   
+                {
+                    if (property.PropertyInfo.HasLowerConstraintRelationTypeEquivalent<IIfcProduct>())
+                    {
+                        // or enumerable of product (relations), cast to null if empty
+                        var products = instances
+                            .OfType<IIfcProduct>()
+                            .Where(p => package.IsMultibodyRepresentation(p))
+                            .ToHashSet();
 
-                    if (products.Count > 0)
-                        package.ProductReferences.Add(
-                            new PropertyReference(new XbimInstanceHandle(hostObject as IPersistEntity), property.PropertyInfo), 
-                            products.Select(p => new XbimInstanceHandle(p)).ToArray());
+                        if (products.Count > 0)
+                            package.ProductReferences.Add(
+                                new PropertyReference(new XbimInstanceHandle(hostObject as IPersistEntity), property.PropertyInfo),
+                                products.Select(p => new XbimInstanceHandle(p)).ToArray());
 
-                    return EmptyToNull(instances.OfType<IPersist>().Where(e => !products.Contains(e)));
+                        return EmptyToNull(instances.OfType<IPersist>().Where(e => !products.Contains(e)));
+                    }
+                    else if (property.PropertyInfo.HasLowerConstraintRelationTypeEquivalent<IIfcRepresentationMap>())
+                    {
+                        var maps = instances
+                            .OfType<IIfcRepresentationMap>()
+                            .Where(r => package.IsMultibodyRepresentation(r))
+                            .ToHashSet();
+
+                        if (maps.Count > 0)
+                            package.ProductReferences.Add(
+                                new PropertyReference(new XbimInstanceHandle(hostObject as IPersistEntity), property.PropertyInfo),
+                                maps.Select(p => new XbimInstanceHandle(p)).ToArray());
+
+                        return EmptyToNull(instances.OfType<IPersist>().Where(e => !maps.Contains(e)));
+                    }
                 }
 
                 // Cut product representation
@@ -236,6 +312,7 @@ namespace Bitub.Ifc.Transform.Requests
                     return null;
                 }
             }
+            // Fallback
             return base.PropertyTransform(property, hostObject, package);
         }
 
@@ -280,45 +357,45 @@ namespace Bitub.Ifc.Transform.Requests
                             });
                         }
                     }
-                    else if (typeof(IItemSet).IsAssignableFrom(hostPropertyInfo.PropertyType))
+                    else if (hostPropertyInfo.HasLowerConstraintRelationTypeEquivalent<IIfcProduct>())
                     {
-                        var targetType = targetHostHandle.GetEntity().GetType();
+                        if (!targetHostHandle.GetEntity().AddRelationsByLowerConstraint(
+                            hostPropertyInfo.Name,
+                            referenceInfo.Value.SelectMany(h =>
+                            {
+                                // Containment relations
+                                bool isContainmentRelation = typeof(IIfcRelDecomposes).IsAssignableFrom(targetHostHandle.EntityExpressType.Type)
+                                    || typeof(IIfcRelContainedInSpatialStructure).IsAssignableFrom(targetHostHandle.EntityExpressType.Type);
 
-                        var propertyInfo = targetType.GetInterfaces()
-                            .SelectMany(t => t.GetProperties())
-                            .Where(p => p.Name == hostPropertyInfo.Name)
-                            .Where(p => p.PropertyType.GetGenericArguments().All(t => t.IsAssignableFrom(typeof(IIfcProduct))))
-                            .FirstOrDefault();
+                                bool hasAssemblyParent = package.ProductAssemblyAddins.ContainsKey(h);
 
-                        var items = propertyInfo.GetValue(targetHostHandle.GetEntity());
+                                // If assembly is existing use that assembly as proxy, too
+                                IEnumerable<IIfcProduct> candidates = Enumerable.Empty<IIfcProduct>();
+                                if (hasAssemblyParent)
+                                    candidates = candidates.Concat(new[] { package.ProductAssemblyAddins[h].GetEntity() as IIfcProduct });
+                                if (package.ProductDisassembly.ContainsKey(h) && (!isContainmentRelation || !hasAssemblyParent))
+                                    // Don't propagate contaiment concepts to children (if they are children)
+                                    candidates = candidates.Concat(package.ProductDisassembly[h].Select(p => p.GetEntity()).Cast<IIfcProduct>());
 
-                        package.Builder.Transactively(m =>
+                                return candidates;
+                            })))
                         {
-                            items.GetType().GetMethod("AddRange").Invoke(
-                                items,
-                                new object[]
-                                {
-                                    referenceInfo.Value.SelectMany(h =>
-                                    {
-                                        // Containment relations
-                                        bool isContainmentRelation = typeof(IIfcRelDecomposes).IsAssignableFrom(targetHostHandle.EntityExpressType.Type) 
-                                            || typeof(IIfcRelContainedInSpatialStructure).IsAssignableFrom(targetHostHandle.EntityExpressType.Type);
-
-                                        bool hasAssemblyParent = package.ProductAssemblyAddins.ContainsKey(h);
-
-                                        // If assembly is existing use that assembly as proxy, too
-                                        IEnumerable<IIfcProduct> candidates = Enumerable.Empty<IIfcProduct>();
-                                        if (hasAssemblyParent)
-                                            candidates = candidates.Concat( new[] { package.ProductAssemblyAddins[h].GetEntity() as IIfcProduct } );
-                                        if (package.ProductDisassembly.ContainsKey(h) && (!isContainmentRelation || !hasAssemblyParent))
-                                            // Don't propagate contaiment concepts to children (if they are children)
-                                            candidates = candidates.Concat( package.ProductDisassembly[h].Select(p => p.GetEntity()).Cast<IIfcProduct>() );
-
-                                        return candidates;
-                                    }).ToList()
-                                }
-                            );
-                        });
+                            Log?.LogWarning("Could not add instances to #{0}{1}.{2} relation.",
+                                targetHostHandle.EntityLabel, targetHostHandle.EntityExpressType.Name, hostPropertyInfo.Name);
+                        }
+                    }
+                    else if (hostPropertyInfo.HasLowerConstraintRelationTypeEquivalent<IIfcRepresentationMap>())
+                    {
+                        if (!targetHostHandle.GetEntity().AddRelationsByLowerConstraint(
+                            hostPropertyInfo.Name,
+                            referenceInfo.Value
+                                .SelectMany(h => package.RepresentationMapDisassambly[h]
+                                    .Select(p => p.GetEntity())
+                                    .Cast<IIfcRepresentationMap>())))
+                        {
+                            Log?.LogWarning("Could not add instances to #{0}{1}.{2} relation.",
+                                targetHostHandle.EntityLabel, targetHostHandle.EntityExpressType.Name, hostPropertyInfo.Name);
+                        }
                     }
                 });
             }
@@ -358,14 +435,14 @@ namespace Bitub.Ifc.Transform.Requests
             IEnumerable<IIfcProductRepresentation> productRepresentations, ProductRepresentationRefactorTransformPackage package)
         {
             var newPlacement = Copy(p.ObjectPlacement, package, false);
-            return productRepresentations.Select(newRepresentation =>
+            return productRepresentations.Select((newRepresentation, idx) =>
             {
                 IIfcProduct newProduct = null;
                 package.Builder.Transactively(m =>
                 {
                     newProduct = package.Builder.ifcEntityScope.New<IIfcProduct>(p.GetType(), e =>
                     {
-                        e.Name = p.Name;
+                        e.Name = package.NameRefactorFunction?.Invoke(p.Name, idx) ?? p.Name;
                         e.GlobalId = IfcGloballyUniqueId.ConvertToBase64(System.Guid.NewGuid());
                         e.Representation = newRepresentation;
                         e.OwnerHistory = package.Builder.OwnerHistoryTag;
@@ -401,21 +478,77 @@ namespace Bitub.Ifc.Transform.Requests
         }
 
         // Flatten representation items, single item per representation
-        private IEnumerable<IIfcRepresentation> FlattenRepresentationItems(IIfcRepresentation p, ProductRepresentationRefactorTransformPackage package)
+        private IEnumerable<IIfcRepresentation> FlattenRepresentationItems(IIfcRepresentation p, 
+            ProductRepresentationRefactorTransformPackage package)
         {
-            return p.Items.Select(item =>
-            {
-                var contextOfItems = Copy(p.ContextOfItems, package, false);
-                var newItem = Copy(item, package, false);
+            return p.Items.SelectMany(item => FlattenRepresentationItem(p, item, package));
+        }
 
-                var newRepresentation = package.Builder.New<IIfcRepresentation>(p.GetType(), (e) =>
+        private IEnumerable<IIfcRepresentation> FlattenRepresentationItem(IIfcRepresentation p, IIfcRepresentationItem i,
+            ProductRepresentationRefactorTransformPackage package)
+        {
+            if (i is IIfcMappedItem mappedItem)
+            {
+                // Special handling of mapped items, unwrap and create a new representation for each mapped item
+                foreach(var newRepresentation in FlattenMappedRepresentationItem(mappedItem, package)
+                    .Select(newItem => CopyCloneRepresentation(p, newItem, package)))
                 {
-                    e.ContextOfItems = contextOfItems;
-                    e.RepresentationIdentifier = p.RepresentationIdentifier;
-                    e.RepresentationType = p.RepresentationType;
-                    e.Items.Add(newItem);
+                    yield return newRepresentation;
+                }
+            }
+            else
+            {
+                yield return CopyCloneRepresentation(p, Copy(i, package, false), package);
+            }
+        }
+
+        // Clones attributes but sets the item's reference to a new item.
+        private IIfcRepresentation CopyCloneRepresentation(IIfcRepresentation p, IIfcRepresentationItem newItem,
+            ProductRepresentationRefactorTransformPackage package)
+        {
+            var contextOfItems = Copy(p.ContextOfItems, package, false);
+
+            return package.Builder.New<IIfcRepresentation>(p.GetType(), (e) =>
+            {
+                e.ContextOfItems = contextOfItems;
+                e.RepresentationIdentifier = p.RepresentationIdentifier;
+                e.RepresentationType = p.RepresentationType;
+                e.Items.Add(newItem);
+            });
+        }
+
+        // Special handling if representation item wraps a mapoed representation
+        private IEnumerable<IIfcMappedItem> FlattenMappedRepresentationItem(IIfcMappedItem item, 
+            ProductRepresentationRefactorTransformPackage package)
+        {
+            var sourceRepresentation = item.MappingSource.MappedRepresentation;
+            return FlattenRepresentationItems(sourceRepresentation, package).Select(newRepresentation =>
+            {
+                var target = Copy(item.MappingTarget, package, false);
+                var origin = Copy(item.MappingSource.MappingOrigin, package, false);
+
+                var representationMap = package.Builder.ifcEntityScope.NewOf<IIfcRepresentationMap>(e =>
+                {
+                    e.MappedRepresentation = newRepresentation;
+                    e.MappingOrigin = origin;
                 });
-                return newRepresentation;
+
+                XbimInstanceHandle[] handles;
+                var keyHandle = new XbimInstanceHandle(item.MappingSource);
+                if (!package.RepresentationMapDisassambly.TryGetValue(keyHandle, out handles))
+                {
+                    package.RepresentationMapDisassambly.Add(keyHandle, new[] { new XbimInstanceHandle(representationMap) });
+                }
+                else
+                {
+                    package.RepresentationMapDisassambly[keyHandle] = handles.Concat(new[] { new XbimInstanceHandle(representationMap) }).ToArray();
+                }
+
+                return package.Builder.ifcEntityScope.NewOf<IIfcMappedItem>(e =>
+                {
+                    e.MappingSource = representationMap;
+                    e.MappingTarget = target;
+                });
             });
         }
 

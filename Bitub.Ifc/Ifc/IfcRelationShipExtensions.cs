@@ -184,6 +184,14 @@ namespace Bitub.Ifc
             return target;
         }
 
+        public static IEnumerable<PropertyInfo> GetLowerConstraintGenericProperty<T,TParam>(this Type t, string propertyName)
+        {
+            return t.GetInterfaces()
+                .SelectMany(t => t.GetProperties())
+                .Where(p => p.Name == propertyName && typeof(T).IsAssignableFrom(p.PropertyType))
+                .Where(p => p.PropertyType.GetGenericArguments().All(t => t.IsAssignableFrom(typeof(TParam))));
+        }
+
         /// <summary>
         /// Finds a relation typed by lower constraint <c>TParam</c> which implements <see cref="IItemSet"/>.
         /// </summary>
@@ -193,13 +201,32 @@ namespace Bitub.Ifc
         /// <returns>Reflected property info.</returns>
         public static PropertyInfo GetLowerConstraintRelationType<TParam>(this Type t, string relationName)
         {
-            var propertyInfo = t.GetInterfaces()
-                .SelectMany(t => t.GetProperties())
-                .Where(p => p.Name == relationName && typeof(IItemSet).IsAssignableFrom(p.PropertyType))
-                .Where(p => p.PropertyType.GetGenericArguments().All(t => t.IsAssignableFrom(typeof(TParam))))
-                .FirstOrDefault();
-            
-            return propertyInfo;
+            return t.GetLowerConstraintGenericProperty<IItemSet, TParam>(relationName).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Determines whether the given property is a super generic type of given <c>TParam</c>
+        /// </summary>
+        /// <typeparam name="TParam">The generic argument of relation</typeparam>
+        /// <param name="propertyInfo">The property</param>
+        /// <returns>True, if relation is a super generic type of given type</returns>
+        public static bool IsLowerConstraintRelationType<TParam>(this PropertyInfo propertyInfo)
+        {
+            return typeof(IItemSet).IsAssignableFrom(propertyInfo.PropertyType)
+                && propertyInfo.PropertyType.GetGenericArguments().All(t => t.IsAssignableFrom(typeof(TParam)));
+        }
+
+        /// <summary>
+        /// Determines whether there is an equivalently named property as a super generic type of given <c>TParam</c>
+        /// </summary>
+        /// <typeparam name="TParam">The generic argument of relation</typeparam>
+        /// <param name="propertyInfo">The property</param>
+        /// <returns>True, if there's a relation as a super generic type of given type</returns>
+        public static bool HasLowerConstraintRelationTypeEquivalent<TParam>(this PropertyInfo propertyInfo)
+        {
+            return propertyInfo.DeclaringType
+                .GetLowerConstraintGenericProperty<IItemSet, TParam>(propertyInfo.Name)
+                .Any();
         }
 
         /// <summary>
@@ -210,18 +237,19 @@ namespace Bitub.Ifc
         /// <param name="hostInstance">The host instance</param>
         /// <param name="relationName">The relation name</param>
         /// <param name="instances">The related instances</param>
-        /// <returns>The modifid host instance</returns>
-        public static T AddRelationsByLowerConstraint<TParam, T>(this T hostInstance, string relationName, IEnumerable<TParam> instances) where T: IPersistEntity
+        public static bool AddRelationsByLowerConstraint<TParam>(this IPersistEntity hostInstance, string relationName, IEnumerable<TParam> instances)
         {
             var propertyInfo = hostInstance.GetType().GetLowerConstraintRelationType<TParam>(relationName);
             if (null == propertyInfo)
-                throw new ArgumentException($"Relation '{relationName}' is know implementing type of '{typeof(TParam).Name}' or not existing.");
+                return false;
 
             var items = propertyInfo.GetValue(hostInstance);
+            var addRange = items?.GetType().GetMethod("AddRange");
+            if (null == items || null == addRange)
+                return false;
 
-            items.GetType().GetMethod("AddRange").Invoke(items, new object[] { instances.Cast<TParam>().ToList() });
-
-            return hostInstance;
+            addRange.Invoke(items, new object[] { instances.Cast<TParam>().ToList() });
+            return true;
         }
 
         #endregion
