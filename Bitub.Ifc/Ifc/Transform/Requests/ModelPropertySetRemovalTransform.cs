@@ -290,11 +290,16 @@ namespace Bitub.Ifc.Transform.Requests
             return TransformResult.Code.Finished;
         }
 
-        protected override ProductPropertySetRemovalPackage CreateTransformPackage(IModel aSource, IModel aTarget, CancelableProgressing progressMonitor)
+        protected override ProductPropertySetRemovalPackage CreateTransformPackage(IModel aSource, IModel aTarget, 
+            CancelableProgressing progressMonitor)
         {
             var package = new ProductPropertySetRemovalPackage(aSource, aTarget, progressMonitor, !IsNameMatchingCaseSensitive, FilterRuleStrategy);
-            ExludePropertySetByName.ForEach(n => package.ExcludeName.Add(n));
-            IncludePropertySetByName.ForEach(n => package.IncludeExclusivelyName.Add(n));            
+            ExludePropertySetByName?
+                .Where(n => null != n)
+                .ForEach(n => package.ExcludeName.Add(n));
+            IncludePropertySetByName?
+                .Where(n => null != n)
+                .ForEach(n => package.IncludeExclusivelyName.Add(n));            
             return package;
         }        
     }
