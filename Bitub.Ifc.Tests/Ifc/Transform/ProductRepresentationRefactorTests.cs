@@ -18,22 +18,22 @@ namespace Bitub.Ifc.Tests.Transform
     public class ProductRepresentationRefactorTests : TestBase<ProductRepresentationRefactorTests>
     {
 
-        private static bool IsMultiRepresentation(IIfcProduct product, params string[] contexts)
+        private static bool IsMultiRepresentation(IIfcProduct product, bool includingMappedItems, params string[] contexts)
         {
             return product.Representation.Representations
                 .Where(r => contexts.Contains(r.ContextOfItems.ContextIdentifier.ToString()))
-                .Any(r => r.Items.Select(i => CountOfNestedItems(i)).Sum() > 1);
+                .Any(r => r.Items.Select(i => CountOfNestedItems(i, includingMappedItems)).Sum() > 1);
         }
 
-        private static int CountOfNestedItems(IIfcRepresentationItem item)
+        private static int CountOfNestedItems(IIfcRepresentationItem item, bool includingMappedItems)
         {
-            if (item is IIfcMappedItem mappedItem)
+            if (includingMappedItems && item is IIfcMappedItem mappedItem)
             {
                 return mappedItem
                     .MappingSource
                     .MappedRepresentation
                     .Items
-                    .Select(i => CountOfNestedItems(i))
+                    .Select(i => CountOfNestedItems(i, includingMappedItems))
                     .Sum();
             }
             else
@@ -55,17 +55,17 @@ namespace Bitub.Ifc.Tests.Transform
                 var transform = new ProductRepresentationRefactorTransform(LoggerFactory)
                 {
                     ContextIdentifiers = new[] { "Body" },
-                    Strategy = ProductRepresentationRefactorStrategy.ReplaceMultipleRepresentations,
+                    Strategy = ProductRepresentationRefactorStrategy.DecomposeMultiItemRepresentations,
                     TargetStoreType = Xbim.IO.XbimStoreType.InMemoryModel,
                     EditorCredentials = EditorCredentials
                 };
 
-                Assert.AreEqual(1, source.Instances.OfType<IIfcBuildingElementProxy>().Count(p => IsMultiRepresentation(p, "Body")));
+                Assert.AreEqual(1, source.Instances.OfType<IIfcBuildingElementProxy>().Count(p => IsMultiRepresentation(p, false,"Body")));
                 Assert.AreEqual(4, source.Instances.OfType<IIfcBuildingElementProxy>().Count());
 
                 var result = await transform.Run(source, NewProgressMonitor(true));
 
-                Assert.AreEqual(0, result.Target.Instances.OfType<IIfcBuildingElementProxy>().Count(p => IsMultiRepresentation(p, "Body")));
+                Assert.AreEqual(0, result.Target.Instances.OfType<IIfcBuildingElementProxy>().Count(p => IsMultiRepresentation(p, false, "Body")));
                 Assert.AreEqual(17, result.Target.Instances.OfType<IIfcBuildingElementProxy>().Count());
 
                 var stampAfter = SchemaValidator.OfModel(result.Target);
@@ -77,7 +77,7 @@ namespace Bitub.Ifc.Tests.Transform
 
         [TestMethod]
         [DeploymentItem(@"Resources\mapped-shape-with-transformation.ifc")]
-        public async Task RefactorMappedBody()
+        public async Task RefactorMappedBodyWithIfcAssembly()
         {
             IfcStore.ModelProviderFactory.UseMemoryModelProvider();
             using (var source = IfcStore.Open(@"Resources\mapped-shape-with-transformation.ifc"))
@@ -88,23 +88,58 @@ namespace Bitub.Ifc.Tests.Transform
                 var transform = new ProductRepresentationRefactorTransform(LoggerFactory)
                 {
                     ContextIdentifiers = new[] { "Body" },
-                    Strategy = ProductRepresentationRefactorStrategy.ReplaceMultipleRepresentations,
+                    Strategy = ProductRepresentationRefactorStrategy.DecomposeMultiItemRepresentations 
+                        | ProductRepresentationRefactorStrategy.DecomposeMappedRepresentations 
+                        | ProductRepresentationRefactorStrategy.DecomposeWithEntityElementAssembly,
                     TargetStoreType = Xbim.IO.XbimStoreType.InMemoryModel,
                     EditorCredentials = EditorCredentials
                 };
 
-                Assert.AreEqual(1, source.Instances.OfType<IIfcBuildingElementProxy>().Count(p => IsMultiRepresentation(p, "Body")));
+                Assert.AreEqual(1, source.Instances.OfType<IIfcBuildingElementProxy>().Count(p => IsMultiRepresentation(p, true, "Body")));
                 Assert.AreEqual(1, source.Instances.OfType<IIfcBuildingElementProxy>().Count());
 
                 var result = await transform.Run(source, NewProgressMonitor(true));
 
-                Assert.AreEqual(0, result.Target.Instances.OfType<IIfcBuildingElementProxy>().Count(p => IsMultiRepresentation(p, "Body")));
+                Assert.AreEqual(0, result.Target.Instances.OfType<IIfcBuildingElementProxy>().Count(p => IsMultiRepresentation(p, true, "Body")));
                 Assert.AreEqual(2, result.Target.Instances.OfType<IIfcBuildingElementProxy>().Count());
 
                 var stampAfter = SchemaValidator.OfModel(result.Target);
                 Assert.IsTrue(stampAfter.IsCompliantToSchema);
 
                 result.Target.SaveAsIfc(new FileStream("mapped-shape-with-transformation-1.ifc", FileMode.Create));
+            }
+        }
+
+        [TestMethod]
+        [DeploymentItem(@"Resources\mapped-shape-with-transformation.ifc")]
+        public async Task RefactorKeepMappedBody()
+        {
+            IfcStore.ModelProviderFactory.UseMemoryModelProvider();
+            using (var source = IfcStore.Open(@"Resources\mapped-shape-with-transformation.ifc"))
+            {
+                var stampBefore = SchemaValidator.OfModel(source);
+                Assert.IsTrue(stampBefore.IsCompliantToSchema);
+
+                var transform = new ProductRepresentationRefactorTransform(LoggerFactory)
+                {
+                    ContextIdentifiers = new[] { "Body" },
+                    Strategy = ProductRepresentationRefactorStrategy.DecomposeMultiItemRepresentations,
+                    TargetStoreType = Xbim.IO.XbimStoreType.InMemoryModel,
+                    EditorCredentials = EditorCredentials
+                };
+
+                Assert.AreEqual(1, source.Instances.OfType<IIfcBuildingElementProxy>().Count(p => IsMultiRepresentation(p, true, "Body")));
+                Assert.AreEqual(1, source.Instances.OfType<IIfcBuildingElementProxy>().Count());
+
+                var result = await transform.Run(source, NewProgressMonitor(true));
+
+                Assert.AreEqual(1, result.Target.Instances.OfType<IIfcBuildingElementProxy>().Count(p => IsMultiRepresentation(p, true, "Body")));
+                Assert.AreEqual(1, result.Target.Instances.OfType<IIfcBuildingElementProxy>().Count());
+
+                var stampAfter = SchemaValidator.OfModel(result.Target);
+                Assert.IsTrue(stampAfter.IsCompliantToSchema);
+
+                result.Target.SaveAsIfc(new FileStream("mapped-shape-with-transformation-2.ifc", FileMode.Create));
             }
         }
 
@@ -121,17 +156,17 @@ namespace Bitub.Ifc.Tests.Transform
                 var transform = new ProductRepresentationRefactorTransform(LoggerFactory)
                 {
                     ContextIdentifiers = new[] { "Body" },
-                    Strategy = ProductRepresentationRefactorStrategy.RefactorWithEntityElementAssembly | ProductRepresentationRefactorStrategy.ReplaceMultipleRepresentations,
+                    Strategy = ProductRepresentationRefactorStrategy.DecomposeWithEntityElementAssembly | ProductRepresentationRefactorStrategy.DecomposeMultiItemRepresentations,
                     TargetStoreType = Xbim.IO.XbimStoreType.InMemoryModel,
                     EditorCredentials = EditorCredentials
                 };
 
-                Assert.AreEqual(1, source.Instances.OfType<IIfcBuildingElementProxy>().Count(p => IsMultiRepresentation(p, "Body")));
+                Assert.AreEqual(1, source.Instances.OfType<IIfcBuildingElementProxy>().Count(p => IsMultiRepresentation(p, false, "Body")));
                 Assert.AreEqual(4, source.Instances.OfType<IIfcBuildingElementProxy>().Count());
 
                 var result = await transform.Run(source, NewProgressMonitor(true));
 
-                Assert.AreEqual(0, result.Target.Instances.OfType<IIfcBuildingElementProxy>().Count(p => IsMultiRepresentation(p, "Body")));
+                Assert.AreEqual(0, result.Target.Instances.OfType<IIfcBuildingElementProxy>().Count(p => IsMultiRepresentation(p, false, "Body")));
                 Assert.AreEqual(17, result.Target.Instances.OfType<IIfcBuildingElementProxy>().Count());
                 Assert.AreEqual(1, result.Target.Instances.OfType<IIfcElementAssembly>().Count());
                 Assert.AreEqual(14, result.Target.Instances.OfType<IIfcElementAssembly>().First().IsDecomposedBy.SelectMany(r => r.RelatedObjects).Count());

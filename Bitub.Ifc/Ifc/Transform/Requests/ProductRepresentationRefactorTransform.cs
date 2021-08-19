@@ -19,7 +19,7 @@ namespace Bitub.Ifc.Transform.Requests
     using PropertyReference = Tuple<XbimInstanceHandle, System.Reflection.PropertyInfo>;
 
     /// <summary>
-    /// Strategy of product replacement.
+    /// Strategy of product decomposition.
     /// </summary>
     [Flags]
     public enum ProductRepresentationRefactorStrategy
@@ -28,15 +28,19 @@ namespace Bitub.Ifc.Transform.Requests
         /// Default splitting multiple representation items by cloneing embedding product.
         /// Create a sequence of new products with new GUIDs of the same type replacing the single multibody product.
         /// </summary>
-        ReplaceMultipleRepresentations = 0,
+        DecomposeMultiItemRepresentations = 0,
         /// <summary>
         /// Additionally refactor hierarchy using <see cref="IIfcElementAssembly"/> entities.
         /// </summary>
-        RefactorWithEntityElementAssembly = 2,
+        DecomposeWithEntityElementAssembly = 2,
+        /// <summary>
+        /// Refactor mapped representations. If not specified, only directly referenced representations will be refactored.
+        /// </summary>
+        DecomposeMappedRepresentations = 4
     }
 
     /// <summary>
-    /// Transformation work package of product replacement request.
+    /// Transformation work package of product decomposition transform. Holds runtime transform data.
     /// </summary>
     public sealed class ProductRepresentationRefactorTransformPackage : TransformPackage
     {
@@ -49,7 +53,8 @@ namespace Bitub.Ifc.Transform.Requests
         internal IfcBuilder Builder { get; private set; }
 
         // Product dropouts in source model
-        internal ISet<XbimInstanceHandle> ProductDropouts { get; } = new HashSet<XbimInstanceHandle>();
+        internal ISet<XbimInstanceHandle> EntityDropoutSet { get; } = new HashSet<XbimInstanceHandle>();
+
         // New assembly addins
         internal IDictionary<XbimInstanceHandle, XbimInstanceHandle> ProductAssemblyAddins { get; } = new Dictionary<XbimInstanceHandle, XbimInstanceHandle>();
         
@@ -95,10 +100,7 @@ namespace Bitub.Ifc.Transform.Requests
         internal bool IsMultibodyRepresentation(IIfcRepresentation r)
         {
             var isInContext = ContextIdentifier.Contains(r.ContextOfItems.ContextIdentifier.ToString().ToLower());
-            if (Strategy.HasFlag(ProductRepresentationRefactorStrategy.ReplaceMultipleRepresentations))
-                return isInContext && r.Items.Select(i => CountOfNestedItems(i)).Sum() > 1;
-
-            throw new NotImplementedException($"{Strategy}");
+            return isInContext && r.Items.Select(i => CountOfNestedItems(i)).Sum() > 1;
         }
 
         // Special mapped representation handling
@@ -112,9 +114,10 @@ namespace Bitub.Ifc.Transform.Requests
             return CountOfNestedItems(item) > 1;
         }
 
-        internal static int CountOfNestedItems(IIfcRepresentationItem item)
+        internal int CountOfNestedItems(IIfcRepresentationItem item)
         {
-            if (item is IIfcMappedItem mappedItem)
+            if (Strategy.HasFlag(ProductRepresentationRefactorStrategy.DecomposeMappedRepresentations) && 
+                item is IIfcMappedItem mappedItem)
             {
                 return mappedItem
                     .MappingSource
@@ -131,25 +134,23 @@ namespace Bitub.Ifc.Transform.Requests
 
         internal bool IsMultibodyRepresentation(IIfcProduct p)
         {
-            return ProductDropouts.Contains(new XbimInstanceHandle(p)) || IsMultibodyRepresentation(p?.Representation);
+            return EntityDropoutSet.Contains(new XbimInstanceHandle(p)) || IsMultibodyRepresentation(p?.Representation);
         }
 
         internal bool IsMultibodyRepresentation(IIfcProductRepresentation pr)
         {
             return pr?.Representations.Any(r => IsMultibodyRepresentation(r)) ?? false;
-        }
+        }        
     }
 
     /// <summary>
-    /// IFC representation replacement and flattener. Will take an IFC model and flattens all representations having more than one
-    /// representation of the same context by default.
-    /// <para>
-    /// Limitations: No disassembly of spatial or logical aggregation hosts will be performed.
-    /// </para>
+    /// IFC representation decomposing transform. Will take an IFC model and flattens all representations having more than one
+    /// representation of the same context. Each representation item will be assigned to a new representation and a new product clone of
+    /// the former hosting product.
     /// </summary>
     public class ProductRepresentationRefactorTransform : ModelTransformTemplate<ProductRepresentationRefactorTransformPackage>
     {
-        public override string Name => "Product Representation Refactoring Transform";
+        public override string Name => "Product Representation Decomposiong Transform";
 
         public override ILogger Log { get; protected set; }
 
@@ -161,7 +162,7 @@ namespace Bitub.Ifc.Transform.Requests
         /// <summary>
         /// Strategy to refactor by.
         /// </summary>
-        public ProductRepresentationRefactorStrategy Strategy { get; set; } = ProductRepresentationRefactorStrategy.ReplaceMultipleRepresentations;
+        public ProductRepresentationRefactorStrategy Strategy { get; set; } = ProductRepresentationRefactorStrategy.DecomposeMultiItemRepresentations;
 
         /// <summary>
         /// Context identifiers to refactor. By default set to "Body".
@@ -193,7 +194,7 @@ namespace Bitub.Ifc.Transform.Requests
         {
             if (instance is IIfcProduct product && package.IsMultibodyRepresentation(product))
             {
-                package.ProductDropouts.Add(new XbimInstanceHandle(product));
+                package.EntityDropoutSet.Add(new XbimInstanceHandle(product));
                 IIfcProductRepresentation[] disassembledRepresentations;
                 if (package.TryGetReplacedRepresentation(product.Representation, 
                     out disassembledRepresentations, () => FlattenProductRepresentation(product, package)))
@@ -211,7 +212,7 @@ namespace Bitub.Ifc.Transform.Requests
                 var disassembledProducts = FlattenProduct(product, disassembledRepresentations, package).ToArray();
                 package.ProductDisassembly.Add(new XbimInstanceHandle(product), disassembledProducts.Select(e => new XbimInstanceHandle(e)).ToArray());
 
-                if (package.Strategy.HasFlag(ProductRepresentationRefactorStrategy.RefactorWithEntityElementAssembly))
+                if (package.Strategy.HasFlag(ProductRepresentationRefactorStrategy.DecomposeWithEntityElementAssembly))
                 {
                     var newAssembly = InsertIfcElementAssembly(product, disassembledProducts, package);
                     var assemblyHandle = new XbimInstanceHandle(newAssembly);
@@ -227,8 +228,18 @@ namespace Bitub.Ifc.Transform.Requests
             }
             else if (instance is IIfcRepresentation r && package.IsMultibodyRepresentation(r))
             {
-                // Drop only, reproduction is done through product handling
-                return TransformActionType.Drop;
+                var handle = new XbimInstanceHandle(r);
+                if (package.EntityDropoutSet.Contains(handle))
+                {
+                    // Drop if already marked, reproduction is done through product handling
+                    return TransformActionType.Drop;
+                }
+                else
+                {   
+                    // Delay until known source reference
+                    package.EntityDropoutSet.Add(handle);
+                    return TransformActionType.Delegate;
+                }
             }
             else if (instance is IIfcProductRepresentation pr && package.IsMultibodyRepresentation(pr))
             {
@@ -241,12 +252,32 @@ namespace Bitub.Ifc.Transform.Requests
                 return TransformActionType.Drop;
             }
             else if (instance is IIfcRepresentationMap map && package.IsMultibodyRepresentation(map))
-            {   
-                // If map refers to a multibody representation.
-                return TransformActionType.Drop;
+            {
+                var handle = new XbimInstanceHandle(map);
+                if (package.EntityDropoutSet.Contains(handle))
+                {
+                    // Drop if already marked, reproduction is done through product handling
+                    return TransformActionType.Drop;
+                }
+                else
+                {
+                    // Delay until known source reference
+                    package.EntityDropoutSet.Add(handle);
+                    return TransformActionType.Delegate;
+                }
             }
 
             return TransformActionType.Copy;
+        }
+
+        protected override IPersistEntity DelegateCopy(IPersistEntity instance, ProductRepresentationRefactorTransformPackage package)
+        {
+            if (instance is IIfcRepresentation)
+                return null;
+            if (instance is IIfcRepresentationMap)
+                return null;
+
+            return base.DelegateCopy(instance, package);
         }
 
         protected override object PropertyTransform(ExpressMetaProperty property, 
@@ -284,7 +315,8 @@ namespace Bitub.Ifc.Transform.Requests
 
                         return EmptyToNull(instances.OfType<IPersist>().Where(e => !products.Contains(e)));
                     }
-                    else if (property.PropertyInfo.HasLowerConstraintRelationTypeEquivalent<IIfcRepresentationMap>())
+                    else if (property.PropertyInfo.HasLowerConstraintRelationTypeEquivalent<IIfcRepresentationMap>()
+                        && package.Strategy.HasFlag(ProductRepresentationRefactorStrategy.DecomposeMappedRepresentations))
                     {
                         var maps = instances
                             .OfType<IIfcRepresentationMap>()
@@ -303,13 +335,59 @@ namespace Bitub.Ifc.Transform.Requests
                 // Cut product representation
                 if (value is IIfcProductRepresentation productRepresentation && package.IsMultibodyRepresentation(productRepresentation))
                 {
+                    // Will be refactored by product, drop here
                     return null;
                 }
 
                 // Cut representation
                 if (value is IIfcRepresentation representation && package.IsMultibodyRepresentation(representation))
                 {
-                    return null;
+                    if (property.PropertyInfo.Name == nameof(IIfcRepresentationMap.MappedRepresentation))
+                    {
+                        var handle = new XbimInstanceHandle(representation);
+                        if (package.Strategy.HasFlag(ProductRepresentationRefactorStrategy.DecomposeMappedRepresentations))
+                        {
+                            // If already hit by pass instance filter, mark as removed
+                            if (package.EntityDropoutSet.Contains(handle))
+                                package.LogAction(handle, TransformActionResult.NotTransferred);
+                            else
+                                // Anyway, mark for removal if it by pass instance filter
+                                package.EntityDropoutSet.Add(handle);
+
+                            return null;
+                        }
+                        else
+                        {
+                            // Remove from removal candidates and return value as needed reference
+                            package.EntityDropoutSet.Remove(handle);
+                            return representation;
+                        }
+                    }
+                    else
+                    {
+                        // Will be refactored by product, drop here
+                        return null;
+                    }
+                }
+
+                if (value is IIfcRepresentationMap map)
+                {
+                    var handle = new XbimInstanceHandle(map);
+                    if (package.Strategy.HasFlag(ProductRepresentationRefactorStrategy.DecomposeMappedRepresentations))
+                    {
+                        if (package.EntityDropoutSet.Contains(handle))
+                            package.LogAction(handle, TransformActionResult.NotTransferred);
+                        else
+                            package.EntityDropoutSet.Add(handle);
+
+                        return null;
+                    }
+                    else
+                    {
+                        // Remove from removal candidates and return value as needed reference
+                        package.EntityDropoutSet.Remove(handle);
+                        return value;
+                    }
                 }
             }
             // Fallback
@@ -334,11 +412,15 @@ namespace Bitub.Ifc.Transform.Requests
                     {
                         var sourceReferenceHandle = referenceInfo.Value[0];
                         // Find assembly instance first, if present (indicated by strategy)
-                        var targetReferenceHandle = package.ProductAssemblyAddins[sourceReferenceHandle];
-                        if (targetReferenceHandle.IsEmpty)
+                        XbimInstanceHandle targetReferenceHandle;
+                        if (!package.ProductAssemblyAddins.TryGetValue(sourceReferenceHandle, out targetReferenceHandle))
                         {
                             // Fallback to first instance of disassembly
                             targetReferenceHandle = package.ProductDisassembly[sourceReferenceHandle].FirstOrDefault();
+                            Log?.LogWarning("Detected singleton reference to omitted product #{0}{1} by #{2}{3}.{4}. Replaced by #{5}{6}.",
+                                sourceReferenceHandle.EntityLabel, sourceReferenceHandle.EntityExpressType.Name,
+                                hostHandle.EntityLabel, hostHandle.EntityExpressType.Name, hostPropertyInfo.Name,
+                                targetReferenceHandle.EntityLabel, targetReferenceHandle.EntityExpressType.Name);
                         }
 
                         if (targetReferenceHandle.IsEmpty)
