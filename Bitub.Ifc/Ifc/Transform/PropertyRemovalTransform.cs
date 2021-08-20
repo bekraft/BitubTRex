@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 using Bitub.Dto;
 
-namespace Bitub.Ifc.Transform.Requests
+namespace Bitub.Ifc.Transform
 {
     public enum PropertyRemovalStrategy
     {

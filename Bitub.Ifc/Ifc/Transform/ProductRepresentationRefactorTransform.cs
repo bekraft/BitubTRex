@@ -14,7 +14,7 @@ using Bitub.Ifc;
 using Microsoft.Extensions.Logging;
 using System.Collections;
 
-namespace Bitub.Ifc.Transform.Requests
+namespace Bitub.Ifc.Transform
 {
     using PropertyReference = Tuple<XbimInstanceHandle, System.Reflection.PropertyInfo>;
 
@@ -22,7 +22,7 @@ namespace Bitub.Ifc.Transform.Requests
     /// Strategy of product decomposition.
     /// </summary>
     [Flags]
-    public enum ProductRepresentationRefactorStrategy
+    public enum ProductRefactorStrategy
     {
         /// <summary>
         /// Default splitting multiple representation items by cloneing embedding product.
@@ -42,9 +42,9 @@ namespace Bitub.Ifc.Transform.Requests
     /// <summary>
     /// Transformation work package of product decomposition transform. Holds runtime transform data.
     /// </summary>
-    public sealed class ProductRepresentationRefactorTransformPackage : TransformPackage
+    public sealed class ProductRefactorTransformPackage : TransformPackage
     {
-        public ProductRepresentationRefactorStrategy Strategy { get; private set; }
+        public ProductRefactorStrategy Strategy { get; private set; }
 
         internal Func<string, int, string> NameRefactorFunction { get; set; }
 
@@ -67,8 +67,8 @@ namespace Bitub.Ifc.Transform.Requests
         // Representation map disassembly mapping
         internal IDictionary<XbimInstanceHandle, XbimInstanceHandle[]> RepresentationMapDisassambly { get; } = new Dictionary<XbimInstanceHandle, XbimInstanceHandle[]>();
 
-        internal ProductRepresentationRefactorTransformPackage(IModel aSource, IModel aTarget, CancelableProgressing progressMonitor,
-            ProductRepresentationRefactorStrategy strategy, string[] contextIdentifiers) 
+        internal ProductRefactorTransformPackage(IModel aSource, IModel aTarget, CancelableProgressing progressMonitor,
+            ProductRefactorStrategy strategy, string[] contextIdentifiers) 
             : base(aSource, aTarget, progressMonitor)
         {
             Strategy = strategy;
@@ -116,7 +116,7 @@ namespace Bitub.Ifc.Transform.Requests
 
         internal int CountOfNestedItems(IIfcRepresentationItem item)
         {
-            if (Strategy.HasFlag(ProductRepresentationRefactorStrategy.DecomposeMappedRepresentations) && 
+            if (Strategy.HasFlag(ProductRefactorStrategy.DecomposeMappedRepresentations) && 
                 item is IIfcMappedItem mappedItem)
             {
                 return mappedItem
@@ -148,7 +148,7 @@ namespace Bitub.Ifc.Transform.Requests
     /// representation of the same context. Each representation item will be assigned to a new representation and a new product clone of
     /// the former hosting product.
     /// </summary>
-    public class ProductRepresentationRefactorTransform : ModelTransformTemplate<ProductRepresentationRefactorTransformPackage>
+    public class ProductRepresentationRefactorTransform : ModelTransformTemplate<ProductRefactorTransformPackage>
     {
         public override string Name => "Product Representation Decomposiong Transform";
 
@@ -162,7 +162,7 @@ namespace Bitub.Ifc.Transform.Requests
         /// <summary>
         /// Strategy to refactor by.
         /// </summary>
-        public ProductRepresentationRefactorStrategy Strategy { get; set; } = ProductRepresentationRefactorStrategy.DecomposeMultiItemRepresentations;
+        public ProductRefactorStrategy Strategy { get; set; } = ProductRefactorStrategy.DecomposeMultiItemRepresentations;
 
         /// <summary>
         /// Context identifiers to refactor. By default set to "Body".
@@ -174,14 +174,15 @@ namespace Bitub.Ifc.Transform.Requests
         /// </summary>
         public Func<string, int, string> NameRefactorFunction { get; set; } = (label, idx) => string.IsNullOrWhiteSpace(label) ? $"{idx}" : $"{label}-{idx}";
 
-        protected override ProductRepresentationRefactorTransformPackage CreateTransformPackage(IModel aSource, IModel aTarget,
+        protected override ProductRefactorTransformPackage CreateTransformPackage(IModel aSource, IModel aTarget,
             CancelableProgressing progressMonitor)
         {
-            var package = new ProductRepresentationRefactorTransformPackage(aSource, aTarget,
+            var package = new ProductRefactorTransformPackage(aSource, aTarget,
                 progressMonitor, Strategy, ContextIdentifiers)
             {
                 NameRefactorFunction = NameRefactorFunction
             };
+            LogFilter.ForEach(f => package.LogFilter.Add(f));
 
             return package;
         }
@@ -190,7 +191,7 @@ namespace Bitub.Ifc.Transform.Requests
 
         // Will drop product, representation and shape representation when having multibody characteristics
         protected override TransformActionType PassInstance(IPersistEntity instance, 
-            ProductRepresentationRefactorTransformPackage package)
+            ProductRefactorTransformPackage package)
         {
             if (instance is IIfcProduct product && package.IsMultibodyRepresentation(product))
             {
@@ -212,7 +213,7 @@ namespace Bitub.Ifc.Transform.Requests
                 var disassembledProducts = FlattenProduct(product, disassembledRepresentations, package).ToArray();
                 package.ProductDisassembly.Add(new XbimInstanceHandle(product), disassembledProducts.Select(e => new XbimInstanceHandle(e)).ToArray());
 
-                if (package.Strategy.HasFlag(ProductRepresentationRefactorStrategy.DecomposeWithEntityElementAssembly))
+                if (package.Strategy.HasFlag(ProductRefactorStrategy.DecomposeWithEntityElementAssembly))
                 {
                     var newAssembly = InsertIfcElementAssembly(product, disassembledProducts, package);
                     var assemblyHandle = new XbimInstanceHandle(newAssembly);
@@ -270,7 +271,7 @@ namespace Bitub.Ifc.Transform.Requests
             return TransformActionType.Copy;
         }
 
-        protected override IPersistEntity DelegateCopy(IPersistEntity instance, ProductRepresentationRefactorTransformPackage package)
+        protected override IPersistEntity DelegateCopy(IPersistEntity instance, ProductRefactorTransformPackage package)
         {
             if (instance is IIfcRepresentation)
                 return null;
@@ -281,7 +282,7 @@ namespace Bitub.Ifc.Transform.Requests
         }
 
         protected override object PropertyTransform(ExpressMetaProperty property, 
-            object hostObject, ProductRepresentationRefactorTransformPackage package)
+            object hostObject, ProductRefactorTransformPackage package)
         {
             // Check any reference to products if it has been dropped or has to be dropped
             if (hostObject is IPersistEntity entity)
@@ -316,7 +317,7 @@ namespace Bitub.Ifc.Transform.Requests
                         return EmptyToNull(instances.OfType<IPersist>().Where(e => !products.Contains(e)));
                     }
                     else if (property.PropertyInfo.HasLowerConstraintRelationTypeEquivalent<IIfcRepresentationMap>()
-                        && package.Strategy.HasFlag(ProductRepresentationRefactorStrategy.DecomposeMappedRepresentations))
+                        && package.Strategy.HasFlag(ProductRefactorStrategy.DecomposeMappedRepresentations))
                     {
                         var maps = instances
                             .OfType<IIfcRepresentationMap>()
@@ -343,58 +344,45 @@ namespace Bitub.Ifc.Transform.Requests
                 if (value is IIfcRepresentation representation && package.IsMultibodyRepresentation(representation))
                 {
                     if (property.PropertyInfo.Name == nameof(IIfcRepresentationMap.MappedRepresentation))
-                    {
-                        var handle = new XbimInstanceHandle(representation);
-                        if (package.Strategy.HasFlag(ProductRepresentationRefactorStrategy.DecomposeMappedRepresentations))
-                        {
-                            // If already hit by pass instance filter, mark as removed
-                            if (package.EntityDropoutSet.Contains(handle))
-                                package.LogAction(handle, TransformActionResult.NotTransferred);
-                            else
-                                // Anyway, mark for removal if it by pass instance filter
-                                package.EntityDropoutSet.Add(handle);
-
-                            return null;
-                        }
-                        else
-                        {
-                            // Remove from removal candidates and return value as needed reference
-                            package.EntityDropoutSet.Remove(handle);
-                            return representation;
-                        }
-                    }
+                        // Test, if reference passes dropout filter
+                        return PassReferenceDropoutFilter(representation, package);
                     else
-                    {
                         // Will be refactored by product, drop here
                         return null;
-                    }
                 }
 
-                if (value is IIfcRepresentationMap map)
+                if (value is IIfcRepresentationMap map && package.IsMultibodyRepresentation(map.MappedRepresentation))
                 {
-                    var handle = new XbimInstanceHandle(map);
-                    if (package.Strategy.HasFlag(ProductRepresentationRefactorStrategy.DecomposeMappedRepresentations))
-                    {
-                        if (package.EntityDropoutSet.Contains(handle))
-                            package.LogAction(handle, TransformActionResult.NotTransferred);
-                        else
-                            package.EntityDropoutSet.Add(handle);
-
-                        return null;
-                    }
-                    else
-                    {
-                        // Remove from removal candidates and return value as needed reference
-                        package.EntityDropoutSet.Remove(handle);
-                        return value;
-                    }
+                    return PassReferenceDropoutFilter(map, package);
                 }
             }
             // Fallback
             return base.PropertyTransform(property, hostObject, package);
         }
 
-        protected override TransformResult.Code DoPostTransform(ProductRepresentationRefactorTransformPackage package)
+        private object PassReferenceDropoutFilter(IPersistEntity persistEntity, ProductRefactorTransformPackage package)
+        {
+            var handle = new XbimInstanceHandle(persistEntity);
+            if (package.Strategy.HasFlag(ProductRefactorStrategy.DecomposeMappedRepresentations))
+            {
+                // If already hit by pass instance filter, mark as removed
+                if (package.EntityDropoutSet.Contains(handle))
+                    package.LogAction(handle, TransformActionResult.NotTransferred);
+                else
+                    // Anyway, mark for removal if it by pass instance filter
+                    package.EntityDropoutSet.Add(handle);
+
+                return null;
+            }
+            else
+            {
+                // Remove from removal candidates and return value as needed reference
+                package.EntityDropoutSet.Remove(handle);
+                return persistEntity;
+            }
+        }
+
+        protected override TransformResult.Code DoPostTransform(ProductRefactorTransformPackage package)
         {
             // Finally regenerate cut references to products
             foreach (var referenceInfo in package.ProductReferences)
@@ -491,7 +479,7 @@ namespace Bitub.Ifc.Transform.Requests
 
         // Insert a single element assembly which has the same GUID as p
         private IIfcElementAssembly InsertIfcElementAssembly(IIfcProduct p, IEnumerable<IIfcProduct> products, 
-            ProductRepresentationRefactorTransformPackage package)
+            ProductRefactorTransformPackage package)
         {
             IIfcElementAssembly assembly = null;
             var newPlacement = Copy(p.ObjectPlacement, package, false);
@@ -514,7 +502,7 @@ namespace Bitub.Ifc.Transform.Requests
 
         // Create a sequence of new products with new GUIDs of the same type replacing the single multibody product
         private IEnumerable<IIfcProduct> FlattenProduct(IIfcProduct p, 
-            IEnumerable<IIfcProductRepresentation> productRepresentations, ProductRepresentationRefactorTransformPackage package)
+            IEnumerable<IIfcProductRepresentation> productRepresentations, ProductRefactorTransformPackage package)
         {
             var newPlacement = Copy(p.ObjectPlacement, package, false);
             return productRepresentations.Select((newRepresentation, idx) =>
@@ -539,7 +527,7 @@ namespace Bitub.Ifc.Transform.Requests
 
         // Flatten products per items, single product per single representation and item
         private IEnumerable<IIfcProductRepresentation> FlattenProductRepresentation(IIfcProduct p, 
-            ProductRepresentationRefactorTransformPackage package)
+            ProductRefactorTransformPackage package)
         {
             return p.Representation.Representations
                 .SelectMany(r => FlattenRepresentationItems(r, package))
@@ -561,13 +549,13 @@ namespace Bitub.Ifc.Transform.Requests
 
         // Flatten representation items, single item per representation
         private IEnumerable<IIfcRepresentation> FlattenRepresentationItems(IIfcRepresentation p, 
-            ProductRepresentationRefactorTransformPackage package)
+            ProductRefactorTransformPackage package)
         {
             return p.Items.SelectMany(item => FlattenRepresentationItem(p, item, package));
         }
 
         private IEnumerable<IIfcRepresentation> FlattenRepresentationItem(IIfcRepresentation p, IIfcRepresentationItem i,
-            ProductRepresentationRefactorTransformPackage package)
+            ProductRefactorTransformPackage package)
         {
             if (i is IIfcMappedItem mappedItem)
             {
@@ -586,7 +574,7 @@ namespace Bitub.Ifc.Transform.Requests
 
         // Clones attributes but sets the item's reference to a new item.
         private IIfcRepresentation CopyCloneRepresentation(IIfcRepresentation p, IIfcRepresentationItem newItem,
-            ProductRepresentationRefactorTransformPackage package)
+            ProductRefactorTransformPackage package)
         {
             var contextOfItems = Copy(p.ContextOfItems, package, false);
 
@@ -601,7 +589,7 @@ namespace Bitub.Ifc.Transform.Requests
 
         // Special handling if representation item wraps a mapoed representation
         private IEnumerable<IIfcMappedItem> FlattenMappedRepresentationItem(IIfcMappedItem item, 
-            ProductRepresentationRefactorTransformPackage package)
+            ProductRefactorTransformPackage package)
         {
             var sourceRepresentation = item.MappingSource.MappedRepresentation;
             return FlattenRepresentationItems(sourceRepresentation, package).Select(newRepresentation =>

@@ -13,7 +13,7 @@ using Xbim.IO;
 
 using Microsoft.Extensions.Logging;
 
-namespace Bitub.Ifc.Transform.Requests
+namespace Bitub.Ifc.Transform
 {
     /// <summary>
     /// A transform request template provided most of the functionality needed.

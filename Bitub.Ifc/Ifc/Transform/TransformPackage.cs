@@ -79,20 +79,19 @@ namespace Bitub.Ifc.Transform
             if (!LogFilter.Contains(action))
                 return false;
 
-            if (sourceHandle.Model != Source)
-                throw new ArgumentException($"Expecting [{sourceHandle}] to be instance of source model.");
-
             logEntry.Add(new TransformLogEntry(sourceHandle, action));
             return true;
         }
 
-        protected TransformPackage()
+        protected TransformPackage(params TransformActionResult[] logFilter)
         {
+            LogFilter = new HashSet<TransformActionResult>(logFilter);
         }
 
         protected internal TransformPackage(TransformPackage other, CancelableProgressing progressMonitor)
         {
-            logEntry = other.logEntry;
+            LogFilter = new HashSet<TransformActionResult>(other.LogFilter);
+            logEntry = new List<TransformLogEntry>(other.logEntry);
             Map = other.Map;
             ProgressMonitor = progressMonitor;
         }
@@ -115,7 +114,6 @@ namespace Bitub.Ifc.Transform
                 throw new ObjectDisposedException(ToString());
 
             logEntry.Clear();
-            Map?.Clear();
             Map = null;
         }
     }

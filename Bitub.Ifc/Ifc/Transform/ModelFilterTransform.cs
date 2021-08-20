@@ -6,7 +6,7 @@ using Xbim.Common.Metadata;
 
 using Bitub.Dto;
 
-namespace Bitub.Ifc.Transform.Requests
+namespace Bitub.Ifc.Transform
 {
     [Flags]
     public enum ModelFilterStrategy

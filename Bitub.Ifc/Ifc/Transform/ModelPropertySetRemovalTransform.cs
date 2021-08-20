@@ -12,7 +12,7 @@ using Xbim.Common.Metadata;
 using Xbim.Ifc4.Interfaces;
 using Xbim.Ifc4.Kernel;
 
-namespace Bitub.Ifc.Transform.Requests
+namespace Bitub.Ifc.Transform
 {
     public enum FilterRuleStrategyType
     {
@@ -294,6 +294,8 @@ namespace Bitub.Ifc.Transform.Requests
             CancelableProgressing progressMonitor)
         {
             var package = new ProductPropertySetRemovalPackage(aSource, aTarget, progressMonitor, !IsNameMatchingCaseSensitive, FilterRuleStrategy);
+            LogFilter.ForEach(f => package.LogFilter.Add(f));
+
             ExludePropertySetByName?
                 .Where(n => null != n)
                 .ForEach(n => package.ExcludeName.Add(n));

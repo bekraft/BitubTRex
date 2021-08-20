@@ -12,7 +12,7 @@ using Bitub.Ifc.TRex;
 using Xbim.Common;
 using Xbim.Ifc4.Interfaces;
 
-namespace Bitub.Ifc.Transform.Requests
+namespace Bitub.Ifc.Transform
 {
     public sealed class ModelProductPropertyTransformPackage : TransformPackage
     {

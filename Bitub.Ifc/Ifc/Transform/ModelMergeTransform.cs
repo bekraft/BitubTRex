@@ -1,9 +1,6 @@
 ﻿using System;
 
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Xbim.Common;
 using Xbim.Common.Geometry;
@@ -16,7 +13,7 @@ using Xbim.Geometry.Engine.Interop;
 using Microsoft.Extensions.Logging;
 using Bitub.Dto;
 
-namespace Bitub.Ifc.Transform.Requests
+namespace Bitub.Ifc.Transform
 {
     public sealed class ModelMergeTransformPackage : TransformPackage
     {

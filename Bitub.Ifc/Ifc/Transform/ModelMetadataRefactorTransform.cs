@@ -11,7 +11,7 @@ using Xbim.Ifc4.Interfaces;
 using Microsoft.Extensions.Logging;
 using Bitub.Dto;
 
-namespace Bitub.Ifc.Transform.Requests
+namespace Bitub.Ifc.Transform
 {
     /// <summary>
     /// Metadata transformation type.

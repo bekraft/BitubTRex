@@ -11,7 +11,7 @@ using Bitub.Dto;
 using Microsoft.Extensions.Logging;
 
 
-namespace Bitub.Ifc.Transform.Requests
+namespace Bitub.Ifc.Transform
 {
     /// <summary>
     /// Placement strategy options. Exclusive alternatives of either adding a correction as a new
@@ -156,14 +156,6 @@ namespace Bitub.Ifc.Transform.Requests
     /// </summary>
     public class ModelPlacementTransform : ModelTransformTemplate<ModelPlacementTransformPackage>
     {
-        #region Internals
-
-        private readonly object _monitor = new object();
-        private ModelPlacementStrategy _placementStrategy = ModelPlacementStrategy.ChangeRootPlacements;
-        private IfcAxisAlignment _axisAlignment = new IfcAxisAlignment();
-
-        #endregion
-
         /// <summary>
         /// The logger.
         /// </summary>
@@ -176,31 +168,18 @@ namespace Bitub.Ifc.Transform.Requests
         /// </summary>
         public ModelPlacementStrategy PlacementStrategy
         {
-            get {
-                return _placementStrategy;
-            }
-            set {
-                lock(_monitor)
-                {
-                    _placementStrategy = value;
-                }
-            }
-        }
+            get;
+            set;
+        } = ModelPlacementStrategy.ChangeRootPlacements;
 
         /// <summary>
         /// The current axis alignment specification.
         /// </summary>
         public IfcAxisAlignment AxisAlignment
         {
-            get {
-                lock (_monitor)
-                    return new IfcAxisAlignment(_axisAlignment);
-            }
-            set {
-                lock (_monitor)
-                    _axisAlignment = new IfcAxisAlignment(value);
-            }
-        }
+            get;
+            set;
+        } = new IfcAxisAlignment();
 
         /// <summary>
         /// The model axis alignment transformation request.
@@ -215,8 +194,10 @@ namespace Bitub.Ifc.Transform.Requests
         protected override ModelPlacementTransformPackage CreateTransformPackage(IModel aSource, IModel aTarget,
             CancelableProgressing progressMonitor)
         {
-            lock (_monitor)
-                return new ModelPlacementTransformPackage(aSource, aTarget, progressMonitor, _placementStrategy, _axisAlignment);
+            var package = new ModelPlacementTransformPackage(
+                aSource, aTarget, progressMonitor, PlacementStrategy, AxisAlignment);
+            LogFilter.ForEach(f => package.LogFilter.Add(f));
+            return package;
         }
 
         protected override TransformResult.Code DoPreprocessTransform(ModelPlacementTransformPackage package)
