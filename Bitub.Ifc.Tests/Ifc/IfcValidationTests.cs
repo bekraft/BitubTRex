@@ -16,7 +16,7 @@ namespace Bitub.Ifc.Tests
     {
         [DeploymentItem(@"Resources\Ifc2x3-Slab-BooleanResult.ifc")]
         [TestMethod]
-        public void SchemaValidateTest()
+        public void IsSchemataCompliant()
         {
             IfcStore.ModelProviderFactory.UseMemoryModelProvider();
             using (var source = IfcStore.Open(@"Resources\Ifc2x3-Slab-BooleanResult.ifc"))
@@ -41,7 +41,7 @@ namespace Bitub.Ifc.Tests
 
         [DeploymentItem(@"Resources\Ifc2x3-Slab-BooleanResult.ifc")]
         [TestMethod]
-        public void SchemaConstraintTest()
+        public void IsSchemetaConstraintCompliant()
         {
             IfcStore.ModelProviderFactory.UseMemoryModelProvider();
             using (var source = IfcStore.Open(@"Resources\Ifc2x3-Slab-BooleanResult.ifc"))

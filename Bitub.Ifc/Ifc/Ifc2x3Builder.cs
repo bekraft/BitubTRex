@@ -22,9 +22,9 @@ namespace Bitub.Ifc
     /// <summary>
     /// IFC 2x3 builder implementation.
     /// </summary>
-    public class Ifc2x3Builder : IfcBuilder
+    public sealed class Ifc2x3Builder : IfcBuilder
     {
-        public Ifc2x3Builder(IModel model, ILoggerFactory loggerFactory = null)
+        internal Ifc2x3Builder(IModel model, ILoggerFactory loggerFactory = null)
             : base(model, loggerFactory)
         { }
 

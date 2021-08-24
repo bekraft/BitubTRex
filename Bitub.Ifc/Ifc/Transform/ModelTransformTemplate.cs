@@ -130,7 +130,7 @@ namespace Bitub.Ifc.Transform
 
         protected E Copy<E>(E instance, T package, bool withInverse) where E : IPersistEntity
         {
-            package.LogAction(new XbimInstanceHandle(instance), TransformActionResult.Transferred);
+            package.LogAction(new XbimInstanceHandle(instance), TransformActionResult.Copied);
             try
             {
                 return package.Target.InsertCopy(instance, package.Map, (p, o) => PropertyTransform(p, o, package), withInverse, false);
@@ -166,7 +166,7 @@ namespace Bitub.Ifc.Transform
                         DelegateCopy(instance, package);
                         break;
                     case TransformActionType.Drop:
-                        package.LogAction(new XbimInstanceHandle(instance), TransformActionResult.NotTransferred);
+                        package.LogAction(new XbimInstanceHandle(instance), TransformActionResult.Skipped);
                         break;
                 }
 

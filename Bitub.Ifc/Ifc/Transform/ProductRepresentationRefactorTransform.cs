@@ -367,7 +367,7 @@ namespace Bitub.Ifc.Transform
             {
                 // If already hit by pass instance filter, mark as removed
                 if (package.EntityDropoutSet.Contains(handle))
-                    package.LogAction(handle, TransformActionResult.NotTransferred);
+                    package.LogAction(handle, TransformActionResult.Skipped);
                 else
                     // Anyway, mark for removal if it by pass instance filter
                     package.EntityDropoutSet.Add(handle);

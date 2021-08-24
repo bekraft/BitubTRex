@@ -200,7 +200,7 @@ namespace Bitub.Ifc.Transform
                 }
                 else if (rDefProps.RelatingPropertyDefinition.PropertySetDefinitions.All(package.HitsNameFilter))
                 {   //Reject relation if no property set remains after removal
-                    package.LogAction(new XbimInstanceHandle(rDefProps), TransformActionResult.NotTransferred);
+                    package.LogAction(new XbimInstanceHandle(rDefProps), TransformActionResult.Skipped);
                     return null;
                 }
             } 
@@ -209,7 +209,7 @@ namespace Bitub.Ifc.Transform
                 if (prop.PartOfPset.All(package.HitsNameFilter))
                 {
                     // Drop completely if only reference by dropped property sets
-                    package.LogAction(new XbimInstanceHandle(prop), TransformActionResult.NotTransferred);
+                    package.LogAction(new XbimInstanceHandle(prop), TransformActionResult.Skipped);
                     return null;
                 }
             }

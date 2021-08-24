@@ -20,9 +20,9 @@ namespace Bitub.Ifc
     /// <summary>
     /// IFC 4 and 4x1 Builder Implementation
     /// </summary>
-    public class Ifc4Builder : IfcBuilder
+    public sealed class Ifc4Builder : IfcBuilder
     {
-        public Ifc4Builder(IModel model, ILoggerFactory loggerFactory = null) 
+        internal Ifc4Builder(IModel model, ILoggerFactory loggerFactory = null) 
             : base(model, loggerFactory)
         { }
 

@@ -73,13 +73,16 @@ namespace Bitub.Ifc
             OwningUser = model.Instances.OfType<IIfcPersonAndOrganization>().FirstOrDefault();
             OwningApplication = model.Instances.OfType<IIfcApplication>().FirstOrDefault();
 
-            if (m is IfcStore s)
+            Transactively(m1 =>
             {
-                if (null == OwningUser)
-                    OwningUser = s.DefaultOwningUser;
-                if (null == OwningApplication)
-                    OwningApplication = s.DefaultOwningApplication;
-            }        
+                if (m1 is IfcStore s)
+                {
+                    if (null == OwningUser)
+                        OwningUser = s.DefaultOwningUser;
+                    if (null == OwningApplication)
+                        OwningApplication = s.DefaultOwningApplication;
+                }
+            });            
         }
 
         protected void NewContainer(IIfcObjectDefinition container)

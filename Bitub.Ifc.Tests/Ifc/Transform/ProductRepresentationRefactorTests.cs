@@ -8,8 +8,7 @@ using Xbim.Ifc4.Interfaces;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-
-using Bitub.Ifc.Transform.Requests;
+using Bitub.Ifc.Transform;
 using Bitub.Ifc.Validation;
 
 namespace Bitub.Ifc.Tests.Transform
@@ -17,6 +16,11 @@ namespace Bitub.Ifc.Tests.Transform
     [TestClass]
     public class ProductRepresentationRefactorTests : TestBase<ProductRepresentationRefactorTests>
     {
+        private TransformActionResult[] defaultLogResultTypes = new[]
+        {
+            TransformActionResult.Skipped,
+            TransformActionResult.Added
+        };
 
         private static bool IsMultiRepresentation(IIfcProduct product, bool includingMappedItems, params string[] contexts)
         {
@@ -42,6 +46,7 @@ namespace Bitub.Ifc.Tests.Transform
             }
         }
 
+
         [TestMethod]
         [DeploymentItem(@"Resources\Ifc4-MultipleBodiesPerProduct.ifc")]
         public async Task RefactorBody()
@@ -52,10 +57,10 @@ namespace Bitub.Ifc.Tests.Transform
                 var stampBefore = SchemaValidator.OfModel(source);
                 Assert.IsTrue(stampBefore.IsCompliantToSchema);
 
-                var transform = new ProductRepresentationRefactorTransform(LoggerFactory)
+                var transform = new ProductRepresentationRefactorTransform(LoggerFactory, defaultLogResultTypes)
                 {
                     ContextIdentifiers = new[] { "Body" },
-                    Strategy = ProductRepresentationRefactorStrategy.DecomposeMultiItemRepresentations,
+                    Strategy = ProductRefactorStrategy.DecomposeMultiItemRepresentations,
                     TargetStoreType = Xbim.IO.XbimStoreType.InMemoryModel,
                     EditorCredentials = EditorCredentials
                 };
@@ -88,9 +93,9 @@ namespace Bitub.Ifc.Tests.Transform
                 var transform = new ProductRepresentationRefactorTransform(LoggerFactory)
                 {
                     ContextIdentifiers = new[] { "Body" },
-                    Strategy = ProductRepresentationRefactorStrategy.DecomposeMultiItemRepresentations 
-                        | ProductRepresentationRefactorStrategy.DecomposeMappedRepresentations 
-                        | ProductRepresentationRefactorStrategy.DecomposeWithEntityElementAssembly,
+                    Strategy = ProductRefactorStrategy.DecomposeMultiItemRepresentations 
+                        | ProductRefactorStrategy.DecomposeMappedRepresentations 
+                        | ProductRefactorStrategy.DecomposeWithEntityElementAssembly,
                     TargetStoreType = Xbim.IO.XbimStoreType.InMemoryModel,
                     EditorCredentials = EditorCredentials
                 };
@@ -123,7 +128,7 @@ namespace Bitub.Ifc.Tests.Transform
                 var transform = new ProductRepresentationRefactorTransform(LoggerFactory)
                 {
                     ContextIdentifiers = new[] { "Body" },
-                    Strategy = ProductRepresentationRefactorStrategy.DecomposeMultiItemRepresentations,
+                    Strategy = ProductRefactorStrategy.DecomposeMultiItemRepresentations,
                     TargetStoreType = Xbim.IO.XbimStoreType.InMemoryModel,
                     EditorCredentials = EditorCredentials
                 };
@@ -156,7 +161,7 @@ namespace Bitub.Ifc.Tests.Transform
                 var transform = new ProductRepresentationRefactorTransform(LoggerFactory)
                 {
                     ContextIdentifiers = new[] { "Body" },
-                    Strategy = ProductRepresentationRefactorStrategy.DecomposeWithEntityElementAssembly | ProductRepresentationRefactorStrategy.DecomposeMultiItemRepresentations,
+                    Strategy = ProductRefactorStrategy.DecomposeWithEntityElementAssembly | ProductRefactorStrategy.DecomposeMultiItemRepresentations,
                     TargetStoreType = Xbim.IO.XbimStoreType.InMemoryModel,
                     EditorCredentials = EditorCredentials
                 };

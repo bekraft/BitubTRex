@@ -15,7 +15,6 @@ using Bitub.Dto.Spatial;
 using Bitub.Ifc;
 using Bitub.Ifc.Transform;
 using Bitub.Ifc.Validation;
-using Bitub.Ifc.Transform.Requests;
 
 namespace Bitub.Ifc.Tests.Transform
 {

@@ -33,13 +33,13 @@ namespace Bitub.Ifc.Concept.Tests
         }
 
         [TestMethod]
-        public void FetchIfc4Classifications()
+        public void IsIfcWallPassingFilter()
         {
             Assert.AreEqual(3, IfcAssemblyScope.SchemaAssemblyScope.Count);
             var products = XbimSchemaVersion.Ifc4.ToImplementingClassifiers<IIfcProduct>().ToArray();
 
             var walls = products.Where(p => existsWallFilter.IsPassedBy(p, out _) ?? true).ToArray();
-            Assert.AreEqual(2, walls.Length);
+            Assert.AreEqual(3, walls.Length);
         }
     }
 }

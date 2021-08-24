@@ -14,7 +14,7 @@ namespace Bitub.Ifc.Tests
     {
         [DeploymentItem(@"Resources\Ifc4-Storey-With-4Walls.ifc")]
         [TestMethod]
-        public void IfcStoreInsertCopyCloneTests()
+        public void Compliance_CloneIfcStore()
         {
             using (var store = IfcStore.Open(@"Resources\Ifc4-Storey-With-4Walls.ifc"))
             {
@@ -34,7 +34,7 @@ namespace Bitub.Ifc.Tests
         }
 
         [TestMethod]
-        public void QuaternionAndMatrixOrientationTests()
+        public void Compliance_QuaternionAndMatrixOrientation()
         {
             var t = new XbimMatrix3D(new XbimVector3D(1, 1, 0));
             t.RotateAroundZAxis(Math.PI / 2);
@@ -51,7 +51,7 @@ namespace Bitub.Ifc.Tests
         }
 
         [TestMethod]
-        public void QuaternionVersusMatrixMovingTests()
+        public void Compliance_QuaternionVersusMatrixMoving()
         {
             XbimVector3D t = new XbimVector3D(2, 0, 0);
             XbimMatrix3D T = new XbimMatrix3D(t);

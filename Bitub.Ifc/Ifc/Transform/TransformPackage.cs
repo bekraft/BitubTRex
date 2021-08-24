@@ -13,9 +13,21 @@ namespace Bitub.Ifc.Transform
     /// </summary>
     public enum TransformActionResult
     {
-        Transferred = 0,
-        NotTransferred = 1,
+        /// <summary>
+        /// Marks a copied instance of source.
+        /// </summary>
+        Copied = 0,
+        /// <summary>
+        /// Marks a skipped instance of source.
+        /// </summary>
+        Skipped = 1,
+        /// <summary>
+        /// Marks a partially copied or/and modified instance of source.
+        /// </summary>
         Modified = 2,
+        /// <summary>
+        /// Marks a new instance of target.
+        /// </summary>
         Added = 3
     }
 
