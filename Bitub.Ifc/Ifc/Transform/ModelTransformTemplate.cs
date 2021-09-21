@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using Bitub.Dto;
@@ -94,8 +94,9 @@ namespace Bitub.Ifc.Transform
                     if (PassInstance(entity, package) == TransformActionType.Drop)
                         return null;
                 }
-                else if (value is IEnumerable<PersistEntity> entities)
+                else if (value is IEnumerable items && property.PropertyInfo.IsLowerConstraintRelationType<IPersistEntity>())
                 {
+                    var entities = (IEnumerable<IPersistEntity>)items;
                     return EmptyToNull(entities.Where(e => PassInstance(e, package) != TransformActionType.Drop));
                 }
 
