@@ -67,9 +67,13 @@
     <PackageReference Include="System.Text.Json" Version="5.0.2" />
   </ItemGroup>
   
-  <ItemGroup Condition="$(TargetFramework.StartsWith('net4'))" >
+  <ItemGroup Condition="$(TargetFramework.StartsWith('net4'))">
     <Reference Include="System.Net" Version="4.0.0.0" />
     <Reference Include="System.Net.Http" Version="4.0.0.0" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Scene\Primitives\" />
   </ItemGroup>
   
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

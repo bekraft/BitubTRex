@@ -50,5 +50,38 @@ namespace Bitub.Dto.Spatial
         {
             get => new XYZ(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
         }
+
+        public float GetCoordinate(int index)
+        {
+            switch (index)
+            {
+                case 0:
+                    return X;
+                case 1:
+                    return Y;
+                case 2:
+                    return Z;
+                default:
+                    throw new IndexOutOfRangeException($"{index} is out of range of [0,2]");
+            }
+        }
+
+        public void SetCoordinate(int index, float value)
+        {
+            switch (index)
+            {
+                case 0:
+                    X = value;
+                    break;
+                case 1:
+                    Y = value;
+                    break;
+                case 2:
+                    Z = value;
+                    break;
+                default:
+                    throw new IndexOutOfRangeException($"{index} is out of range of [0,2]");
+            }
+        }
     }
 }

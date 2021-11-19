@@ -22,8 +22,6 @@ namespace Bitub.Dto.Scene
             return other.Mesh.Equals(Mesh) && other.PtOffsetArray.Equals(PtOffsetArray);
         }
 
-
-
         public IEnumerable<Facet> ToFacets()
         {
             return Mesh.ToFacets(PtOffsetArray);
