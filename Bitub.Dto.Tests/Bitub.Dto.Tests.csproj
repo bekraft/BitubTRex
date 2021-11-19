@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net48;netcoreapp3.1;net5.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -13,8 +13,6 @@
   
   <ItemGroup>
     <ProjectReference Include="..\Bitub.Dto\Bitub.Dto.csproj">
-      <Project>{d95907f9-1c22-471f-8e77-066c40d35e0d}</Project>
-      <Name>Bitub.Dto</Name>
     </ProjectReference>
   </ItemGroup>
   

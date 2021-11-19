@@ -2,27 +2,39 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>    
-    <ProtobufTools>$(UserProfile)\.nuget\packages\google.protobuf.tools\3.15.8\tools\.</ProtobufTools>
-    <Protoc>$(ProtobufTools)\windows_x64\protoc.exe</Protoc>
+    <ProtobufTools>$(HOME)/.nuget/packages/google.protobuf.tools/3.15.8/tools</ProtobufTools>
     
     <Title>Bitub.Dto</Title>
     <Description>Bitub common model transferring library</Description>
 
-    <TargetFrameworks>net48;netcoreapp3.1;net5.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
     
-    <Configurations>Debug;Release;Beta</Configurations>
+    <Configurations>Debug;Beta;Release</Configurations>
   
     <RootNamespace>Bitub.Dto</RootNamespace>
   
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(IsWindows)'=='true'">
+    <Protoc>$(ProtobufTools)/windows_x64/protoc.exe</Protoc>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsOSX)'=='true'">
+    <Protoc>$(ProtobufTools)/macosx_x64/protoc</Protoc>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsLinux)'=='true'">
+    <Protoc>$(ProtobufTools)/linux_x64/protoc</Protoc>
+  </PropertyGroup>
+
+
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <!-- Local debug profile -->
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -33,7 +45,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>bin\Beta</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -43,7 +55,7 @@
     <!-- Build release profile -->
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>bin\Release</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -53,14 +65,13 @@
     <Compile Remove="Data\**" />
     <EmbeddedResource Remove="Data\**" />
     <None Remove="Data\**" />
+    <None Remove="Spatial\Json\" />
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf">
-      <Version>3.15.8</Version>
+    <PackageReference Include="Google.Protobuf" Version="3.15.8">
     </PackageReference>
-    <PackageReference Include="Google.Protobuf.Tools">
-      <Version>3.15.8</Version>
+    <PackageReference Include="Google.Protobuf.Tools" Version="3.15.8">
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.9" />
     <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
@@ -74,11 +85,13 @@
   
   <ItemGroup>
     <Folder Include="Scene\Primitives\" />
+    <Folder Include="Spatial\Json\" />
   </ItemGroup>
   
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Message Text="Building $(Version)" Importance="High" />
-    <Exec Command="if not exist  &quot;$(ProjectDir)Generated&quot; mkdir &quot;$(ProjectDir)Generated&quot;" />
+    <!--<Exec Command="if not exist  &quot;$(ProjectDir)Generated&quot; mkdir &quot;$(ProjectDir)Generated&quot;" />
+    <Exec Command="mkdir &quot;$(ProjectDir)Generated&quot;" />-->
     <Exec Command="$(Protoc) -I=&quot;$(ProtobufTools)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Common.proto&quot;" />
     <Exec Command="$(Protoc) -I=&quot;$(ProtobufTools)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Spatial.proto&quot;" />
     <Exec Command="$(Protoc) -I=&quot;$(ProtobufTools)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Concept.proto&quot;" />

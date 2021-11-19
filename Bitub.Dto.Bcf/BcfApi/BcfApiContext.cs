@@ -8,7 +8,7 @@ using Bitub.Dto.Rest;
 
 namespace Bitub.Dto.BcfApi
 {
-    public class BcfApiContext : DtoContext
+    public class BcfApiContext : ApiContext
     {
         public BcfApiContext(string clientId) : base(clientId)
         {

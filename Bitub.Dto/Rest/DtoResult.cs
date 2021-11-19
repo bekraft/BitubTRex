@@ -7,23 +7,19 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Http;
 
-using System.Text.Json;
 using System.Collections;
 
 namespace Bitub.Dto.Rest
 {
-    public enum DtoResultType    
-    {
-        Success,
-        Failure,
-        Exception
-    }
-
+    /// <summary>
+    /// Data transfer object wrapping a result, a response HTTP code and response phrase.
+    /// </summary>
+    /// <typeparam name="T">The inner type of DTO</typeparam>
     public sealed class DtoResult<T> : IEnumerable<T>, IEquatable<DtoResult<T>>
     {
-        public readonly T Dto;
-        public readonly HttpStatusCode ResponseCode;
-        public readonly string ResponsePhrase;
+        public readonly T dto;
+        public readonly HttpStatusCode responseCode;
+        public readonly string responsePhrase;
 
         internal class Enumerator : IEnumerator<T>
         {
@@ -32,7 +28,7 @@ namespace Bitub.Dto.Rest
 
             public Enumerator(DtoResult<T> r)
             {
-                dto = r.Dto;
+                this.dto = r.dto;
             }
 
             public T Current { get => isInitiated ? dto : default(T); }
@@ -59,9 +55,9 @@ namespace Bitub.Dto.Rest
 
         public DtoResult(T dto, HttpStatusCode code = HttpStatusCode.OK, string responsePhrase = null)
         {
-            Dto = dto;
-            ResponseCode = code;
-            ResponsePhrase = responsePhrase;
+            this.dto = dto;
+            responseCode = code;
+            this.responsePhrase = responsePhrase;
         }
 
         public DtoResult(HttpStatusCode code, string responsePhrase = null) 
@@ -69,37 +65,82 @@ namespace Bitub.Dto.Rest
         {
         }
 
-        public static async Task<DtoResult<E>> FromResponse<E>(HttpResponseMessage response, CancellationToken cancellation)
+        public static async Task<DtoResult<E>> FromResponse<E>(HttpResponseMessage response,
+            ApiContext applicationContext, CancellationToken cancellation)
         {
             switch (response.StatusCode)
             {
                 case HttpStatusCode.OK:
+                case HttpStatusCode.Created:
+                case HttpStatusCode.Accepted:
+                case HttpStatusCode.NonAuthoritativeInformation:
+                case HttpStatusCode.NoContent:
+                case HttpStatusCode.ResetContent:
+                case HttpStatusCode.PartialContent:
                     return await response.Content
                         .ReadAsStringAsync()
-                        .ContinueWith(json => new DtoResult<E>(JsonSerializer.Deserialize<E>(json.Result)), cancellation);
+                        .ContinueWith(json => new DtoResult<E>(applicationContext.FromJson<E>(json.Result)), cancellation);
                 default:
                     return await Task.FromResult(new DtoResult<E>(response.StatusCode, response.ReasonPhrase));
             }
         }
 
-        public static Task<DtoResult<E>> FromResponse<E>(Task<HttpResponseMessage> response, CancellationToken cancellation)
+        public static Task<DtoResult<E>> FromResponse<E>(Task<HttpResponseMessage> response,
+            ApiContext applicationContext, CancellationToken cancellation)
         {
             return response.ContinueWith<DtoResult<E>>( (t) =>
             {
-                var serializeTask = FromResponse<E>(t.Result, cancellation);
+                var serializeTask = FromResponse<E>(t.Result, applicationContext, cancellation);
                 serializeTask.Wait(cancellation);
                 return serializeTask.Result;
             }, cancellation);
         }
 
-        public bool IsSuccess { get => ResponseCode == HttpStatusCode.OK; }
+        /// <summary>
+        /// Any response code of HTTP 200 group.
+        /// </summary>
+        public bool IsSuccess
+        {
+            get => (200 <= (int)responseCode) && (300 > (int)responseCode);
+        }
 
         public DtoResult<R> Then<R>(Func<T,R> f)
         {
-            if (null != Dto)
-                return new DtoResult<R>(f(Dto));
+            if (null != dto)
+                return new DtoResult<R>(f(dto));
             else
-                return new DtoResult<R>(ResponseCode);
+                return new DtoResult<R>(responseCode);
+        }
+
+        public async Task<DtoResult<R>> ThenAsync<R>(Func<T, Task<R>> f)
+        {
+            if (null != dto)
+                return new DtoResult<R>(await f(dto));
+            else
+                return new DtoResult<R>(responseCode, responsePhrase);
+        }
+
+        /// <summary>
+        /// Every result code of 20X will return a DTO otherwise an exception is thrown.
+        /// </summary>
+        public T DtoOrFail
+        {
+            get
+            {
+                switch (responseCode)
+                {
+                    case HttpStatusCode.OK:
+                    case HttpStatusCode.Created:
+                    case HttpStatusCode.Accepted:
+                    case HttpStatusCode.NonAuthoritativeInformation:
+                    case HttpStatusCode.NoContent:
+                    case HttpStatusCode.ResetContent:
+                    case HttpStatusCode.PartialContent:
+                        return dto;
+                    default:
+                        throw new Exception($"Code {responseCode}: {responsePhrase}");
+                }
+            }
         }
 
         public IEnumerator<T> GetEnumerator()
@@ -114,7 +155,7 @@ namespace Bitub.Dto.Rest
 
         public override string ToString()
         {
-            return IsSuccess ? $"Dto{{{Dto?.ToString()}}}" : $"Failure ({ResponseCode}) '{ResponsePhrase}'";
+            return IsSuccess ? $"Dto{{{dto?.ToString()}}}" : $"Failure ({responseCode}) '{responsePhrase}'";
         }
 
         public override bool Equals(object obj)
@@ -125,14 +166,14 @@ namespace Bitub.Dto.Rest
         public bool Equals(DtoResult<T> other)
         {
             return other != null &&
-                   EqualityComparer<T>.Default.Equals(Dto, other.Dto) &&
-                   ResponseCode == other.ResponseCode &&
-                   ResponsePhrase == other.ResponsePhrase;
+                   EqualityComparer<T>.Default.Equals(dto, other.dto) &&
+                   responseCode == other.responseCode &&
+                   responsePhrase == other.responsePhrase;
         }
 
         public override int GetHashCode()
         {
-            return ((IStructuralEquatable) new object[] { Dto, ResponseCode, ResponsePhrase }).GetHashCode();
+            return ((IStructuralEquatable) new object[] { dto, responseCode, responsePhrase }).GetHashCode();
         }
     }
 }

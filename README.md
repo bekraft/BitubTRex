@@ -1,103 +1,29 @@
-# BitubTRex
+# Bitub TRex
 
-is high-level wrapper of the [Xbim libraries](https://github.com/xBimTeam).
-It abstracts IFC model transformations and model transferring tasks.
+a cross-plattform .NET core library collection for manipulation of data in AEC domain.
 
-Provided assemblies:
-- ```Bitub.Ifc``` wraps all extensions, workflows and additions concerning Xbim IFC model handling 
-- ```Bitub.Dto``` wraps protocol buffers for scene transmitting and other data
+## Schemata
 
-## Bitub.Ifc
-#### Extension methods
+- Scene, a 3D scene graph exchange protocol
+- Spatial, a basic spatial exchange protocol
+- Concept, a semantic validation rule and exchange protocol
 
- Create new instances by ```IfcStore``` extension:
- ```
-    using(var ifcStore = IfcStore.Open(...))
-    using(var tx = ifcStore.BeginTransaction(...))
-    {
-        var pSingletonSet = ifcStore.NewIfcPropertySet("My new set");
-        var relation = ifcStore.NewIfcRelDefinesByProperties(pSingletonSet);
+## Provided assemblies:
+- ```Bitub.Dto``` (netcoreapp3.1, net5.0) wraps protocol buffers for scene transmitting and other data
+- ```Bitub.Dto.Bcf``` (netcoreapp3.1, net5.0) BCF 2.1 adapter
 
-        foreach(var wall in ifcStore.Instances.OfType<IIfcWall>())
-        {
-            relation.RelatedObjects.Add(wall);
-        }
-        tx.Commit();
-    }
- ```
+## Supported 3rd party schemata
 
-#### IFC builder pattern
+- ```BCF-XML```, aka Building Collaboration Format scheme based on XML)
+- ```CPI-XML```, widely used multi-container schema based on XML
+- ... other coming soon
 
-  Create and modify models by builder pattern:
-  ```
-    using (var ifcStore = IfcStore.Create(XbimSchemaVersion.Ifc4, XbimStoreType.InMemoryModel))
-    {
-        var builder = new Ifc4Builder(store, LoggingFactory);
-        var site = builder.NewSite("A site");
-        var buildingInSite = builder.NewBuilding("A hosted building");
-        var storeyInBuilding = builder.NewStorey("A hosted storey");
-
-        var globalPlacement = builder.NewLocalPlacement(new Xbim.Common.Geometry.XbimVector3D());
-        var newWallInStorey = builder.NewProduct<IIfcWallStandardCase>(globalPlacement);
-    }
-  ```
-
-  Builders are context sensitive. New products are hosted within the most recent spatial scope.
-  To drop the most recent context, use
-  ```
-    builder.DropCurrentScope();
-  ```
-  If you like to create custom scopes (i.e. functional groups) use
-  ```
-    builder.NewScope(myIfcProductInstance)
-  ```
-
-#### IFC transformation pattern
-
- Transformations map and modify existing instances and data to new by rules.
-
- Existing transformation requests:
- - Drop IFC specific property sets
- - Drop IFC specific properties
- - ...
-
-## Bitub.Dto
-#### - Scene - model
-
- A scene model is an extraction of the component meshes and the model hierarchy. It is
-meant to be a lightweight import for visualization purposes.
+## Building and usage
 
 ```
-IfcSceneExportSummary result;
-var loggerFactory = new LoggerFactory().AddConsole();
-using (var store = IfcStore.Open(fileName))
-{
-    var exporter = new IfcSceneExporter(new XbimTesselationContext(loggerFactory), loggerFactory);
-    exporter.Settings = settings;
-
-    result = await exporter.Run(store);
-}
+dotnet build -c [Debug|Beta|Release]
 ```
 
-To export the extracted scene into JSON or binaray protobuf follow the [Google Protobuf documentation](https://developers.google.com/protocol-buffers).
+## License
 
-```
-using (var jsonStream = File.CreateText($"{Path.GetFileNameWithoutExtension(fileName)}.json"))
-{
-    var json = formatter.Format(result.Scene);
-    jsonStream.WriteLine(json);
-    jsonStream.Close();    
-}
-```
-
-#### - Classify - model
-To be documented.
-
-#### - Spatial - model
-To be documented.
-
-#### - Collab - model
-To be documented.
-
-#### - TRex - model
-To be documented.
+Apache-2 License

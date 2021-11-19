@@ -9,10 +9,10 @@ namespace Bitub.Dto.Rest
     abstract public class DtoServiceEndpoint<T>
     {
         #region Internals
-        private readonly DtoApiClient apiClient;
+        private readonly ApiClient apiClient;
         #endregion
 
-        protected DtoServiceEndpoint(DtoApiClient client)
+        protected DtoServiceEndpoint(ApiClient client)
         {
             apiClient = client;
         }

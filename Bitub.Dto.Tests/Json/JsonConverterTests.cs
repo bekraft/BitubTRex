@@ -1,12 +1,9 @@
 ﻿using NUnit.Framework;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
+using Bitub.Dto.Spatial;
+using Bitub.Dto.Spatial.Json;
 using Bitub.Dto.Json;
 
 namespace Bitub.Dto.Tests.Json
@@ -20,6 +17,7 @@ namespace Bitub.Dto.Tests.Json
         {
             jsonTestOptions = new JsonSerializerOptions();
             jsonTestOptions.Converters.Add(new JsonQualifierConverter(JsonNamingPolicy.CamelCase));
+            jsonTestOptions.Converters.Add(new JsonXyzArrayConverter());
         }
 
         [Test]
@@ -45,9 +43,20 @@ namespace Bitub.Dto.Tests.Json
         }
 
         [Test]
-        public void Bas64QualifierConverterTests()
+        public void Base64QualifierConverterTests()
         {
-            // TODO
+            Assert.Fail("Not implemented");
+        }
+
+        [Test]
+        public void XYZConverterTests()
+        {
+            var fixture = new XYZ { X = 1, Y = 2, Z = 3 };
+            var json = JsonSerializer.Serialize(fixture, jsonTestOptions);
+            Assert.IsNotNull(json);
+
+            var result = JsonSerializer.Deserialize<XYZ>(json, jsonTestOptions);
+            Assert.AreEqual(fixture, result);
         }
     }
 }

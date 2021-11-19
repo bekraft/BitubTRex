@@ -4,7 +4,7 @@ namespace Bitub.Dto.Spatial
 {
     public static class Extensions
     {
-        public static readonly double precision = 1e-8;
+        public const double precision = 1e-8;
 
         #region Cross-Casting to System.Numerics
 

@@ -229,13 +229,13 @@ namespace Bitub.Dto.Scene
         public static Component NewEllipsoidComponent(this ComponentScene scene, XYZ center, double radiusXY, double radiusZ,
             double angularDeviation = defaultAngularDeviation, double lengthDeviation = defaultLengthDeviation)
         {
-
+            throw new NotImplementedException();
         }
 
         public static Component NewCylinderZComponent(this ComponentScene scene, XYZ baseCenter, double radius, double height,
             double angularDeviation = defaultAngularDeviation, double lengthDeviation = defaultLengthDeviation)
         {
-
+            throw new NotImplementedException();
         }
 
         /// <summary>

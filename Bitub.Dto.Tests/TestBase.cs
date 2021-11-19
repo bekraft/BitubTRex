@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -60,5 +61,47 @@ namespace Bitub.Dto.Tests
                 return (E)serializer.Deserialize(ms);
             }
         }
+
+        protected Stream GetEmbeddedFileStream(string resourceName)
+        {
+            var name = Assembly.GetExecutingAssembly().GetName().Name;
+            return Assembly.GetExecutingAssembly().GetManifestResourceStream($"{name}.Resources.{resourceName}");
+        }
+
+        protected string GetUtf8TextFrom(string resourceName)
+        {
+            using (var fs = GetEmbeddedFileStream(resourceName))
+            {
+                return GetUtf8TextFrom(fs);
+            }
+        }
+
+        protected TextReader GetEmbeddedUtf8TextReader(string resourceName)
+        {
+            return new StreamReader(GetEmbeddedFileStream(resourceName), System.Text.Encoding.UTF8);
+        }
+
+        protected string GetUtf8TextFrom(Stream binStream)
+        {
+            using (var sr = new StreamReader(binStream, System.Text.Encoding.UTF8))
+            {
+                return sr.ReadToEnd();
+            }
+        }
+
+        protected string ResolveFilename(string localPath)
+        {
+            return Path.Combine(ExecutingFullpath, localPath);
+        }
+
+        protected string ExecutingFullpath
+        {
+            get
+            {
+                string assemblyLocation = Assembly.GetExecutingAssembly().Location;
+                return Path.GetDirectoryName(assemblyLocation);
+            }
+        }
+
     }
 }
