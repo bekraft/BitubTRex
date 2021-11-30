@@ -15,6 +15,14 @@
     <IsOSX Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">true</IsOSX>
     <IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsWindows)' == 'true'">
+    <UserHome>$(UserProfile)</UserHome>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsWindows)' == 'false'">
+    <UserHome>$(HOME)</UserHome>
+  </PropertyGroup>
   
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <BuildQualifier>-Debug</BuildQualifier>
