@@ -18,10 +18,12 @@
 
   <PropertyGroup Condition="'$(IsWindows)' == 'true'">
     <UserHome>$(UserProfile)</UserHome>
+    <TargetFrameworks>netstandard2.1;net48;net5.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IsWindows)' == 'false'">
     <UserHome>$(HOME)</UserHome>
+    <TargetFrameworks>netstandard2.1;net5.0</TargetFrameworks>
   </PropertyGroup>
   
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
