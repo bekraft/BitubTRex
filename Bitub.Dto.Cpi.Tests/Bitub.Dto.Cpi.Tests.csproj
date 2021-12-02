@@ -4,6 +4,16 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(IsWindows)' == 'true'">
+    <UserHome>$(UserProfile)</UserHome>
+    <TargetFrameworks>net48;net5.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'">
+    <UserHome>$(HOME)</UserHome>
+    <TargetFrameworks>net5.0</TargetFrameworks>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="Resources\Example-1.cpixml" />
   </ItemGroup>

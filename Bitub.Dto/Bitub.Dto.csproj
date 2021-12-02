@@ -14,6 +14,15 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(IsWindows)' == 'true'">
+    <TargetFrameworks>netstandard2.1;net48;net5.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'">
+    <TargetFrameworks>netstandard2.1;net5.0</TargetFrameworks>
+  </PropertyGroup>
+
 
   <PropertyGroup Condition="'$(IsWindows)'=='true'">
     <Protoc>$(ProtobufTools)/windows_x64/protoc.exe</Protoc>
@@ -84,10 +93,8 @@
   
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Message Text="Building $(Version)" Importance="High" />
-    <Exec Condition="'$(IsWindows)' == 'true'" 
-          Command="if not exist  &quot;$(ProjectDir)Generated&quot; mkdir &quot;$(ProjectDir)Generated&quot;" />
-    <Exec Condition="'$(IsWindows)' == 'false'"
-          Command="mkdir -p &quot;$(ProjectDir)Generated&quot;" />
+    <Exec Condition="'$(IsWindows)' == 'true'" Command="if not exist  &quot;$(ProjectDir)Generated&quot; mkdir &quot;$(ProjectDir)Generated&quot;" />
+    <Exec Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'" Command="mkdir -p &quot;$(ProjectDir)Generated&quot;" />
     <Exec Command="$(Protoc) -I=&quot;$(ProtobufTools)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Common.proto&quot;" />
     <Exec Command="$(Protoc) -I=&quot;$(ProtobufTools)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Spatial.proto&quot;" />
     <Exec Command="$(Protoc) -I=&quot;$(ProtobufTools)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Concept.proto&quot;" />
