@@ -24,7 +24,6 @@ variables:
   ${{ if startsWith(variables['Build.SourceBranchName'], 'feature') }}: 
     buildConfiguration: 'Debug'
 
-
 steps:
 - task: NuGetToolInstaller@1
 
