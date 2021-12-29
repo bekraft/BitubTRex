@@ -37,7 +37,7 @@ steps:
     configuration: '$(buildConfiguration)'
 
 - task: NuGetCommand@2
-  condition: and(succeeded(), in(buildConfiguration, 'Release', 'Beta'))
+  condition: and(succeeded(), in(variables['buildConfiguration'], 'Release', 'Beta'))
   inputs:
     command: push
     packagesToPush: '$(Agent.BuildDirectory)/**/*.nupkg'
