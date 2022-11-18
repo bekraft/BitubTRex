@@ -36,6 +36,8 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
+- task: VSTest@2
+
 - task: NuGetCommand@2
   condition: and(succeeded(), in(variables['buildConfiguration'], 'Release', 'Beta'))
   inputs:
