@@ -6,12 +6,12 @@
 
   <PropertyGroup Condition="'$(IsWindows)' == 'true'">
     <UserHome>$(UserProfile)</UserHome>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net471;net48;net5.0</TargetFrameworks>
+    <TargetFrameworks>net48;net5.0;net6.0;net7.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'">
     <UserHome>$(HOME)</UserHome>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net5.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
