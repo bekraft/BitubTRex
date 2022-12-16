@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Net.Http.Headers;
 
 namespace Bitub.Dto.Rest
 {
@@ -24,6 +25,10 @@ namespace Bitub.Dto.Rest
         public abstract string ResourceUri { get; }
 
         public abstract bool IsRooted { get; }
+
+        public string ResourceURI => throw new System.NotImplementedException();
+
+        public MediaTypeWithQualityHeaderValue ContentHeader => throw new System.NotImplementedException();
 
         public async Task<DtoResult<T>> GetInstance(object id)
         {

@@ -23,7 +23,7 @@ namespace Bitub.Dto.Rest
 
         public readonly string clientId;
 
-        protected ApiContext(string clientId)
+        protected internal ApiContext(string clientId)
         {
             this.clientId = clientId;
             this.jsonOptions = new JsonSerializerOptions
@@ -33,7 +33,7 @@ namespace Bitub.Dto.Rest
             };
         }
 
-        protected ApiContext(ApiContext otherContext)
+        protected internal ApiContext(ApiContext otherContext)
         {
             this.clientId = otherContext.clientId;
             this.jsonOptions = otherContext.jsonOptions;
@@ -45,7 +45,11 @@ namespace Bitub.Dto.Rest
             set { lock (contextMonitor) authHeaderValue = value; }
         }
 
-        abstract public Task<DtoResult<IDtoAuthenticated>> Authenticate();
+        abstract protected internal string ToRootUri(string resouceUri);
+
+        abstract protected internal string ToResourceUri(string resouceUri);
+
+        abstract protected Task<DtoResult<IDtoAuthenticated>> Authenticate();
         
         public string BaseURL { get; protected set; }
 

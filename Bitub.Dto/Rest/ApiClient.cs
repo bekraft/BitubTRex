@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,13 +13,13 @@ namespace Bitub.Dto.Rest
         protected MediaTypeWithQualityHeaderValue defaultRequestContentType = new MediaTypeWithQualityHeaderValue("application/json");
         #endregion
 
-        public readonly ApiContext apiContext;
+        public readonly ApiContext apiContext;        
 
         protected ApiClient(ApiContext apiContext, string baseUrl)
         {
-            this.httpClient = new HttpClient();
-            this.httpClient.BaseAddress = new Uri($"{baseUrl}");
-            this.httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            httpClient = new HttpClient();
+            httpClient.BaseAddress = new Uri($"{baseUrl}");
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             this.apiContext = apiContext;
         }
@@ -32,9 +29,9 @@ namespace Bitub.Dto.Rest
             get => httpClient.BaseAddress;
         }
 
-        public bool Cancel()
+        public void Cancel()
         {
-            throw new NotImplementedException();
+            httpClient.CancelPendingRequests();
         }
 
         public TimeSpan TimeOut
@@ -43,7 +40,21 @@ namespace Bitub.Dto.Rest
             set => httpClient.Timeout = value;
         }
 
-        public abstract string GetResourceUri(IServiceEndpoint endpoint, string scope, string query);
+        public string GetResourceUri(IServiceEndpoint endpoint, string scope, string query)
+        {
+            if (endpoint.IsRooted)
+            {
+                return apiContext.ToResourceUri(endpoint.ResourceURI)
+                    + (string.IsNullOrEmpty(scope) ? "" : $"/{scope}")
+                    + (string.IsNullOrEmpty(query) ? "" : $"?{query}");
+            }
+            else
+            {
+                return apiContext.ToResourceUri(endpoint.ResourceURI)
+                    + (string.IsNullOrEmpty(scope) ? "" : $"/{scope}")
+                    + (string.IsNullOrEmpty(query) ? "" : $"?{query}");
+            }
+        }
 
         public async Task<DtoResult<T>> SendRequest<T>(IServiceEndpoint endpoint, HttpMethod httpMethod,
              string subScope = null, string query = null)
@@ -71,7 +82,7 @@ namespace Bitub.Dto.Rest
             }
         }
 
-        public bool? IsConnected
+        public bool IsConnected
         {
             get => apiContext.AuthSchemeAndToken != null;
         }
@@ -80,7 +91,7 @@ namespace Bitub.Dto.Rest
         {
             lock (httpClient)
             {
-                //cancellationTokenSource.Cancel();
+                httpClient.CancelPendingRequests();
                 httpClient.Dispose();
             }
         }

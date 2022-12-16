@@ -16,7 +16,7 @@ namespace Bitub.Dto.Tests
         }
 
         [Test]
-        public void QualifierLogic()
+        public void SubSuperQualifierTests()
         {
             var nq1 = new string[] { "A", "Test1" }.ToQualifier();
             var nq2 = new string[] { "A" }.ToQualifier();
@@ -42,7 +42,7 @@ namespace Bitub.Dto.Tests
         }
 
         [Test]
-        public void ClassifierLogic()
+        public void SubSuperClassifierTests()
         {
             var nc1 = new string[] { "A", "Test1" }.ToQualifier().ToClassifier();
             var nq2 = new string[] { "A" }.ToQualifier();
@@ -54,7 +54,7 @@ namespace Bitub.Dto.Tests
         }
 
         [Test]
-        public void NameAndPathMatching()
+        public void NameAndPathMatchingTests()
         {
             var nc1 = new string[] { "A" }.ToQualifier();
             var nc2 = new string[] { "A", "Test" }.ToQualifier();
@@ -79,22 +79,42 @@ namespace Bitub.Dto.Tests
         }
 
         [Test]
-        public void QualifierXmlRoundtrip()
+        public void NamedQualifierXmlRoundtripTests()
         {
             var named = new string[] { "A", "Test1" }.ToQualifier();
-            var anonymous = System.Guid.NewGuid().ToQualifier();
+            Assert.AreEqual(named.ToLabel(), "A.Test1");
 
             var xmlNamed = WriteToXmlStream(named, (o, writer) => writer.WriteOuterXml(o, XmlSerializationExtensions.WriteToXml));
-            Assert.IsTrue(xmlNamed.Length > 0);
+            Assert.IsTrue(xmlNamed.Length > 0);           
 
             Qualifier readNamed = ReadFromXmlStream<Qualifier>(xmlNamed, XmlSerializationExtensions.ReadFromXml);
             Assert.AreEqual(named, readNamed);
         }
 
+
         [Test]
-        public void ClassifierXmlRoundtrip()
+        public void AnonymousQualifierXmlRoundtripTests()
         {
-            throw new NotImplementedException();
+            var anonymous = System.Guid.NewGuid().ToQualifier();
+
+            var xmlAnonymous = WriteToXmlStream(anonymous, (o, writer) => writer.WriteOuterXml(o, XmlSerializationExtensions.WriteToXml));
+            Assert.IsTrue(xmlAnonymous.Length > 0);
+
+            Qualifier readAnonymous = ReadFromXmlStream<Qualifier>(xmlAnonymous, XmlSerializationExtensions.ReadFromXml);
+            Assert.AreEqual(anonymous, readAnonymous);
+        }
+
+        [Test]
+        public void ClassifierXmlRoundtripTests()
+        {
+            var classifier = new Classifier();
+            Enumerable.Range(1, 10).ForEach( _ => classifier.Path.Add(System.Guid.NewGuid().ToQualifier()));
+
+            var xml = WriteToXmlStream(classifier, (o, writer) => writer.WriteOuterXml(o, XmlSerializationExtensions.WriteToXml));
+            Assert.IsTrue(xml.Length > 0);
+
+            Classifier read = ReadFromXmlStream<Classifier>(xml, XmlSerializationExtensions.ReadFromXml);
+            Assert.AreEqual(classifier, read);
         }
     }
 }

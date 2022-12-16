@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "./Bitub.Dto"
+		},
+		{
+			"path": "./Bitub.Dto.Tests"
+		}
+	],
+	"settings": {}
+}

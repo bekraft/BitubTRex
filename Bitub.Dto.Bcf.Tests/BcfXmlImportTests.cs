@@ -6,7 +6,8 @@ using Bitub.Dto.BcfXml;
 
 namespace Bitub.Dto.Bcf.Tests
 {
-    public class BcfXmlTests : BaseTests<BcfXmlTests>
+    [TestFixture]
+    public class BcfXmlTests : TestBase<BcfXmlTests>
     {
         public BcfXmlTests() : base()
         { }

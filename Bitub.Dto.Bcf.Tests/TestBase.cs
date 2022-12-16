@@ -7,13 +7,13 @@ using System.Text.Json;
 
 namespace Bitub.Dto.Bcf.Tests
 {
-    abstract public class BaseTests<T> 
+    abstract public class TestBase<T> 
     {
         protected readonly ILogger<T> logger;
 
         private static ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 
-        protected BaseTests()
+        protected TestBase()
         {
             logger = loggerFactory.CreateLogger<T>();
         }

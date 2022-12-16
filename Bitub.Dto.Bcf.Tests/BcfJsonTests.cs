@@ -9,7 +9,8 @@ using Bitub.Dto.BcfApi;
 
 namespace Bitub.Dto.Bcf.Tests
 {
-    public class BcfJsonTests : BaseTests<BcfJsonTests>
+    [TestFixture]
+    public class BcfJsonTests : TestBase<BcfJsonTests>
     {
         private JsonSerializerOptions jsonSerializerOptions;
         

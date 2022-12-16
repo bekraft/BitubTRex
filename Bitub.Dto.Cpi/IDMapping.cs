@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using System.Xml.Serialization;
 
@@ -34,12 +32,20 @@ namespace Bitub.Dto.Cpi
                    SourceId == mapping.SourceId;
         }
 
+        #if (NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+
         public override int GetHashCode()
         {
-            int hashCode = 1282183885;
-            hashCode = hashCode * -1521134295 + CpiId.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(SourceId);
-            return hashCode;
+            return HashCode.Combine(CpiId, SourceId);
         }
+
+        #else
+
+        public override int GetHashCode()
+        {
+            return new { CpiId, SourceId }.GetHashCode();
+        }
+
+        #endif
     }
 }
