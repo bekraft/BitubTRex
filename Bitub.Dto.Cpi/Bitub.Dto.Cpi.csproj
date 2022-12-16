@@ -9,13 +9,15 @@
     <RootNamespace>Bitub.Dto.Cpi</RootNamespace>
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(IsWindows)' == 'true'">
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net471;net48;net5.0</TargetFrameworks>
+    <UserHome>$(UserProfile)</UserHome>
+    <TargetFrameworks>net48;net6.0;net7.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'">
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net5.0</TargetFrameworks>
+    <UserHome>$(HOME)</UserHome>
+    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
   </PropertyGroup>
 
 

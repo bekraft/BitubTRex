@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>    
-    <ProtobufTools>$(UserHome)/.nuget/packages/google.protobuf.tools/3.15.8/tools</ProtobufTools>
+    <ProtobufTools>$(UserHome)/.nuget/packages/google.protobuf.tools/3.21.12/tools</ProtobufTools>
     
     <Title>Bitub.Dto</Title>
     <Description>Bitub common model transferring library</Description>
@@ -18,11 +18,13 @@
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(IsWindows)' == 'true'">
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net48;net5.0</TargetFrameworks>
+    <UserHome>$(UserProfile)</UserHome>
+    <TargetFrameworks>net48;net6.0;net7.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'">
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net5.0</TargetFrameworks>
+    <UserHome>$(HOME)</UserHome>
+    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
   </PropertyGroup>
 
 
@@ -72,13 +74,13 @@
   </PropertyGroup>
     
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf" Version="3.15.8">
+    <PackageReference Include="Google.Protobuf" Version="3.21.12">
     </PackageReference>
-    <PackageReference Include="Google.Protobuf.Tools" Version="3.15.8">
+    <PackageReference Include="Google.Protobuf.Tools" Version="3.21.12">
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.9" />
     <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
-    <PackageReference Include="System.Text.Json" Version="5.0.2" />
+    <PackageReference Include="System.Text.Json" Version="5.0.0" />
   </ItemGroup>
   
   <ItemGroup Condition="$(TargetFramework.StartsWith('net4'))">
@@ -98,6 +100,6 @@
         <GeneratedProtos Include="$(ProjectDir)Generated/*.cs" />
         <Compile Include="@(GeneratedProtos)" />
     </ItemGroup>
-    <Message Text="Generated: @(GeneratedProtos)" Importance="High"/>
+    <Message Text="Generated: @(GeneratedProtos)" Importance="High" />
   </Target>
 </Project>
