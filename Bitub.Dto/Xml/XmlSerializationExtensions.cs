@@ -206,7 +206,7 @@ namespace Bitub.Dto.Xml
 
         public static XmlReader ReadFromXml(this Name name, XmlReader reader)
         {
-            bool hasEntered = false;
+            string hasEntered = null;
             name.Frags.Clear();
             reader.MoveToContent();
             do
@@ -214,26 +214,23 @@ namespace Bitub.Dto.Xml
                 switch (reader.NodeType)
                 {
                     case XmlNodeType.Element:
-                        if (typeof(Name).Name.Equals(reader.Name))
+                        hasEntered = null == hasEntered ? reader.Name : hasEntered;
+                        switch(reader.Name)
                         {
-                            hasEntered = true;
-                        }
-                        else if (nameof(Name.Frags).Equals(reader.Name))
-                        {
-                            name.Frags.Add(reader.Value);
-                        }
-                        else
-                            throw new XmlException($"Unexpected element '{reader.Name}'");
+                            case nameof(Name.Frags):
+                                name.Frags.Add(reader.ReadElementContentAsString());
+                                break;
+                        }   
                         break;
                     case XmlNodeType.EndElement:
-                        if (!hasEntered)
-                            throw new XmlException($"Structural assertion exception. Not entered {typeof(Name).Name}.");
-
-                        if (typeof(Name).Name.Equals(reader.Name))
-                        {
-                            reader.ReadEndElement();
-                            return reader;
-                        }
+                        if (null == hasEntered)
+                            throw new XmlException($"Structural assertion exception. Not entered any node.");
+                        else
+                            if (hasEntered.Equals(reader.Name))
+                            {
+                                reader.ReadEndElement();
+                                return reader;
+                            }
 
                         break;
                 }
