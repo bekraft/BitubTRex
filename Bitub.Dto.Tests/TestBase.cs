@@ -26,7 +26,8 @@ namespace Bitub.Dto.Tests
             using (var ms = new MemoryStream())
             {
                 var writer = XmlWriter.Create(ms);
-                writeTo(specimen, writer);                
+                writeTo(specimen, writer);
+                writer.Flush();
                 return ms.ToArray();
             }
         }
