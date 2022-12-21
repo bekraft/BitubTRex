@@ -42,18 +42,6 @@ namespace Bitub.Dto.Tests
         }
 
         [Test]
-        public void SubSuperClassifierTests()
-        {
-            var nc1 = new string[] { "A", "Test1" }.ToQualifier().ToClassifier();
-            var nq2 = new string[] { "A" }.ToQualifier();
-            var nq3 = new string[] { "Test1" }.ToQualifier();
-
-            var q1 = nc1.ToSubQualifiers(nq2).ToArray();
-            Assert.AreEqual(1, q1.Length);
-            Assert.AreEqual(nq3, q1[0]);
-        }
-
-        [Test]
         public void NameAndPathMatchingTests()
         {
             var nc1 = new string[] { "A" }.ToQualifier();
@@ -87,8 +75,8 @@ namespace Bitub.Dto.Tests
             var xmlNamed = WriteToXmlStream(named, (o, writer) => writer.WriteOuterXml(o, XmlSerializationExtensions.WriteToXml));
             Assert.IsTrue(xmlNamed.Length > 0);           
 
-            Qualifier readNamed = ReadFromXmlStream<Qualifier>(xmlNamed, XmlSerializationExtensions.ReadFromXml);
-            Assert.AreEqual(named, readNamed);
+            var readNamed = ReadFromXmlStream<Qualifier>(xmlNamed, XmlSerializationExtensions.ReadQualifierFromXml);
+            Assert.AreEqual(named, readNamed.First());
         }
 
 
@@ -100,21 +88,8 @@ namespace Bitub.Dto.Tests
             var xmlAnonymous = WriteToXmlStream(anonymous, (o, writer) => writer.WriteOuterXml(o, XmlSerializationExtensions.WriteToXml));
             Assert.IsTrue(xmlAnonymous.Length > 0);
 
-            Qualifier readAnonymous = ReadFromXmlStream<Qualifier>(xmlAnonymous, XmlSerializationExtensions.ReadFromXml);
-            Assert.AreEqual(anonymous, readAnonymous);
-        }
-
-        [Test]
-        public void ClassifierXmlRoundtripTests()
-        {
-            var classifier = new Classifier();
-            Enumerable.Range(1, 10).ForEach( _ => classifier.Path.Add(System.Guid.NewGuid().ToQualifier()));
-
-            var xml = WriteToXmlStream(classifier, (o, writer) => writer.WriteOuterXml(o, XmlSerializationExtensions.WriteToXml));
-            Assert.IsTrue(xml.Length > 0);
-
-            Classifier read = ReadFromXmlStream<Classifier>(xml, XmlSerializationExtensions.ReadFromXml);
-            Assert.AreEqual(classifier, read);
+            var readAnonymous = ReadFromXmlStream<Qualifier>(xmlAnonymous, XmlSerializationExtensions.ReadQualifierFromXml);
+            Assert.AreEqual(anonymous, readAnonymous.First());
         }
     }
 }

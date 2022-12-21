@@ -1,20 +1,23 @@
-﻿using System;
-using System.IO;
+﻿using Bitub.Dto.Concept;
+using System;
 using System.Collections.Generic;
-
+using System.IO;
+using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
-
+ 
 namespace Bitub.Dto.Xml
 {
     public static class XmlSerializationExtensions
     {
-        #region Delegates
+        #region´Generalized delegates
         
         public delegate XmlWriter XmlWriteDelegate<E>(E obj, XmlWriter writer);
-        public delegate XmlReader XmlReadDelegate<E>(E obj, XmlReader reader);
-        
+        public delegate IEnumerable<E> XmlReadDelegate<E>(XmlReader reader);
+
         #endregion
+
+        #region XML initialization
 
         /// <summary>
         /// A new "headless" UTF-8 serializer omitting namespaces and XML declarations.
@@ -86,45 +89,47 @@ namespace Bitub.Dto.Xml
             return writer;
         }
 
+        #endregion
+
         #region XML extensions for Classifier and Qualifier
 
-        public static XmlReader ReadFromXml(this Classifier classifier, XmlReader reader)
+        public static IEnumerable<Classifier> ReadClassifierFromXml(this XmlReader reader)
         {
-            classifier.Path.Clear();
-            bool hasEnteredClassifier = false;
-            bool hasEnteredPath = false;
+            Classifier mostRecent = new Classifier();
+            string hasEntered = null;
             reader.MoveToContent();
             do
             {
                 switch (reader.NodeType)
                 {
                     case XmlNodeType.Element:
-                        if (hasEnteredPath)
-                        {
-                            var qualifier = new Qualifier();
-                            reader = qualifier.ReadFromXml(reader);
-                            classifier.Path.Add(qualifier);
-                        }
-                        else if (typeof(Classifier).Name.Equals(reader.Name))
-                        {
-                            hasEnteredClassifier = true;
-                        }
-                        else if (nameof(Classifier.Path).Equals(reader.Name) && hasEnteredClassifier)
-                        {
-                            hasEnteredPath = true;
-                        }
-                        else
-                            throw new XmlException($"Unexpected element '{reader.Name}'");
+                        hasEntered = null == hasEntered ? reader.Name : hasEntered;
 
+                        switch (reader.Name)
+                        {
+                            case nameof(Classifier.Path):
+                                mostRecent.Path.AddRange(reader.ReadQualifierFromXml());
+                                break;
+                        }
+                        
                         break;
                     case XmlNodeType.EndElement:
-                        if (!hasEnteredClassifier)
+                        if (null == hasEntered)
                             throw new XmlException($"Structural assertion exception. Not entered {typeof(Qualifier).Name}.");
 
-                        if (typeof(Classifier).Name.Equals(reader.Name))
+                        if (hasEntered.Equals(reader.Name))
                         {
                             reader.ReadEndElement();
-                            return reader;
+                            if (mostRecent.Path.Count > 0)
+                                yield return mostRecent;
+                            // Break
+                            yield break;
+                        }
+                        else
+                        {
+                            Classifier newClassifier = mostRecent;
+                            mostRecent = new Classifier();
+                            yield return newClassifier;
                         }
 
                         break;
@@ -135,50 +140,47 @@ namespace Bitub.Dto.Xml
 
         public static XmlWriter WriteToXml(this Classifier classifier, XmlWriter writer)
         {
+            writer.WriteStartElement(nameof(Classifier.Path));
             foreach (var qualifier in classifier.Path)
                 qualifier.WriteToXml(writer);
+            writer.WriteEndElement();
             return writer;
         }
 
-        public static XmlReader ReadFromXml(this Qualifier qualifier, XmlReader reader)
+        public static IEnumerable<Qualifier> ReadQualifierFromXml(this XmlReader reader)
         {
-            qualifier.ClearGuidOrName();
-            bool hasEntered = false;
+            string hasEntered = null;
             reader.MoveToContent();
             do
             {
                 switch (reader.NodeType)
                 {
                     case XmlNodeType.Element:
-                        if (typeof(Qualifier).Name.Equals(reader.Name))
+                        hasEntered = null == hasEntered ? reader.Name : hasEntered;
+                        switch(reader.Name)
                         {
-                            hasEntered = true;
+                            case nameof(Qualifier.Anonymous):
+                                var id = reader.ReadGlobalUníqueIdFromXml().First();
+                                yield return new Qualifier { Anonymous = id };
+                                break;
+                            case nameof(Qualifier.Named):
+                                var name = reader.ReadNameFromXml().First();
+                                yield return new Qualifier { Named = name };
+                                break;
                         }
-                        else if (nameof(Qualifier.Anonymous).Equals(reader.Name))
-                        {
-                            var globalUniqueId = new GlobalUniqueId();
-                            reader = globalUniqueId.ReadFromXml(reader);
-                            qualifier.Anonymous = globalUniqueId;
-                        }
-                        else if (nameof(Qualifier.Named).Equals(reader.Name))
-                        {
-                            var name = new Name();
-                            reader = name.ReadFromXml(reader);
-                            qualifier.Named = name;
-                        }
-                        else
-                            throw new XmlException($"Unexpected element '{reader.Name}'");
-
+                       
                         break;
                     case XmlNodeType.EndElement:
-                        if (!hasEntered)
-                            throw new XmlException($"Structural assertion exception. Not entered {typeof(Qualifier).Name}.");
-
-                        if (typeof(Qualifier).Name.Equals(reader.Name))
+                        if (null == hasEntered)
                         {
-                            reader.ReadEndElement();
-                            return reader;
+                            throw new XmlException($"Structural assertion exception. Not entered {typeof(Qualifier).Name}.");
                         }
+                        else
+                            if (hasEntered.Equals(reader.Name))
+                            {
+                                reader.ReadEndElement();
+                                yield break;
+                            }
 
                         break;
                 }
@@ -204,10 +206,10 @@ namespace Bitub.Dto.Xml
             return writer;
         }
 
-        public static XmlReader ReadFromXml(this Name name, XmlReader reader)
+        public static IEnumerable<Name> ReadNameFromXml(this XmlReader reader)
         {
             string hasEntered = null;
-            name.Frags.Clear();
+            Name mostRecentName = new Name();
             reader.MoveToContent();
             do
             {
@@ -218,7 +220,7 @@ namespace Bitub.Dto.Xml
                         switch(reader.Name)
                         {
                             case nameof(Name.Frags):
-                                name.Frags.Add(reader.ReadElementContentAsString());
+                                mostRecentName.Frags.Add(reader.ReadElementContentAsString());
                                 break;
                         }   
                         break;
@@ -229,7 +231,16 @@ namespace Bitub.Dto.Xml
                             if (hasEntered.Equals(reader.Name))
                             {
                                 reader.ReadEndElement();
-                                return reader;
+                                if (mostRecentName.Frags.Count > 0)
+                                    yield return mostRecentName;
+                                // Break
+                                yield break;
+                            } 
+                            else if (!nameof(Name.Frags).Equals(reader.Name))
+                            {
+                                Name newName = mostRecentName;
+                                mostRecentName = new Name();
+                                yield return newName;
                             }
 
                         break;
@@ -244,45 +255,40 @@ namespace Bitub.Dto.Xml
                 writer.WriteElementString(nameof(Name.Frags), frag);
             return writer;
         }
-
-        public static XmlReader ReadFromXml(this GlobalUniqueId globalUniqueId, XmlReader reader)
+              
+        public static IEnumerable<GlobalUniqueId> ReadGlobalUníqueIdFromXml(this XmlReader reader)
         {
-            bool hasEntered = false;
+            string hasEntered = null;
             reader.MoveToContent();
             do
             {
                 switch (reader.NodeType)
                 {
                     case XmlNodeType.Element:
-                        if (typeof(GlobalUniqueId).Name.Equals(reader.Name))
+                        hasEntered = null == hasEntered ? reader.Name : hasEntered;
+                        switch (reader.Name)
                         {
-                            hasEntered = true;
-                        }
-                        else if (nameof(GlobalUniqueId.Base64).Equals(reader.Name))
-                        {
-                            globalUniqueId.Base64 = reader.Value;
-                        }
-                        else if (nameof(GlobalUniqueId.Guid).Equals(reader.Name))
-                        {
-                            System.Guid guid;
-                            if (!System.Guid.TryParse(reader.Value, out guid))
-                                throw new XmlException($"Cannot parse GUID from '{reader.Value}'");
+                            case nameof(GlobalUniqueId.Base64):
+                                yield return new GlobalUniqueId { Base64 = reader.ReadElementContentAsString() };
+                                break;
+                            case nameof(GlobalUniqueId.Guid):
+                                System.Guid guid;
+                                if (!System.Guid.TryParse(reader.Value, out guid))
+                                    throw new XmlException($"Cannot parse GUID from '{reader.Value}'");
 
-                            globalUniqueId.Guid = guid.ToDtoGuid();
+                                yield return new GlobalUniqueId { Guid = guid.ToDtoGuid() };
+                                break;
                         }
-                        else
-                            throw new XmlException($"Unexpected element '{reader.Name}'");
-
                         break;
                     case XmlNodeType.EndElement:
-                        if (!hasEntered)
+                        if (null == hasEntered)
                             throw new XmlException($"Structural assertion exception. Not entered {typeof(GlobalUniqueId).Name}.");
-
-                        if (typeof(GlobalUniqueId).Name.Equals(reader.Name))
-                        {
-                            reader.ReadEndElement();
-                            return reader;
-                        }
+                        else
+                            if (hasEntered.Equals(reader.Name))
+                            {
+                                reader.ReadEndElement();
+                                yield break;
+                            }
 
                         break;
                 }
@@ -304,6 +310,88 @@ namespace Bitub.Dto.Xml
                     break;
             }
             return writer;
+        }
+
+        #endregion
+
+        #region Canonical filter
+
+        public static IEnumerable<CanonicalFilter> ReadCanonicalFilterFromXml(this XmlReader reader)
+        {
+            CanonicalFilter recent = null;
+            string hasEntered = null;
+            do
+            {
+                switch (reader.NodeType)
+                {
+                    case XmlNodeType.Element:
+                        hasEntered = null == hasEntered ? reader.Name : hasEntered;
+
+                        switch (reader.Name)
+                        {
+                            case nameof(CanonicalFilter):
+                                var strComparisonType = reader.GetAttribute(nameof(StringComparison));
+                                var strFilterMatchingType = reader.GetAttribute(nameof(FilterMatchingType));
+                                
+                                StringComparison stringComparison;
+                                if (!Enum.TryParse(strComparisonType, out stringComparison))
+                                    throw new XmlException($"Unknown comparison type '{strComparisonType}'");
+
+                                FilterMatchingType filterMatchingType;
+                                if (!Enum.TryParse(strFilterMatchingType, out filterMatchingType))
+                                    throw new XmlException($"Unknown filter matching type type '{strFilterMatchingType}'");
+
+                                recent = new CanonicalFilter(filterMatchingType, stringComparison);
+                                break;
+
+                            case nameof(CanonicalFilter.Filter):
+                                if (null == recent)
+                                    throw new XmlException($"Incorrect structure. Expecting ${nameof(CanonicalFilter)} element before ${reader.Name}.");
+                                recent.Filter.AddRange(reader.ReadClassifierFromXml());
+                                break;
+                        }
+
+                        break;
+                    case XmlNodeType.EndElement:
+                        if (null == hasEntered)
+                            throw new XmlException($"Structural assertion exception. Not entered {typeof(Qualifier).Name}.");
+
+                        string elementName = reader.Name;
+                        reader.ReadEndElement();
+
+                        if (hasEntered.Equals(elementName))
+                        {
+                            if (null != recent)
+                                yield return recent;
+                            yield break;
+                        }
+                        else if (nameof(CanonicalFilter).Equals(elementName))
+                        {
+                            CanonicalFilter newFilter = recent;
+                            recent = null;
+                            yield return newFilter;
+                        }
+                        
+                        break;
+                }
+            } while (reader.Read());
+        }
+
+        public static void WriteXml(this CanonicalFilter canonicalFilter, XmlWriter writer)
+        {
+            writer.WriteStartElement(nameof(CanonicalFilter));
+            writer.WriteAttributeString(nameof(FilterMatchingType), canonicalFilter.MatchingType.ToString());
+            writer.WriteAttributeString(nameof(StringComparison), canonicalFilter.StringComparison.ToString());
+            
+            if (null != canonicalFilter.Filter)
+            {
+                writer.WriteStartElement(nameof(CanonicalFilter.Filter));
+                foreach (var entry in canonicalFilter.Filter)
+                    entry.WriteToXml(writer);
+                writer.WriteEndElement();
+            }
+
+            writer.WriteEndElement();
         }
 
         #endregion

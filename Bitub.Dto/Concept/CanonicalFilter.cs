@@ -40,7 +40,7 @@ namespace Bitub.Dto.Concept
     /// <summary>
     /// Classifying filter given a sequence of filter classifiers, a matching type and name comparison type.
     /// </summary>
-    public class CanonicalFilter : IXmlSerializable
+    public class CanonicalFilter
     {
         public StringComparison StringComparison { get; private set; }
 
@@ -139,57 +139,6 @@ namespace Bitub.Dto.Concept
             }
 
             return matches.Length > 0;
-        }
-
-        public void ReadXml(XmlReader reader)
-        {
-            Filter = new List<Classifier>();
-            bool hasEntered = false;
-            do
-            {
-                switch (reader.NodeType)
-                {
-                    case XmlNodeType.Element:
-                        if (typeof(CanonicalFilter).Name.Equals(reader.Name))
-                        {
-                            var strComparisonType = reader.GetAttribute(nameof(StringComparison));
-                            StringComparison parsedType;
-                            if (!Enum.TryParse(strComparisonType, out parsedType))
-                                throw new XmlException($"Unknown comparison type '{strComparisonType}'");
-
-                            StringComparison = parsedType;
-                            hasEntered = true;
-                        }
-                        else if (hasEntered)
-                        {
-                            var newClassifier = new Classifier();
-                            reader = newClassifier.ReadFromXml(reader);
-                            Filter.Add(newClassifier);
-                        }
-                        else
-                            throw new XmlException($"Unexpected element '{reader.Name}'");
-
-                        break;
-                    case XmlNodeType.EndElement:
-                        if (!hasEntered)
-                            throw new XmlException($"Structural assertion exception. Not entered {typeof(Qualifier).Name}.");
-
-                        reader.ReadEndElement();
-                        return;
-                }
-            } while (reader.Read());
-
-            throw new XmlException("Unexpected end of XML reader");
-        }
-
-        public void WriteXml(XmlWriter writer)
-        {
-            writer.WriteAttributeString(nameof(StringComparison), StringComparison.ToString());
-            if (null != Filter)
-            {
-                foreach (var entry in Filter)
-                    entry.WriteToXml(writer);
-            }
         }
     }
 }

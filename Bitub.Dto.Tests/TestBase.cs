@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Xml;
@@ -32,15 +33,13 @@ namespace Bitub.Dto.Tests
             }
         }
 
-        protected E ReadFromXmlStream<E>(byte[] buffer, XmlReadDelegate<E> readFrom) where E : new()
+        protected IEnumerable<E> ReadFromXmlStream<E>(byte[] buffer, XmlReadDelegate<E> readFrom) where E : new()
         {
             using (var ms = new MemoryStream(buffer))
             {
                 var reader = XmlReader.Create(ms);
                 reader.MoveToContent();
-                var obj = new E();
-                readFrom(obj, reader);
-                return obj;
+                return readFrom(reader);
             }
         }
 
