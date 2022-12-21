@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Threading;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,10 +13,19 @@ namespace Bitub.Dto.BcfApi
     {
         public BcfApiContext(string clientId) : base(clientId)
         {
+        }
 
-        }        
+        public override string ToResourceUri(string resouceUri)
+        {
+            throw new NotImplementedException();
+        }
 
-        public override Task<DtoResult<IDtoAuthenticated>> Authenticate()
+        public override string ToRootUri(string resouceUri)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<DtoResult<IDtoAuthenticated>> Authenticate()
         {
             throw new NotImplementedException();
         }

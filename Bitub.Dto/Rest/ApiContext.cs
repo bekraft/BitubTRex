@@ -45,9 +45,9 @@ namespace Bitub.Dto.Rest
             set { lock (contextMonitor) authHeaderValue = value; }
         }
 
-        abstract protected internal string ToRootUri(string resouceUri);
+        abstract public string ToRootUri(string resouceUri);
 
-        abstract protected internal string ToResourceUri(string resouceUri);
+        abstract public string ToResourceUri(string resouceUri);
 
         abstract protected Task<DtoResult<IDtoAuthenticated>> Authenticate();
         
