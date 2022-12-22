@@ -41,7 +41,7 @@ steps:
   inputs:
     command: test
     projects: '**/*Tests/*.csproj'
-    arguments: '--configuration $(buildConfiguration) --platform $(buildPlatform)'
+    arguments: '--configuration $(buildConfiguration)'
 
 - task: NuGetCommand@2
   condition: and(succeeded(), in(variables.buildConfiguration, 'Release', 'Beta'))
