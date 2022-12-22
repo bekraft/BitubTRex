@@ -1,4 +1,5 @@
 ﻿using Bitub.Dto.Concept;
+using Google.Protobuf;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -103,7 +104,7 @@ namespace Bitub.Dto.Xml
                 switch (reader.NodeType)
                 {
                     case XmlNodeType.Element:
-                        hasEntered = null == hasEntered ? reader.Name : hasEntered;
+                        hasEntered ??= reader.Name;
 
                         switch (reader.Name)
                         {
@@ -115,11 +116,10 @@ namespace Bitub.Dto.Xml
                         break;
                     case XmlNodeType.EndElement:
                         if (null == hasEntered)
-                            throw new XmlException($"Structural assertion exception. Not entered {typeof(Qualifier).Name}.");
+                            break;
 
                         if (hasEntered.Equals(reader.Name))
                         {
-                            reader.ReadEndElement();
                             if (mostRecent.Path.Count > 0)
                                 yield return mostRecent;
                             // Break
@@ -135,7 +135,6 @@ namespace Bitub.Dto.Xml
                         break;
                 }
             } while (reader.Read());
-            throw new XmlException("Unexpected end of XML reader");
         }
 
         public static XmlWriter WriteToXml(this Classifier classifier, XmlWriter writer)
@@ -156,7 +155,7 @@ namespace Bitub.Dto.Xml
                 switch (reader.NodeType)
                 {
                     case XmlNodeType.Element:
-                        hasEntered = null == hasEntered ? reader.Name : hasEntered;
+                        hasEntered ??= reader.Name;
                         switch(reader.Name)
                         {
                             case nameof(Qualifier.Anonymous):
@@ -172,20 +171,14 @@ namespace Bitub.Dto.Xml
                         break;
                     case XmlNodeType.EndElement:
                         if (null == hasEntered)
-                        {
-                            throw new XmlException($"Structural assertion exception. Not entered {typeof(Qualifier).Name}.");
-                        }
-                        else
-                            if (hasEntered.Equals(reader.Name))
-                            {
-                                reader.ReadEndElement();
-                                yield break;
-                            }
+                            break;
+
+                        if (hasEntered.Equals(reader.Name))
+                            yield break;
 
                         break;
                 }
             } while (reader.Read());
-            throw new XmlException("Unexpected end of XML reader");
         }
 
         public static XmlWriter WriteToXml(this Qualifier qualifier, XmlWriter writer)
@@ -216,37 +209,37 @@ namespace Bitub.Dto.Xml
                 switch (reader.NodeType)
                 {
                     case XmlNodeType.Element:
-                        hasEntered = null == hasEntered ? reader.Name : hasEntered;
+                        hasEntered ??= reader.Name;
                         switch(reader.Name)
                         {
                             case nameof(Name.Frags):
-                                mostRecentName.Frags.Add(reader.ReadElementContentAsString());
+                                if (reader.Read() && XmlNodeType.Text == reader.NodeType)
+                                    mostRecentName.Frags.Add(reader.Value);
                                 break;
                         }   
                         break;
                     case XmlNodeType.EndElement:
                         if (null == hasEntered)
-                            throw new XmlException($"Structural assertion exception. Not entered any node.");
-                        else
-                            if (hasEntered.Equals(reader.Name))
-                            {
-                                reader.ReadEndElement();
-                                if (mostRecentName.Frags.Count > 0)
-                                    yield return mostRecentName;
-                                // Break
-                                yield break;
-                            } 
-                            else if (!nameof(Name.Frags).Equals(reader.Name))
-                            {
-                                Name newName = mostRecentName;
-                                mostRecentName = new Name();
-                                yield return newName;
-                            }
+                            break;
+                        
+                        var elementName = reader.Name;
+                        if (hasEntered.Equals(elementName))
+                        {                            
+                            if (mostRecentName.Frags.Count > 0)
+                                yield return mostRecentName;
+                            // Break
+                            yield break;
+                        } 
+                        else if (!nameof(Name.Frags).Equals(elementName))
+                        {
+                            Name newName = mostRecentName;
+                            mostRecentName = new Name();
+                            yield return newName;
+                        }
 
                         break;
                 }
-            } while (reader.Read());
-            throw new XmlException("Unexpected end of XML reader");
+            } while (reader.Read());            
         }
 
         public static XmlWriter WriteToXml(this Name name, XmlWriter writer)
@@ -265,35 +258,30 @@ namespace Bitub.Dto.Xml
                 switch (reader.NodeType)
                 {
                     case XmlNodeType.Element:
-                        hasEntered = null == hasEntered ? reader.Name : hasEntered;
+                        hasEntered = hasEntered ?? reader.Name;
                         switch (reader.Name)
                         {
                             case nameof(GlobalUniqueId.Base64):
-                                yield return new GlobalUniqueId { Base64 = reader.ReadElementContentAsString() };
+                                if (reader.Read() && XmlNodeType.Text == reader.NodeType)
+                                    yield return new GlobalUniqueId { Base64 = reader.Value };
                                 break;
                             case nameof(GlobalUniqueId.Guid):
-                                System.Guid guid;
-                                if (!System.Guid.TryParse(reader.Value, out guid))
-                                    throw new XmlException($"Cannot parse GUID from '{reader.Value}'");
+                                if (reader.Read() && XmlNodeType.CDATA == reader.NodeType)
+                                    yield return new GlobalUniqueId { Guid = new Guid { Raw = ByteString.FromBase64(reader.Value) } };
 
-                                yield return new GlobalUniqueId { Guid = guid.ToDtoGuid() };
                                 break;
                         }
                         break;
                     case XmlNodeType.EndElement:
                         if (null == hasEntered)
-                            throw new XmlException($"Structural assertion exception. Not entered {typeof(GlobalUniqueId).Name}.");
-                        else
-                            if (hasEntered.Equals(reader.Name))
-                            {
-                                reader.ReadEndElement();
-                                yield break;
-                            }
+                            break;
+                        
+                        if (hasEntered.Equals(reader.Name))
+                            yield break;
 
                         break;
                 }
             } while (reader.Read());
-            throw new XmlException("Unexpected end of XML reader");
         }
 
         public static XmlWriter WriteToXml(this GlobalUniqueId globalUniqueId, XmlWriter writer)
@@ -304,7 +292,9 @@ namespace Bitub.Dto.Xml
                     writer.WriteElementString(nameof(GlobalUniqueId.Base64), globalUniqueId.Base64);
                     break;
                 case GlobalUniqueId.GuidOrStringOneofCase.Guid:
-                    writer.WriteElementString(nameof(GlobalUniqueId.Guid), globalUniqueId.Guid.ToString());
+                    writer.WriteStartElement(nameof(GlobalUniqueId.Guid));
+                    writer.WriteCData(globalUniqueId.Guid.Raw.ToBase64());
+                    writer.WriteEndElement();
                     break;
                 default:
                     break;
@@ -325,7 +315,7 @@ namespace Bitub.Dto.Xml
                 switch (reader.NodeType)
                 {
                     case XmlNodeType.Element:
-                        hasEntered = null == hasEntered ? reader.Name : hasEntered;
+                        hasEntered ??= reader.Name;
 
                         switch (reader.Name)
                         {
@@ -345,20 +335,16 @@ namespace Bitub.Dto.Xml
                                 break;
 
                             case nameof(CanonicalFilter.Filter):
-                                if (null == recent)
-                                    throw new XmlException($"Incorrect structure. Expecting ${nameof(CanonicalFilter)} element before ${reader.Name}.");
-                                recent.Filter.AddRange(reader.ReadClassifierFromXml());
+                                recent?.Filter.AddRange(reader.ReadClassifierFromXml());
                                 break;
                         }
 
                         break;
                     case XmlNodeType.EndElement:
                         if (null == hasEntered)
-                            throw new XmlException($"Structural assertion exception. Not entered {typeof(Qualifier).Name}.");
+                            break;
 
-                        string elementName = reader.Name;
-                        reader.ReadEndElement();
-
+                        var elementName = reader.Name;
                         if (hasEntered.Equals(elementName))
                         {
                             if (null != recent)
@@ -377,7 +363,7 @@ namespace Bitub.Dto.Xml
             } while (reader.Read());
         }
 
-        public static void WriteXml(this CanonicalFilter canonicalFilter, XmlWriter writer)
+        public static XmlWriter WriteToXml(this CanonicalFilter canonicalFilter, XmlWriter writer)
         {
             writer.WriteStartElement(nameof(CanonicalFilter));
             writer.WriteAttributeString(nameof(FilterMatchingType), canonicalFilter.MatchingType.ToString());
@@ -392,6 +378,7 @@ namespace Bitub.Dto.Xml
             }
 
             writer.WriteEndElement();
+            return writer;
         }
 
         #endregion

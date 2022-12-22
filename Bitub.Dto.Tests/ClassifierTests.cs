@@ -16,7 +16,7 @@ namespace Bitub.Dto.Tests
         }
 
         [Test]
-        public void ClassifierXmlRoundtripTests()
+        public void RoundtripXmlTests()
         {
             var classifier = new Classifier();
             Enumerable.Range(1, 10).ForEach(_ => classifier.Path.Add(System.Guid.NewGuid().ToQualifier()));

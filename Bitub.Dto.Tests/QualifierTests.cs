@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 
 using Bitub.Dto.Xml;
+using System.Text;
 
 namespace Bitub.Dto.Tests
 {
@@ -67,13 +68,13 @@ namespace Bitub.Dto.Tests
         }
 
         [Test]
-        public void NamedQualifierXmlRoundtripTests()
+        public void RoundtripXmlNamedTests()
         {
             var named = new string[] { "A", "Test1" }.ToQualifier();
             Assert.AreEqual(named.ToLabel(), "A.Test1");
 
             var xmlNamed = WriteToXmlStream(named, (o, writer) => writer.WriteOuterXml(o, XmlSerializationExtensions.WriteToXml));
-            Assert.IsTrue(xmlNamed.Length > 0);           
+            Assert.IsTrue(xmlNamed.Length > 0);                  
 
             var readNamed = ReadFromXmlStream<Qualifier>(xmlNamed, XmlSerializationExtensions.ReadQualifierFromXml);
             Assert.AreEqual(named, readNamed.First());
@@ -81,12 +82,12 @@ namespace Bitub.Dto.Tests
 
 
         [Test]
-        public void AnonymousQualifierXmlRoundtripTests()
+        public void RoundtripXmlAnonymousTests()
         {
             var anonymous = System.Guid.NewGuid().ToQualifier();
 
             var xmlAnonymous = WriteToXmlStream(anonymous, (o, writer) => writer.WriteOuterXml(o, XmlSerializationExtensions.WriteToXml));
-            Assert.IsTrue(xmlAnonymous.Length > 0);
+            Assert.IsTrue(xmlAnonymous.Length > 0);            
 
             var readAnonymous = ReadFromXmlStream<Qualifier>(xmlAnonymous, XmlSerializationExtensions.ReadQualifierFromXml);
             Assert.AreEqual(anonymous, readAnonymous.First());
