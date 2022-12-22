@@ -36,11 +36,12 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-- task: VSTest@2
+- task: DotNetCoreCLI@2
   condition: and(succeeded(), eq(variables.skipTests, 'false'))
   inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    command: test
+    projects: '**/*Tests/*.csproj'
+    arguments: '--configuration $(buildConfiguration) --platform $(buildPlatform)'
 
 - task: NuGetCommand@2
   condition: and(succeeded(), in(variables.buildConfiguration, 'Release', 'Beta'))
