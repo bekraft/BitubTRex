@@ -35,21 +35,19 @@ namespace Bitub.Dto
                     return id.Base64;
                 case GlobalUniqueId.GuidOrStringOneofCase.Guid:
                     return id.Guid.Raw.ToBase64();
+                case GlobalUniqueId.GuidOrStringOneofCase.None:
+                    return null;
                 default:
                     throw new NotImplementedException($"Missing implementation for '{id.GuidOrStringCase}'");
             }
         }
 
-        public static GlobalUniqueId ToGlobalUniqueId(this string expectedId)
+        public static GlobalUniqueId ToGlobalUniqueId(this string guid)
         {
-            if (expectedId.IsGuidStringRepresentation())
-            {
-                return System.Guid.Parse(expectedId).ToGlobalUniqueId();
-            }
+            if (guid.IsGuidStringRepresentation())
+                return System.Guid.Parse(guid).ToGlobalUniqueId();
             else
-            {
-                return new GlobalUniqueId { Base64 = expectedId };
-            }
+                return new GlobalUniqueId { Base64 = guid };
         }
 
         public static Qualifier ToQualifier(this GlobalUniqueId guid)
@@ -57,6 +55,14 @@ namespace Bitub.Dto
             return new Qualifier
             {
                 Anonymous = guid
+            };
+        }
+
+        public static Qualifier ToQualifier(this byte[] byteArray)
+        {
+            return new Qualifier 
+            {
+                Anonymous = new GlobalUniqueId { Base64 = Convert.ToBase64String(byteArray) }
             };
         }
 
@@ -156,12 +162,12 @@ namespace Bitub.Dto
             return named;
         }
 
-        public static Name ToName(this Type t)
+        public static Name ToName(this System.Type t)
         {
             return ToName(t, null);
         }
 
-        public static Name ToName(this Type t, Regex replacePattern, string replaceBy = "")
+        public static Name ToName(this System.Type t, Regex replacePattern, string replaceBy = "")
         {
             var named = new Name();
             var qualifiedName = null != replacePattern ? replacePattern.Replace(t.FullName, replaceBy) : t.FullName;
@@ -184,12 +190,12 @@ namespace Bitub.Dto
             };
         }
 
-        public static Qualifier ToQualifier(this Type t)
+        public static Qualifier ToQualifier(this System.Type t)
         {
             return ToQualifier(t, null);
         }
 
-        public static Qualifier ToQualifier(this Type t, Regex replacePattern, string replaceBy = "")
+        public static Qualifier ToQualifier(this System.Type t, Regex replacePattern, string replaceBy = "")
         {
             return new Qualifier
             {

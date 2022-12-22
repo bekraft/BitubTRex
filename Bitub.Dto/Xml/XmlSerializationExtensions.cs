@@ -262,7 +262,7 @@ namespace Bitub.Dto.Xml
                         switch (reader.Name)
                         {
                             case nameof(GlobalUniqueId.Base64):
-                                if (reader.Read() && XmlNodeType.Text == reader.NodeType)
+                                if (reader.Read() && XmlNodeType.CDATA == reader.NodeType)
                                     yield return new GlobalUniqueId { Base64 = reader.Value };
                                 break;
                             case nameof(GlobalUniqueId.Guid):
@@ -289,7 +289,9 @@ namespace Bitub.Dto.Xml
             switch (globalUniqueId.GuidOrStringCase)
             {
                 case GlobalUniqueId.GuidOrStringOneofCase.Base64:
-                    writer.WriteElementString(nameof(GlobalUniqueId.Base64), globalUniqueId.Base64);
+                    writer.WriteStartElement(nameof(GlobalUniqueId.Base64));
+                    writer.WriteCData(globalUniqueId.Base64);
+                    writer.WriteEndElement();
                     break;
                 case GlobalUniqueId.GuidOrStringOneofCase.Guid:
                     writer.WriteStartElement(nameof(GlobalUniqueId.Guid));

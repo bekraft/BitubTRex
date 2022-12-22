@@ -45,7 +45,14 @@ namespace Bitub.Dto.Tests.Json
         [Test]
         public void Base64QualifierConverterTests()
         {
-            Assert.Fail("Not implemented");
+            var bytes = System.Guid.NewGuid().ToByteArray();
+            var q = bytes.ToQualifier();
+
+            var json = JsonSerializer.Serialize(q, jsonTestOptions);
+            Assert.IsNotNull(json);
+
+            var result = JsonSerializer.Deserialize<Qualifier>(json, jsonTestOptions);
+            Assert.AreEqual(q, result);
         }
 
         [Test]
