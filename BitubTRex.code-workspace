@@ -1,11 +1,10 @@
 {
 	"folders": [
 		{
-			"path": "./Bitub.Dto"
-		},
-		{
-			"path": "./Bitub.Dto.Tests"
+			"path": "./."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"omnisharp.projectLoadTimeout": 1200
+	}
 }
