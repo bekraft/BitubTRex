@@ -4,16 +4,6 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(IsWindows)' == 'true'">
-    <UserHome>$(UserProfile)</UserHome>
-    <TargetFrameworks>net48;net6.0;net7.0</TargetFrameworks>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'">
-    <UserHome>$(HOME)</UserHome>
-    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
-  </PropertyGroup>
-
   <ItemGroup>
     <Content Include="Resources\TRexScript1.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

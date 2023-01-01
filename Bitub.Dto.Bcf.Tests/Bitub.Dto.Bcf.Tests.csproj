@@ -4,14 +4,6 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(IsWindows)' == 'true'">
-    <TargetFrameworks>net48;net6.0;net7.0</TargetFrameworks>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'">
-    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
-  </PropertyGroup>
-
   <ItemGroup>
     <None Remove="Resources\Bcf21\comment.json" />
     <None Remove="Resources\Bcf21\Example1.bcfzip" />
