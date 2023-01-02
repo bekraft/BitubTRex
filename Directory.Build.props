@@ -18,12 +18,14 @@
 
   <PropertyGroup Condition="'$(IsWindows)' == 'true'">
     <UserHome>$(UserProfile)</UserHome>
-    <TargetFrameworks>net47;net471;net48;net481;net6.0;net7.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;net47;net471;net472;net48;net481;net6.0;net7.0</TargetFrameworks>
+    <DefineConstants>$(DefineConstants);Is_WINDOWS</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'">
     <UserHome>$(HOME)</UserHome>
-    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;net6.0;net7.0</TargetFrameworks>
+    <DefineConstants>$(DefineConstants);Is_OSX_or_LINUX</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition="$(TargetFramework.StartsWith('net4'))">
