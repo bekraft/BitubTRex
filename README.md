@@ -1,6 +1,10 @@
-# Bitub TRex
+# BITUB TREX
 ![Build status](https://dev.azure.com/bitub/BitubTRex/_apis/build/status/bekraft.BitubTRex?branchName=dev&label=DEV)
 ![Build status](https://dev.azure.com/bitub/BitubTRex/_apis/build/status/bekraft.BitubTRex?branchName=master&label=MASTER)
+
+![Nuget](https://img.shields.io/nuget/v/Bitub.Dto.svg?label=Bitub.Dto)
+![Nuget](https://img.shields.io/nuget/v/Bitub.Dto.Bcf.svg?label=Bitub.Dto.Bcf)
+![Nuget](https://img.shields.io/nuget/v/Bitub.Dto.Cpi.svg?label=Bitub.Dto.Cpi)
 
 a cross-plattform .NET core / standard library collection for manipulation of data in AEC domain. It is used as baseline library for [Bitub TRexXbim](https://github.com/bekraft/BitubTRexXbim). It provides an API to compiled protocol buffers to exchange scene, spatial and semantic data of AEC models from multiple sources.
 

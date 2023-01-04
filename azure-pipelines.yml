@@ -20,11 +20,22 @@ variables:
   ${{ if eq(variables['Build.SourceBranchName'], 'master') }}: 
     buildConfiguration: 'Release'
   ${{ elseif eq(variables['Build.SourceBranchName'], 'dev') }}: 
-    buildConfiguration: 'Beta'
+    buildConfiguration: 'Dev'
   ${{ else }}:
     buildConfiguration: 'Debug'
 
 steps:
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+      Write-Host "Retrieving stable build identifier"
+      [int] $hours=$(Get-Date -format hh)
+      [int] $minutes=$(Get-Date -format mm)
+      [int] $seconds=$(Get-Date -format ss)
+      [int] $buildSecond=([int]$hours) * 3600 + ([int]$minutes) * 60 + ([int]$seconds)
+      Write-Host "##vso[task.setvariable variable=buildSecond]$buildSecond"
+
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
@@ -36,6 +47,7 @@ steps:
     solution: '$(solution)'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+    msbuildArgs: '-p:Build=$(buildSecond)'
 
 - task: DotNetCoreCLI@2
   condition: and(succeeded(), eq(variables.skipTests, 'false'))
@@ -45,7 +57,7 @@ steps:
     arguments: '--configuration $(buildConfiguration)'
 
 - task: NuGetCommand@2
-  condition: and(succeeded(), in(variables.buildConfiguration, 'Release', 'Beta'))
+  condition: and(succeeded(), in(variables.buildConfiguration, 'Release', 'Dev', 'Beta'), eq(variables.skipPush, 'false'))
   inputs:
     command: push
     packagesToPush: '$(Agent.BuildDirectory)/**/*.nupkg'
