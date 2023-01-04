@@ -34,7 +34,10 @@ steps:
       [int] $minutes=$(Get-Date -format mm)
       [int] $seconds=$(Get-Date -format ss)
       [int] $buildSecond=([int]$hours) * 3600 + ([int]$minutes) * 60 + ([int]$seconds)
+      $buildDate=$(Get-Date -format yy)$(Get-Date.DayOfYear)
       Write-Host "##vso[task.setvariable variable=buildSecond]$buildSecond"
+      Write-Host "##vso[task.setvariable variable=buildDate]$buildDate"
+      Write-Host "##vso[build.updatebuildnumber]$buildDate.$buildSecond"
 
 - task: NuGetToolInstaller@1
 
@@ -47,7 +50,7 @@ steps:
     solution: '$(solution)'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
-    msbuildArgs: '-p:Build=$(buildSecond)'
+    msbuildArgs: '-p:BuildRelease=$(buildDate) -p:Build=$(buildSecond)'
 
 - task: DotNetCoreCLI@2
   condition: and(succeeded(), eq(variables.skipTests, 'false'))
