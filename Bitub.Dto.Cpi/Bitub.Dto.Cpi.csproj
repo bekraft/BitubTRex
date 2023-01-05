@@ -4,7 +4,7 @@
     <Title>Bitub.Dto.Cpi</Title>
     <Description>Bitub Data Transfer of CPI XML data</Description>
 
-    <Configurations>Debug;Beta;Release</Configurations>
+    <Configurations>Debug;Dev;Release</Configurations>
 
     <RootNamespace>Bitub.Dto.Cpi</RootNamespace>
     <LangVersion>8.0</LangVersion>
@@ -29,12 +29,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Beta|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev|AnyCPU'">
     <!-- Build debug profile -->
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Beta</OutputPath>
+    <OutputPath>bin\Dev</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>

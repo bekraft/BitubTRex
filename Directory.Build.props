@@ -1,6 +1,5 @@
 ﻿<Project>
-  <PropertyGroup>
-    <IsPackable>true</IsPackable>
+  <PropertyGroup>    
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
     <BuildMajor>1</BuildMajor>
@@ -38,20 +37,29 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <IsPackable>true</IsPackable>
     <BuildQualifier></BuildQualifier>
     <IncludeSymbols>false</IncludeSymbols>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <IsPackable>false</IsPackable>
     <BuildQualifier>-Debug</BuildQualifier>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Dev' ">
+    <IsPackable>true</IsPackable>
     <BuildQualifier>-Dev</BuildQualifier>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <IncludeSymbols>true</IncludeSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Test' ">
+    <IsPackable>false</IsPackable>
+    <BuildQualifier></BuildQualifier>
+    <IncludeSymbols>false</IncludeSymbols>
   </PropertyGroup>
 
   <PropertyGroup>

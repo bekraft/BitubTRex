@@ -7,7 +7,7 @@
     <Title>Bitub.Dto</Title>
     <Description>Bitub common model transferring library</Description>
     
-    <Configurations>Debug;Beta;Release</Configurations>
+    <Configurations>Debug;Dev;Release</Configurations>
   
     <RootNamespace>Bitub.Dto</RootNamespace>
   
@@ -49,12 +49,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Beta|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev|AnyCPU'">
     <!-- Build debug profile -->
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Beta</OutputPath>
+    <OutputPath>bin\Dev</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
