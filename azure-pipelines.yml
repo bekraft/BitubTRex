@@ -17,7 +17,9 @@ pool:
 variables:
   solution: '**/*.sln'     
   buildPlatform: 'Any CPU'
-  ${{ if eq(variables['Build.SourceBranchName'], 'master') }}: 
+  ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
+    buildConfiguration: 'Test'
+  ${{ elseif eq(variables['Build.SourceBranchName'], 'master') }}: 
     buildConfiguration: 'Release'
   ${{ elseif eq(variables['Build.SourceBranchName'], 'dev') }}: 
     buildConfiguration: 'Dev'
@@ -29,13 +31,10 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      Write-Host "Retrieving stable build identifier"
-      [int] $hours=$(Get-Date -format hh)
-      [int] $minutes=$(Get-Date -format mm)
-      [int] $seconds=$(Get-Date -format ss)
-      [int] $buildSecond=([int]$hours) * 3600 + ([int]$minutes) * 60 + ([int]$seconds)
-      [int] $dayOfYear=$(Get-Date).DayOfYear
-      [string] $buildDate="$(Get-Date -format yy)$dayOfYear"
+      Write-Host "Retrieving stable build number"
+      $date=Get-Date
+      [int] $buildSecond=([int]$date.Hour) * 3600 + ([int]$date.Minute) * 60 + ([int]$date.Second)
+      [string] $buildDate=-join($(Get-Date -format yy), ([string]$date.DayOfYear).PadLeft(3,'0'))
       Write-Host "##vso[task.setvariable variable=buildSecond]$buildSecond"
       Write-Host "##vso[task.setvariable variable=buildDate]$buildDate"
       Write-Host "##vso[build.updatebuildnumber]$buildDate.$buildSecond"
