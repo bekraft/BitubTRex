@@ -34,7 +34,8 @@ steps:
       [int] $minutes=$(Get-Date -format mm)
       [int] $seconds=$(Get-Date -format ss)
       [int] $buildSecond=([int]$hours) * 3600 + ([int]$minutes) * 60 + ([int]$seconds)
-      [string] $buildDate="$(Get-Date -format yy)$(Get-Date).DayOfYear"
+      [int] $dayOfYear=$(Get-Date).DayOfYear
+      [string] $buildDate="$(Get-Date -format yy)$dayOfYear"
       Write-Host "##vso[task.setvariable variable=buildSecond]$buildSecond"
       Write-Host "##vso[task.setvariable variable=buildDate]$buildDate"
       Write-Host "##vso[build.updatebuildnumber]$buildDate.$buildSecond"
