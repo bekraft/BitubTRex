@@ -40,11 +40,9 @@ namespace Bitub.Dto
         {
             if (handlers != null)
             {
-                return Task.WhenAll(handlers.GetInvocationList().OfType<Action<TArg1>>().Select(f =>
-                {
-                    return Task.Factory.FromAsync(
-                        (asyncCallback, @object) => f.BeginInvoke(arg1, asyncCallback, @object), f.EndInvoke, null);
-                }));
+                return Task.WhenAll(
+                    handlers.GetInvocationList().OfType<Action<TArg1>>().Select(f => Task.Run(() => f.Invoke(arg1)))
+                );
             }
 
             return Task.CompletedTask;
@@ -55,17 +53,16 @@ namespace Bitub.Dto
         /// </summary>
         /// <typeparam name="TArg1">Type of first argument</typeparam>
         /// <param name="handlers">The event</param>
+        /// <param name="sender">The sender</param>
         /// <param name="arg1">The event argument</param>
         /// <returns>An awaitable task completing when all handlers completed</returns>
         public static Task RaiseAsync<TArg>(this EventHandler<TArg> handlers, object sender, TArg arg)
         {
             if (handlers != null)
             {
-                return Task.WhenAll(handlers.GetInvocationList().OfType<EventHandler<TArg>>().Select(f =>
-                {
-                    return Task.Factory.FromAsync(
-                        (asyncCallback, @object) => f.BeginInvoke(sender, arg, asyncCallback, @object), f.EndInvoke, null);
-                }));
+                return Task.WhenAll(
+                    handlers.GetInvocationList().OfType<Action<object, TArg>>().Select(f => Task.Run(() => f.Invoke(sender, arg)))
+                );
             }
 
             return Task.CompletedTask;
@@ -84,11 +81,9 @@ namespace Bitub.Dto
         {
             if (handlers != null)
             {
-                return Task.WhenAll(handlers.GetInvocationList().OfType<Action<TArg1, TArg2>>().Select(f =>
-                {
-                    return Task.Factory.FromAsync(
-                        (asyncCallback, @object) => f.BeginInvoke(arg1, arg2, asyncCallback, @object), f.EndInvoke, null);
-                }));
+                return Task.WhenAll(
+                    handlers.GetInvocationList().OfType<Action<TArg1, TArg2>>().Select(f => Task.Run(() => f.Invoke(arg1, arg2)))
+                );
             }
 
             return Task.CompletedTask;
@@ -109,11 +104,9 @@ namespace Bitub.Dto
         {
             if (handlers != null)
             {
-                return Task.WhenAll(handlers.GetInvocationList().OfType<Action<TArg1, TArg2, TArg3>>().Select(f =>
-                {
-                    return Task.Factory.FromAsync(
-                        (asyncCallback, @object) => f.BeginInvoke(arg1, arg2, arg3, asyncCallback, @object), f.EndInvoke, null);
-                }));
+                return Task.WhenAll(
+                    handlers.GetInvocationList().OfType<Action<TArg1, TArg2, TArg3>>().Select(f => Task.Run(() => f.Invoke(arg1, arg2, arg3)))
+                );
             }
 
             return Task.CompletedTask;

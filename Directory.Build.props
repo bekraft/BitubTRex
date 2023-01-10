@@ -9,7 +9,7 @@
     <SecondsByMinute>$([MSBuild]::Multiply($([System.DateTime]::Now.Minute), 60))</SecondsByMinute>
     <SecondsByHour>$([MSBuild]::Multiply($([System.DateTime]::Now.Hour), 3600))</SecondsByHour>
     <SecondsByDay>$([MSBuild]::Add($([MSBuild]::Add($([System.DateTime]::Now.Second),$(SecondsByMinute))), $(SecondsByHour)))</SecondsByDay>
-    <Build>$(SecondsByDay)</Build>
+    <Build>$([System.Math]::Floor($([MSBuild]::Divide($(SecondsByDay), 2))))</Build>
 
     <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows>
     <IsOSX Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">true</IsOSX>    
@@ -79,4 +79,10 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://www.github.com/bekraft/BitubTRex</PackageProjectUrl>
   </PropertyGroup>
+
+  <Target Name="VersionReport" BeforeTargets="BeforeBuild">
+    <Message Text="$(TargetFramework) ==> Building version  : $(BuildVersion)" Importance="High" />
+    <Message Text="$(TargetFramework) ==> Building platform : Windows" Importance="High" Condition="'$(IsWindows)' == 'true'" />
+    <Message Text="$(TargetFramework) ==> Building platform : OSX or Linux" Importance="High" Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'" />
+  </Target>
 </Project>
