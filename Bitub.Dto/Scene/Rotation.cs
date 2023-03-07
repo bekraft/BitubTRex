@@ -6,34 +6,23 @@ namespace Bitub.Dto.Scene
 {
     public partial class Rotation
     {
-        public static Rotation Identity 
+        public static Rotation Identity => new Rotation
         {
-            get => new Rotation
-            {
-                Rx = new Spatial.XYZ { X = 1, Y = 0, Z = 0 },
-                Ry = new Spatial.XYZ { X = 0, Y = 1, Z = 0 },
-                Rz = new Spatial.XYZ { X = 0, Y = 0, Z = 1 },
-            };
-        }
+            Rx = new XYZ { X = 1, Y = 0, Z = 0 },
+            Ry = new XYZ { X = 0, Y = 1, Z = 0 },
+            Rz = new XYZ { X = 0, Y = 0, Z = 1 },
+        };
+        
 
-        public XYZ this[int index]
+        public XYZ this[int index] => index switch
         {
-            get
-            {
-                return index switch
-                {
-                    0 => Rx,
-                    1 => Ry,
-                    2 => Rz,
-                    _ => throw new ArgumentException($"{index} out of range"),
-                };
-            }
-        }
+            0 => Rx,
+            1 => Ry,
+            2 => Rz,
+            _ => throw new ArgumentException($"{index} out of range"),
+        };
 
-        public IEnumerable<XYZ> Row
-        {
-            get => new[] { Rx, Ry, Rz };
-        }
+        public IEnumerable<XYZ> Row => new[] { Rx, Ry, Rz };
 
         public static Rotation operator*(Rotation r, float scale)
         {
