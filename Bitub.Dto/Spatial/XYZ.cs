@@ -4,10 +4,25 @@ namespace Bitub.Dto.Spatial
 {
     public partial class XYZ
     {
-        public static XYZ Zero 
-        { 
-            get => new XYZ(0, 0, 0); 
-        }
+        /// <summary>
+        /// Zero XYZ.
+        /// </summary>
+        public static XYZ Zero => new XYZ(0, 0, 0); 
+
+        /// <summary>
+        /// New vector (1,0,0).
+        /// </summary>
+        public static XYZ OneX => new XYZ(1, 0, 0);
+
+        /// <summary>
+        /// New vector (0,1,0).
+        /// </summary>
+        public static XYZ OneY => new XYZ(0, 1, 0);
+
+        /// <summary>
+        /// New vector (0,0,1)
+        /// </summary>
+        public static XYZ OneZ => new XYZ(0, 0, 1);
 
         public XYZ(float x, float y, float z)
         {
@@ -53,17 +68,13 @@ namespace Bitub.Dto.Spatial
 
         public float GetCoordinate(int index)
         {
-            switch (index)
+            return index switch
             {
-                case 0:
-                    return X;
-                case 1:
-                    return Y;
-                case 2:
-                    return Z;
-                default:
-                    throw new IndexOutOfRangeException($"{index} is out of range of [0,2]");
-            }
+                0 => X,
+                1 => Y,
+                2 => Z,
+                _ => throw new IndexOutOfRangeException($"{index} is out of range of [0,2]"),
+            };
         }
 
         public void SetCoordinate(int index, float value)
