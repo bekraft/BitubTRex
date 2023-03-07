@@ -5,15 +5,15 @@ namespace Bitub.Dto.Concept
     /// <summary>
     /// Classifying filter rule given both, inclusion and exclusion filter in combination.
     /// </summary>
-    public class CanonicalFilterRule
+    public class MatcherRule
     {
         #region Internals
-        private CanonicalFilter includeFilter;
-        private CanonicalFilter excludeFilter;
+        private Matcher includeFilter;
+        private Matcher excludeFilter;
         private bool acceptEquivIncludeExclude;
         #endregion
 
-        public CanonicalFilterRule()
+        public MatcherRule()
         {
             acceptEquivIncludeExclude = true;
         }
@@ -21,7 +21,7 @@ namespace Bitub.Dto.Concept
         /// <summary>
         /// The inclusion filter. If given, include all matches in result.
         /// </summary>
-        public CanonicalFilter Include 
+        public Matcher Include 
         {
             get => includeFilter;
             set => includeFilter = value; 
@@ -30,7 +30,7 @@ namespace Bitub.Dto.Concept
         /// <summary>
         /// The exclusion filter. If given, exclude all matches from result.
         /// </summary>
-        public CanonicalFilter Exclude 
+        public Matcher Exclude 
         {
             get => excludeFilter;
             set => excludeFilter = value; 

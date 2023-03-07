@@ -308,9 +308,9 @@ namespace Bitub.Dto.Xml
 
         #region Canonical filter
 
-        public static IEnumerable<CanonicalFilter> ReadCanonicalFilterFromXml(this XmlReader reader)
+        public static IEnumerable<Matcher> ReadMatcherFromXml(this XmlReader reader)
         {
-            CanonicalFilter recent = null;
+            Matcher recent = null;
             string hasEntered = null;
             do
             {
@@ -321,22 +321,22 @@ namespace Bitub.Dto.Xml
 
                         switch (reader.Name)
                         {
-                            case nameof(CanonicalFilter):
+                            case nameof(Matcher):
                                 var strComparisonType = reader.GetAttribute(nameof(StringComparison));
-                                var strFilterMatchingType = reader.GetAttribute(nameof(FilterMatchingType));
+                                var strMatchingType = reader.GetAttribute(nameof(MatchingType));
                                 
                                 StringComparison stringComparison;
                                 if (!Enum.TryParse(strComparisonType, out stringComparison))
                                     throw new XmlException($"Unknown comparison type '{strComparisonType}'");
 
-                                FilterMatchingType filterMatchingType;
-                                if (!Enum.TryParse(strFilterMatchingType, out filterMatchingType))
-                                    throw new XmlException($"Unknown filter matching type type '{strFilterMatchingType}'");
+                                MatchingType matchingType;
+                                if (!Enum.TryParse(strMatchingType, out matchingType))
+                                    throw new XmlException($"Unknown filter matching type type '{strMatchingType}'");
 
-                                recent = new CanonicalFilter(filterMatchingType, stringComparison);
+                                recent = new Matcher(matchingType, stringComparison);
                                 break;
 
-                            case nameof(CanonicalFilter.Filter):
+                            case nameof(Matcher.Filter):
                                 recent?.Filter.AddRange(reader.ReadClassifierFromXml());
                                 break;
                         }
@@ -353,9 +353,9 @@ namespace Bitub.Dto.Xml
                                 yield return recent;
                             yield break;
                         }
-                        else if (nameof(CanonicalFilter).Equals(elementName))
+                        else if (nameof(Matcher).Equals(elementName))
                         {
-                            CanonicalFilter newFilter = recent;
+                            Matcher newFilter = recent;
                             recent = null;
                             yield return newFilter;
                         }
@@ -365,16 +365,16 @@ namespace Bitub.Dto.Xml
             } while (reader.Read());
         }
 
-        public static XmlWriter WriteToXml(this CanonicalFilter canonicalFilter, XmlWriter writer)
+        public static XmlWriter WriteToXml(this Matcher Matcher, XmlWriter writer)
         {
-            writer.WriteStartElement(nameof(CanonicalFilter));
-            writer.WriteAttributeString(nameof(FilterMatchingType), canonicalFilter.MatchingType.ToString());
-            writer.WriteAttributeString(nameof(StringComparison), canonicalFilter.StringComparison.ToString());
+            writer.WriteStartElement(nameof(Matcher));
+            writer.WriteAttributeString(nameof(MatchingType), Matcher.MatchingType.ToString());
+            writer.WriteAttributeString(nameof(StringComparison), Matcher.StringComparison.ToString());
             
-            if (null != canonicalFilter.Filter)
+            if (null != Matcher.Filter)
             {
-                writer.WriteStartElement(nameof(CanonicalFilter.Filter));
-                foreach (var entry in canonicalFilter.Filter)
+                writer.WriteStartElement(nameof(Matcher.Filter));
+                foreach (var entry in Matcher.Filter)
                     entry.WriteToXml(writer);
                 writer.WriteEndElement();
             }

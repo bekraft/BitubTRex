@@ -9,7 +9,7 @@ using Bitub.Dto.Xml;
 
 namespace Bitub.Dto.Concept
 {
-    public enum FilterMatchingType
+    public enum MatchingType
     {
         /// <summary>
         /// If given specimen is part of the filter at any path position of at least one filter classifier.
@@ -34,29 +34,28 @@ namespace Bitub.Dto.Concept
         /// <summary>
         /// If the given specimen is an equivalent (case sensitive) match of at least one filter classifier.
         /// </summary>
-        Equiv
+        Equiv,
+        /// <summary>
+        /// Using regular expression to match.
+        /// </summary>
+        Regex
     }
 
     /// <summary>
     /// Classifying filter given a sequence of filter classifiers, a matching type and name comparison type.
     /// </summary>
-    public class CanonicalFilter
+    public class Matcher
     {
         public StringComparison StringComparison { get; private set; }
 
-        public CanonicalFilter(FilterMatchingType filterMatchingType, StringComparison stringComparison)
+        public Matcher(MatchingType matchingType, StringComparison stringComparison)
         {
-            MatchingType = filterMatchingType;
+            MatchingType = matchingType;
         }
 
-        public FilterMatchingType MatchingType { get; private set; }
+        public MatchingType MatchingType { get; private set; }
 
         public List<Classifier> Filter { get; set; } = new List<Classifier>();
-
-        public XmlSchema GetSchema()
-        {
-            throw new NotImplementedException();
-        }
 
         /// <summary>
         /// Tests classifier againts filter.
@@ -75,23 +74,23 @@ namespace Bitub.Dto.Concept
             {
                 switch (MatchingType)
                 {
-                    case FilterMatchingType.Exists:
+                    case MatchingType.Exists:
                         // Means sub or super in terms of classifier                    
                         matches = Filter.Where(c => c.IsMatching(specimen, StringComparison)).ToArray();
                         break;
-                    case FilterMatchingType.Sub:
+                    case MatchingType.Sub:
                         matches = Filter.Where(c => c.IsSuperClassifierOf(specimen, true, StringComparison)).ToArray();
                         break;
-                    case FilterMatchingType.SubOrEquiv:
+                    case MatchingType.SubOrEquiv:
                         matches = Filter.Where(c => c.IsSuperClassifierOf(specimen, false, StringComparison)).ToArray();
                         break;
-                    case FilterMatchingType.Super:
+                    case MatchingType.Super:
                         matches = Filter.Where(c => specimen.IsSuperClassifierOf(c, true, StringComparison)).ToArray();
                         break;
-                    case FilterMatchingType.SuperOrEquiv:
+                    case MatchingType.SuperOrEquiv:
                         matches = Filter.Where(c => specimen.IsSuperClassifierOf(c, false, StringComparison)).ToArray();
                         break;
-                    case FilterMatchingType.Equiv:
+                    case MatchingType.Equiv:
                         matches = Filter.Where(c => c.IsEquivTo(specimen)).ToArray();
                         break;
                     default:
@@ -119,18 +118,18 @@ namespace Bitub.Dto.Concept
             {
                 switch (MatchingType)
                 {
-                    case FilterMatchingType.Exists:
+                    case MatchingType.Exists:
                         matches = Filter.Where(c => c.IsMatching(singleSpecimen, StringComparison)).ToArray();
                         break;
-                    case FilterMatchingType.Sub:
-                    case FilterMatchingType.SubOrEquiv:
+                    case MatchingType.Sub:
+                    case MatchingType.SubOrEquiv:
                         matches = Filter.Where(c => c.Path.Any(q => q.IsSuperQualifierOf(singleSpecimen))).ToArray();
                         break;
-                    case FilterMatchingType.Super:
-                    case FilterMatchingType.SuperOrEquiv:
+                    case MatchingType.Super:
+                    case MatchingType.SuperOrEquiv:
                         matches = Filter.Where(c => c.Path.Any(q => singleSpecimen.IsSuperQualifierOf(q))).ToArray();
                         break;
-                    case FilterMatchingType.Equiv:
+                    case MatchingType.Equiv:
                         matches = Filter.Where(c => c.IsEquivTo(singleSpecimen)).ToArray();
                         break;
                     default:

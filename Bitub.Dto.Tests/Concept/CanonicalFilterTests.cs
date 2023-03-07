@@ -13,7 +13,7 @@ using Bitub.Dto.Xml;
 
 namespace Bitub.Dto.Tests.Concept
 {
-    public class CanonicalFilterTests : TestBase<CanonicalFilterTests>
+    public class MatcherTests : TestBase<MatcherTests>
     {
         protected List<Classifier> filterClassifiers;
 
@@ -31,7 +31,7 @@ namespace Bitub.Dto.Tests.Concept
         [Test]
         public void RoundtripXmlTests()
         {
-            var filter = new CanonicalFilter(FilterMatchingType.SubOrEquiv, StringComparison.OrdinalIgnoreCase)
+            var filter = new Matcher(MatchingType.SubOrEquiv, StringComparison.OrdinalIgnoreCase)
             {
                 Filter = filterClassifiers
             };
