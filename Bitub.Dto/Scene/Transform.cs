@@ -17,6 +17,6 @@ namespace Bitub.Dto.Scene
 
         public static Transform MirrorZ
             => new Transform { T = XYZ.Zero, R = new Rotation { Rx = XYZ.OneX, Ry = XYZ.OneY, Rz = XYZ.OneZ * -1 } };
-    
+            
     }
 }
