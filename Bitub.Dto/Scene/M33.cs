@@ -4,16 +4,15 @@ using Bitub.Dto.Spatial;
 
 namespace Bitub.Dto.Scene
 {
-    public partial class Rotation
+    public partial class M33
     {
-        public static Rotation Identity => new Rotation
+        public static M33 Identity => new M33
         {
             Rx = new XYZ { X = 1, Y = 0, Z = 0 },
             Ry = new XYZ { X = 0, Y = 1, Z = 0 },
             Rz = new XYZ { X = 0, Y = 0, Z = 1 },
         };
         
-
         public XYZ this[int index] => index switch
         {
             0 => Rx,
@@ -24,7 +23,14 @@ namespace Bitub.Dto.Scene
 
         public IEnumerable<XYZ> Row => new[] { Rx, Ry, Rz };
 
-        public static Rotation operator*(Rotation r, float scale)
+        public string ToLinedString() => $"{Rx.ToLinedString()} {Ry.ToLinedString()} {Rz.ToLinedString()}";
+
+        public bool IsAlmostEqualTo(M33 other, double precision = 10e-6)
+        {
+            return Rx.IsAlmostEqualTo(other.Rx, precision) && Ry.IsAlmostEqualTo(other.Ry, precision) && Rz.IsAlmostEqualTo(other.Rz, precision);
+        }
+
+        public static M33 operator*(M33 r, float scale)
         {
             r.Rx = r.Rx.Scale(scale);
             r.Ry = r.Ry.Scale(scale);
@@ -32,8 +38,8 @@ namespace Bitub.Dto.Scene
             return r;
         }
 
-        // Credits to https://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
-        public Quaternion ToQuaternion()
+        // Credits to https://www.euclideanspace.com/maths/geometry/M33s/conversions/matrixToQuaternion/index.htm
+        public Quat ToQuat()
         {
             double tr = Rx.X + Ry.Y + Rz.Z;
             double qw = 0;
@@ -73,7 +79,7 @@ namespace Bitub.Dto.Scene
                 qz = 0.25 * S;
             }
 
-            return new Quaternion() { X = (float)qx, Y = (float)qy, Z = (float)qz, W = (float)qw };
+            return new Quat { X = (float)qx, Y = (float)qy, Z = (float)qz, W = (float)qw };
         }
     }
 }

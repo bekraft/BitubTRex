@@ -10,12 +10,9 @@ namespace Bitub.Dto.Tests
         protected Action<string, string> WriteStdOutT2 = (s1, s2) => Console.WriteLine($"{s1}: {s2}");
         protected Action<string, string, string> WriteStdOutT3 = (s1, s2, s3) => Console.WriteLine($"{s1}: {s2}: {s3}");
 
-        [SetUp]
-        public void Setup()
-        {
-            InternallySetup();
-        }
-
+        public EventExtensionTests() : base()
+        {}
+        
         [Test]
         public void RaiseAsyncTestT1() 
         {
