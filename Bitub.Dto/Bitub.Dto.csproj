@@ -16,7 +16,7 @@
 
     <BuildDependsOn>GenerateProto</BuildDependsOn>
 
-    <Platforms>AnyCPU;x64;x86</Platforms>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(IsWindows)' == 'true'">
