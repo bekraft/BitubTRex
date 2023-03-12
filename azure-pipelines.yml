@@ -1,4 +1,5 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+# PARAMS: skipPush (boolean), skipTests (boolean), majorVersion (number), minorVersion (number)
 
 trigger:
   branches:
@@ -10,6 +11,7 @@ trigger:
     exclude:
       - .gitignore
       - README.md
+      - azure-pipelines.yml
 
 pool:
   vmImage: 'windows-latest'
@@ -27,6 +29,10 @@ variables:
     buildConfiguration: 'Debug'
 
 steps:
+- checkout: self
+  persistCredentials: true
+  clean: true
+
 - task: PowerShell@2
   inputs:
     targetType: 'inline'
@@ -66,3 +72,10 @@ steps:
     packagesToPush: '$(Agent.BuildDirectory)/**/*.nupkg'
     nuGetFeedType: 'external'
     publishFeedCredentials: 'nuget.org'
+
+- script: |
+    git tag $(variables.majorVersion).$(variables.minorVersion).$(buildDate).$(buildSecond)
+    git push origin $(variables.majorVersion).$(variables.minorVersion).$(buildDate).$(buildSecond)
+  workingDirectory: $(Build.SourcesDirectory)
+  displayName: Git Commit and Tag from pipeline
+  continueOnError: true
