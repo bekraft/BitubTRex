@@ -4,10 +4,11 @@
     <Title>Bitub.Dto.Bcf</Title>
     <Description>Bitub BCF XML and API interaction library</Description>
 
-    <Configurations>Debug;Dev;Release</Configurations>
+    <Configurations>Debug;Dev;Release;Test</Configurations>
 
     <RootNamespace>Bitub.Dto.Bcf</RootNamespace>
     <LangVersion>8.0</LangVersion>
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IsWindows)' == 'true'">
@@ -18,6 +19,15 @@
     <UserHome>$(HOME)</UserHome>    
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Test|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>embedded</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Test</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <!-- Local debug profile -->
     <DebugSymbols>true</DebugSymbols>
@@ -25,7 +35,6 @@
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
@@ -36,7 +45,6 @@
     <Optimize>false</Optimize>
     <OutputPath>bin\Dev</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
@@ -44,11 +52,10 @@
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <!-- Build release profile -->
-    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>portable</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   

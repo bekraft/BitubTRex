@@ -7,7 +7,7 @@
     <Title>Bitub.Dto</Title>
     <Description>Bitub common model transferring library</Description>
     
-    <Configurations>Debug;Dev;Release</Configurations>
+    <Configurations>Debug;Dev;Release;Test</Configurations>
   
     <RootNamespace>Bitub.Dto</RootNamespace>
   
@@ -15,6 +15,8 @@
     <LangVersion>8.0</LangVersion>
 
     <BuildDependsOn>GenerateProto</BuildDependsOn>
+
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(IsWindows)' == 'true'">
@@ -37,6 +39,14 @@
     <Protoc>$(ProtobufTools)/linux_x64/protoc</Protoc>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Test|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>embedded</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Test</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <!-- Local debug profile -->
@@ -45,7 +55,6 @@
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
@@ -56,17 +65,15 @@
     <Optimize>false</Optimize>
     <OutputPath>bin\Dev</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <!-- Build release profile -->
-    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>portable</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
     
