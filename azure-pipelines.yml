@@ -79,3 +79,4 @@ steps:
   workingDirectory: $(Build.SourcesDirectory)
   displayName: Git Commit and Tag from pipeline
   continueOnError: true
+  condition: and(succeeded(), in(variables.buildConfiguration, 'Release', 'Dev'), eq(variables.skipPush, 'false'))
