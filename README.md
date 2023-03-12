@@ -26,8 +26,9 @@ a cross-plattform .NET core / standard library collection for manipulation of da
 
 ## Building and usage
 
+Building by given configuration (and optionally *Release* and *Build* identifier). If no release or build identifiers are given, they will be calculated from current date and time, such that new builds override older builds.
 ```
-dotnet build -c [Debug|Beta|Release]
+dotnet build -c [Test|Debug|Dev|Release] [-p:BuildRelease=<Release> -p:Build=<Build>]
 ```
 
 ## License
