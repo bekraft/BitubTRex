@@ -4,10 +4,25 @@ namespace Bitub.Dto.Spatial
 {
     public partial class XYZ
     {
-        public static XYZ Zero 
-        { 
-            get => new XYZ(0, 0, 0); 
-        }
+        /// <summary>
+        /// Zero XYZ.
+        /// </summary>
+        public static XYZ Zero => new XYZ(0, 0, 0); 
+
+        /// <summary>
+        /// New vector (1,0,0).
+        /// </summary>
+        public static XYZ OneX => new XYZ(1, 0, 0);
+
+        /// <summary>
+        /// New vector (0,1,0).
+        /// </summary>
+        public static XYZ OneY => new XYZ(0, 1, 0);
+
+        /// <summary>
+        /// New vector (0,0,1)
+        /// </summary>
+        public static XYZ OneZ => new XYZ(0, 0, 1);
 
         public XYZ(float x, float y, float z)
         {
@@ -16,15 +31,7 @@ namespace Bitub.Dto.Spatial
             Z = z;
         }
 
-        public double Magnitude 
-        {
-            get => this.ToNorm2();
-        }
-
-        public XYZ Normalized
-        {
-            get => this.ToNormalized();
-        }
+        public double Magnitude => Math.Sqrt(Dot(this));
 
         public void Normalize()
         {
@@ -32,6 +39,17 @@ namespace Bitub.Dto.Spatial
             X = (float)(X / norm2);
             Y = (float)(Y / norm2);
             Z = (float)(Z / norm2);
+        }
+
+        public XYZ ToNormalized()
+        {
+            var norm2 = Magnitude;
+            return new XYZ
+            {
+                X = (float)(X / norm2),
+                Y = (float)(Y / norm2),
+                Z = (float)(Z / norm2)
+            };
         }
 
         public static XYZ operator +(XYZ a, XYZ b) => a.Add(b);
@@ -53,17 +71,13 @@ namespace Bitub.Dto.Spatial
 
         public float GetCoordinate(int index)
         {
-            switch (index)
+            return index switch
             {
-                case 0:
-                    return X;
-                case 1:
-                    return Y;
-                case 2:
-                    return Z;
-                default:
-                    throw new IndexOutOfRangeException($"{index} is out of range of [0,2]");
-            }
+                0 => X,
+                1 => Y,
+                2 => Z,
+                _ => throw new IndexOutOfRangeException($"{index} is out of range of [0,2]"),
+            };
         }
 
         public void SetCoordinate(int index, float value)
@@ -83,5 +97,65 @@ namespace Bitub.Dto.Spatial
                     throw new IndexOutOfRangeException($"{index} is out of range of [0,2]");
             }
         }
+
+        public string ToLinedString() => $"{X:G} {Y:G} {Z:G}";        
+
+        /// <summary>
+        /// True, if this XYZ is almost equal by each component within given eps inclusively.
+        /// </summary>
+        /// <param name="other">Other XYZ</param>
+        /// <param name="eps">Threshold, meant inclusively, default 10e-6</param>
+        /// <returns>True, if almost equal</returns>
+        public bool IsAlmostEqualTo(XYZ other, double precision = 10e-6)
+        {
+            return !(Math.Abs(X - other.X) > precision || Math.Abs(Y - other.Y) > precision || Math.Abs(Z - other.Z) > precision);
+        }
+
+        public float[] ToArray()
+        {
+            return new float[] { X, Y, Z };
+        }
+
+        public double Dot(XYZ other)
+        {
+            return (double)X * other.X + (double)Y * other.Y + (double)Z * other.Z;
+        }
+
+        public XYZ Negate() => new XYZ
+        {
+            X = -X,
+            Y = -Y,
+            Z = -Z
+        };
+
+        public XYZ Cross(XYZ other) => new XYZ
+        {
+            X = Y * other.Z - other.Y * Z,
+            Y = Z * other.X - X * other.Z,
+            Z = X * other.Y - Y * other.X
+        };
+
+        public XYZ Sub(XYZ other) => new XYZ
+        {
+            X = X - other.X,
+            Y = Y - other.Y,
+            Z = Z - other.Z
+        };
+
+        public XYZ Add(XYZ other) => new XYZ
+        {
+            X = X + other.X,
+            Y = Y + other.Y,
+            Z = Z + other.Z
+        };
+
+        public XYZ Scale(float s) => new XYZ
+        {
+            X = X * s,
+            Y = Y * s,
+            Z = Z * s,
+        };
+
+
     }
 }

@@ -2,13 +2,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 using Bitub.Dto.Concept;
-using System.IO;
-using Google.Protobuf.Collections;
 using Bitub.Dto.Xml;
 
 namespace Bitub.Dto.Tests.Concept
@@ -17,10 +13,12 @@ namespace Bitub.Dto.Tests.Concept
     {
         protected List<Classifier> filterClassifiers;
 
+        public CanonicalFilterTests() : base()
+        {}
+
         [SetUp]
         public void Setup()
         {
-            InternallySetup();
             filterClassifiers = new List<Classifier>();
             var c1 = new Classifier();
             c1.Path.Add(new string[] {"A", "B"}.ToQualifier());

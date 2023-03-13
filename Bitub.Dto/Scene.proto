@@ -18,7 +18,7 @@ enum Orientation {
 
 // Facet Type
 enum FacetType {
-    UNDEFINED = 0;
+	UNDEFINED = 0;
 	TRI_MESH = 1;
 	TRI_STRIPE = 2;
 	TRI_FAN = 3;
@@ -29,7 +29,7 @@ enum FacetType {
 message Mesh {
 	FacetType type = 1;
 	Orientation orient = 2;
-    repeated uint32 vertex = 3;
+	repeated uint32 vertex = 3;
 	repeated float normal = 4;
 	repeated float uv = 5;
 }
@@ -39,7 +39,7 @@ message Face {
 	Orientation orient = 1;
 	RefId material = 2; // If supported
 
-    repeated uint32 loop = 3;
+	repeated uint32 loop = 3;
 	repeated float normal = 4;
 	repeated float uv = 5;
 	bool isPlanar = 6;
@@ -94,19 +94,19 @@ message MeshBody {
 message WireBody {
 	RefId pts = 1;
 	
-    repeated Patch patches = 10;
+	repeated Patch patches = 10;
 	repeated Point singletons = 11;
 }
 
-message Quaternion {
+message Quat {
 	float x = 1;
 	float y = 2;
 	float z = 3;
 	float w = 4;
 }
 
-message Rotation {
-    Bitub.Dto.Spatial.XYZ rx = 1;
+message M33 {
+	Bitub.Dto.Spatial.XYZ rx = 1;
 	Bitub.Dto.Spatial.XYZ ry = 2;
 	Bitub.Dto.Spatial.XYZ rz = 3;
 }
@@ -114,8 +114,8 @@ message Rotation {
 // A transform is either a rotation matrix or a quaternion description
 message Transform {
 	oneof rotationOrQuaternion {
-		Rotation r = 1;
-		Quaternion q = 2;
+		M33 r = 1;
+		Quat q = 2;
 	}
 	Bitub.Dto.Spatial.XYZ t = 3;
 }
@@ -149,7 +149,7 @@ message Shape {
 
 // A component referring to a upper hierarchy, represential shapes and classifications
 message Component {
-    RefId id = 1;
+	RefId id = 1;
 	RefId parent = 2;
 
 	string name = 5;
@@ -161,9 +161,9 @@ message Component {
 
 // Material 
 message Material {
-    RefId id = 1;
+	RefId id = 1;
 
-    string name = 2;
+	string name = 2;
 	bool hintRenderBothFaces = 3;
 	bool hintSwitchFrontRearFaces = 4;
 	repeated ColorOrNormalised colorChannels = 6;
@@ -172,7 +172,7 @@ message Material {
 
 // Color channel
 enum ColorChannel {
-    Albedo = 0;
+	Albedo = 0;
 	Diffuse = 1;
 	Reflective = 2;
 	Specular = 3;
@@ -190,7 +190,7 @@ message ColorOrNormalised {
 
 // Basic color and alpha
 message Color {
-    float R = 1;
+	float R = 1;
 	float G = 2;
 	float B = 3;
 	float A = 4;

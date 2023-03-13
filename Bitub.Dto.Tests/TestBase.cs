@@ -15,9 +15,9 @@ namespace Bitub.Dto.Tests
     {
         protected ILogger<T> logger;
 
-        private static ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+        private readonly static ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 
-        protected void InternallySetup()
+        protected TestBase()
         {
             logger = loggerFactory.CreateLogger<T>();
         }

@@ -9,12 +9,9 @@ using System.Text;
 namespace Bitub.Dto.Tests
 {
     public class QualifierTests : TestBase<QualifierTests>
-    {
-        [SetUp]
-        public void StartUp()
-        {
-            InternallySetup();
-        }
+    {       
+        public QualifierTests() : base()
+        {}
 
         [Test]
         public void SubSuperQualifierTests()

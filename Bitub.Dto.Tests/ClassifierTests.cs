@@ -9,11 +9,8 @@ namespace Bitub.Dto.Tests
 {
     public class ClassifierTests : TestBase<ClassifierTests>
     {
-        [SetUp]
-        public void StartUp()
-        {
-            InternallySetup();
-        }
+        public ClassifierTests() : base()
+        {}
 
         [Test]
         public void RoundtripXmlTests()
