@@ -74,8 +74,8 @@ steps:
     publishFeedCredentials: 'nuget.org'
 
 - script: |
-    git tag $(variables.majorVersion).$(variables.minorVersion).$(buildDate).$(buildSecond)
-    git push origin $(variables.majorVersion).$(variables.minorVersion).$(buildDate).$(buildSecond)
+    git tag $(majorVersion).$(minorVersion).$(buildDate).$(buildSecond)
+    git push origin $(majorVersion).$(minorVersion).$(buildDate).$(buildSecond)
   workingDirectory: $(Build.SourcesDirectory)
   displayName: Git Commit and Tag from pipeline
   continueOnError: true
