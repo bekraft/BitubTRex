@@ -24,6 +24,11 @@ namespace Bitub.Dto.Spatial
         /// </summary>
         public static XYZ OneZ => new XYZ(0, 0, 1);
 
+        /// <summary>
+        /// New vevtor (1,1,1)
+        /// </summary>
+        public static XYZ Ones => new XYZ(1, 1, 1);
+
         public XYZ(float x, float y, float z)
         {
             X = x;
@@ -58,6 +63,7 @@ namespace Bitub.Dto.Spatial
         public static XYZ operator -(XYZ a) => a.Negate();
         public static XYZ operator *(XYZ a, XYZ b) => a.Cross(b);
         public static XYZ operator *(XYZ a, float s) => a.Scale(s);
+        public static XYZ operator *(XYZ a, double s) => a.Scale(s);
 
         public static XYZ PositiveInfinity
         {
@@ -156,6 +162,11 @@ namespace Bitub.Dto.Spatial
             Z = Z * s,
         };
 
-
+        public XYZ Scale(double s) => new XYZ
+        {
+            X = (float)(X * s),
+            Y = (float)(Y * s),
+            Z = (float)(Z * s),
+        };
     }
 }

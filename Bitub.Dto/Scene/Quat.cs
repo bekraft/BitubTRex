@@ -1,19 +1,93 @@
 using System;
+using System.Xml;
 using Bitub.Dto.Spatial;
 
 namespace Bitub.Dto.Scene
 {
     public partial class Quat
     {
+        /// <summary>
+        /// Identity quaternion such that <code>q * q^-1 = Identity</code>.
+        /// </summary>
         public static Quat Identity => new Quat() { X = 0, Y = 0, Z = 0, W = 1 };
 
+        /// <summary>
+        /// Magnitude of this quaternion.
+        /// </summary>
         public double Magnitude => Math.Sqrt(Dot(this));
 
+        /// <summary>
+        /// Dot product with other quaternion.
+        /// </summary>
+        /// <param name="other">Other</param>
+        /// <returns>Scalar value</returns>
         public double Dot(Quat other) => X * other.X + Y * other.Y + Z * other.Z + W * other.W;
 
-        public Quat Scale(double s) => new Quat { X = (float) (X * s), Y = (float) (Y * s), Z = (float) (Z * s), W = (float) (W * s) };
+        /// <summary>
+        /// The Abs (squared magnitude).
+        /// </summary>
+        /// <returns>Absolute scalar value</returns>
+        public double Abs() => Dot(this);
 
+        /// <summary>
+        /// Scale a quaternion by given scalar value.
+        /// </summary>
+        /// <param name="s">The scale</param>
+        /// <returns>Scaled quaternion</returns>
+        public Quat Scale(double s) => new Quat 
+        { 
+            X = (float) (X * s), 
+            Y = (float) (Y * s), 
+            Z = (float) (Z * s), 
+            W = (float) (W * s) 
+        };
+
+        public Quat Diff(Quat other) => new Quat
+        {
+            X = X - other.X,
+            Y = Y - other.Y,
+            Z = Z - other.Z,
+            W = W - other.W
+        };
+
+        public Quat Add(Quat other) => new Quat
+        {
+            X = X + other.X,
+            Y = Y + other.Y,
+            Z = Z + other.Z,
+            W = W + other.W
+        };
+
+        /// <summary>
+        /// Normalize quaternion into a new quaternion.
+        /// </summary>
+        /// <returns>New normalized quaternion.</returns>
         public Quat ToNormalized() => Scale(1.0 / Magnitude);
+
+        /// <summary>
+        /// Conjugate this quaternion.
+        /// </summary>
+        /// <returns>The new conjugate.</returns>
+        public Quat Conjugate() => new Quat
+        {
+            X = -X,
+            Y = -Y,
+            Z = -Z,
+            W = W
+        };
+
+        /// <summary>
+        /// Inverse of this quaternion.
+        /// </summary>
+        /// <returns>The new inverse.</returns>
+        public Quat Inverse() => Conjugate().Scale(1.0 / Dot(this));
+
+        /// <summary>
+        /// Calculate delta quaternion such that <code>delta*this = other</code>.
+        /// </summary>
+        /// <param name="other">The normalized target quaternion</param>
+        /// <returns>The delta (transform diff) quaternion.</returns>
+        public Quat Delta(Quat other) => other.Times(Inverse());
 
         // Credits to https://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm
         public M33 ToM33()
@@ -70,5 +144,14 @@ namespace Bitub.Dto.Scene
                 W = W * other.W - X * other.X - Y * other.Y - Z * other.Z
             };
         }
+
+        public static Quat operator *(Quat q, Quat p) => q.Times(p);
+
+        public static Quat operator *(Quat q, double scale) => q.Scale(scale);
+
+        public static Quat operator -(Quat q, Quat p) => q.Diff(p);
+
+        public static Quat operator +(Quat q, Quat p) => q.Add(p);
+
     }
 }

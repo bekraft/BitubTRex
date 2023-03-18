@@ -23,6 +23,13 @@ namespace Bitub.Dto.Scene
 
         public IEnumerable<XYZ> Row => new[] { Rx, Ry, Rz };
 
+        public M33 Transpose() => new M33
+        {
+            Rx = new XYZ { X = Rx.X, Y = Ry.X, Z = Rz.X },
+            Ry = new XYZ { X = Rx.Y, Y = Ry.Y, Z = Rz.Y },
+            Rz = new XYZ { X = Rx.Z, Y = Ry.Z, Z = Rz.Z }
+        };
+
         public string ToLinedString() => $"{Rx.ToLinedString()} {Ry.ToLinedString()} {Rz.ToLinedString()}";
 
         public bool IsAlmostEqualTo(M33 other, double precision = 10e-6)
