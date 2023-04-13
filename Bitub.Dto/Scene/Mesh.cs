@@ -26,24 +26,18 @@ namespace Bitub.Dto.Scene
         /// Returns the facet count of the given mesh (depending on the type).
         /// </summary>
         /// <returns>The count of facets</returns>
-        public int FacetCount
+        public int FacetCount => Type switch
         {
-            get {
-                switch (Type)
-                {
-                    case FacetType.QuadMesh:
-                        return Vertex.Count / 4;
-                    case FacetType.TriMesh:
-                        return Vertex.Count / 3;
-                    case FacetType.TriFan:
-                    case FacetType.TriStripe:
-                        // having an edge in common
-                        return Vertex.Count - 2;
-                    default:
-                        throw new NotImplementedException($"Missing implementation for '{Type}'");
-                }
-            }
-        }
+            FacetType.QuadMesh => Vertex.Count / 4,
+            FacetType.TriMesh => Vertex.Count / 3,
+            FacetType.TriFan =>
+                // having an edge in common
+                Vertex.Count - 2,
+            FacetType.TriStripe =>
+                // having an edge in common
+                Vertex.Count - 2,
+            _ => throw new NotImplementedException($"Missing implementation for '{Type}'")
+        };
 
         /// <summary>
         /// Returns a new mesh with shifted indexes.

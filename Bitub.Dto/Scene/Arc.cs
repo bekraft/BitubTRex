@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Collections.Generic;
 
 namespace Bitub.Dto.Scene
@@ -12,28 +11,21 @@ namespace Bitub.Dto.Scene
     {
         #region Internals
         private Arc<T> twin;
-        private T target;
+
         #endregion
 
         public Arc(T target)
         {
-            Target = target;
+            this.Target = target;
         }
 
-        public T Target 
-        {
-            get => target;
-            private set => target = value; 
-        }
+        public T Target { get; private set; }
 
-        public T Origin { get => Twin.Target; }
+        public T Origin => Twin.Target;
 
         public Arc<T> Twin 
         { 
-            get
-            {
-                return twin;
-            }
+            get => twin;
             set
             {
                 if (null == value)
@@ -55,7 +47,7 @@ namespace Bitub.Dto.Scene
 
         public Arc<T> NextF { get; set; }
 
-        public Arc<T> NextV { get => Twin.NextF; }
+        public Arc<T> NextV => Twin.NextF;
 
         public override bool Equals(object obj)
         {

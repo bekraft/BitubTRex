@@ -6,6 +6,14 @@ namespace Bitub.Dto.Scene
 {
     public partial class Quat
     {
+        public Quat(float x, float y, float z, float w)
+        {
+            x_ = x;
+            y_ = y;
+            z_ = z;
+            w_ = w;
+        }
+        
         /// <summary>
         /// Identity quaternion such that <code>q * q^-1 = Identity</code>.
         /// </summary>
@@ -62,7 +70,7 @@ namespace Bitub.Dto.Scene
         /// Normalize quaternion into a new quaternion.
         /// </summary>
         /// <returns>New normalized quaternion.</returns>
-        public Quat ToNormalized() => Scale(1.0 / Magnitude);
+        public Quat ToNormalized() => Scale(1.0 / Dot(this));
 
         /// <summary>
         /// Conjugate this quaternion.
@@ -83,11 +91,18 @@ namespace Bitub.Dto.Scene
         public Quat Inverse() => Conjugate().Scale(1.0 / Dot(this));
 
         /// <summary>
-        /// Calculate delta quaternion such that <code>delta*this = other</code>.
+        /// Calculates left delta quaternion such that <code>delta * this = other</code>.
         /// </summary>
-        /// <param name="other">The normalized target quaternion</param>
+        /// <param name="other">The target quaternion</param>
         /// <returns>The delta (transform diff) quaternion.</returns>
-        public Quat Delta(Quat other) => other.Times(Inverse());
+        public Quat DeltaPre(Quat other) => other.ToNormalized().Times(Inverse());
+
+        /// <summary>
+        /// Calculates right delta quaternion such that <code>this * delta = other</code>.
+        /// </summary>
+        /// <param name="other">The target quaternion.</param>
+        /// <returns>The delta (transform diff) quaternion.</returns>
+        public Quat DeltaPost(Quat other) => Inverse().Times(other.ToNormalized());
 
         // Credits to https://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm
         public M33 ToM33()
@@ -102,13 +117,13 @@ namespace Bitub.Dto.Scene
             double sqz = Z * Z;
 
             // invs (inverse square length) is only required if quaternion is not already normalised
-            double invs = 1 / (sqx + sqy + sqz + sqw);
+            var invs = 1.0 / (sqx + sqy + sqz + sqw);
             rx.X = (float)(( sqx - sqy - sqz + sqw) * invs); // since sqw + sqx + sqy + sqz =1/invs * invs
             ry.Y = (float)((-sqx + sqy - sqz + sqw) * invs);
             rz.Z = (float)((-sqx - sqy + sqz + sqw) * invs);
             
-            double tmp1 = X * Y;
-            double tmp2 = Z * W;
+            var tmp1 = X * Y;
+            var tmp2 = Z * W;
             ry.X = (float)(2.0 * (tmp1 + tmp2) * invs);
             rx.Y = (float)(2.0 * (tmp1 - tmp2) * invs);
             
@@ -153,5 +168,28 @@ namespace Bitub.Dto.Scene
 
         public static Quat operator +(Quat q, Quat p) => q.Add(p);
 
+        /// <summary>
+        /// Convert quaternion imaginary components to pure XYZ representation.
+        /// </summary>
+        /// <returns>An XYZ</returns>
+        public XYZ ToXYZ() => new XYZ( X, Y, Z );
+
+        /// <summary>
+        /// Ensure that this quaternion is normalized before transforming.
+        /// </summary>
+        /// <param name="xyz">The XYZ</param>
+        /// <returns>Rotated</returns>
+        public XYZ Transform(XYZ xyz) => Times(xyz.ToQuat()).Times(Conjugate()).ToXYZ();
+
+        /// <summary>
+        /// Transforms a XYZ. Will perform normalization before.
+        /// </summary>
+        /// <param name="xyz">The XYZ</param>
+        /// <returns>Rotated</returns>
+        public XYZ TransformSafely(XYZ xyz)
+        {
+            var q = Scale(1.0 / Dot(this));
+            return q.Transform(xyz);
+        }
     }
 }

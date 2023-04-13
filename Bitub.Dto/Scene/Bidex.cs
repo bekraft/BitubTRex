@@ -1,24 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Bitub.Dto.Scene
+﻿namespace Bitub.Dto.Scene
 {
-    public class Bidex
+    public struct Bidex
     {
-        public uint O, T;
-
-        public Bidex Next { get; set; }
-
+        public readonly uint O, T;
+        
         public Bidex(uint o, uint t)
         {
             O = o;
             T = t;
         }
 
-        public Bidex Twin { get => new Bidex(T, O); }
+        public Bidex Twin => new Bidex(T, O);
 
         public override bool Equals(object obj)
         {

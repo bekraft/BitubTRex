@@ -16,6 +16,7 @@
     <IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux>
 
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <NugetLocalRepository></NugetLocalRepository>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IsWindows)' == 'true'">
