@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using Bitub.Dto.Spatial;
 
+#if NETFRAMEWORK
+using MathF = System.Math;
+#endif
+
 namespace Bitub.Dto.Scene
 {
     public partial class M33
@@ -69,9 +73,9 @@ namespace Bitub.Dto.Scene
         /// <returns>New M33</returns>
         public M33 RotateY(float rollRadians) => new M33
         {   
-            Rx = new XYZ(MathF.Cos(rollRadians), 0, MathF.Sin(rollRadians)),
+            Rx = new XYZ((float)MathF.Cos(rollRadians), 0, (float)MathF.Sin(rollRadians)),
             Ry = XYZ.OneY,
-            Rz = new XYZ(-MathF.Sin(rollRadians), 0, MathF.Cos(rollRadians))
+            Rz = new XYZ(-(float)MathF.Sin(rollRadians), 0, (float)MathF.Cos(rollRadians))
         };
 
         /// <summary>
@@ -81,8 +85,8 @@ namespace Bitub.Dto.Scene
         /// <returns>New M33</returns>
         public M33 RotateZ(float yawRadians) => new M33
         {
-            Rx = new XYZ(MathF.Cos(yawRadians), -MathF.Sin(yawRadians), 0),
-            Ry = new XYZ(MathF.Sin(yawRadians), MathF.Cos(yawRadians), 0),
+            Rx = new XYZ((float)MathF.Cos(yawRadians), -(float)MathF.Sin(yawRadians), 0),
+            Ry = new XYZ((float)MathF.Sin(yawRadians), (float)MathF.Cos(yawRadians), 0),
             Rz = XYZ.OneZ
         };
 
@@ -94,8 +98,8 @@ namespace Bitub.Dto.Scene
         public M33 RotateX(float pitchRadians) => new M33
         {
             Rx = XYZ.OneX,
-            Ry = new XYZ(0, MathF.Cos(pitchRadians), -MathF.Sin(pitchRadians)),
-            Rz = new XYZ(0, MathF.Sin(pitchRadians), MathF.Cos(pitchRadians))
+            Ry = new XYZ(0, (float)MathF.Cos(pitchRadians), -(float)MathF.Sin(pitchRadians)),
+            Rz = new XYZ(0, (float)MathF.Sin(pitchRadians), (float)MathF.Cos(pitchRadians))
         };
         
         public bool IsAlmostEqualTo(M33 other, double precision = 10e-6)

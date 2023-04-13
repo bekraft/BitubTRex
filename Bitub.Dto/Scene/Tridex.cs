@@ -31,7 +31,11 @@ namespace Bitub.Dto.Scene
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(A, B, C);
+            var hashCode = 866298673;
+            hashCode = hashCode * -1521134295 + A.GetHashCode();
+            hashCode = hashCode * -1521134295 + B.GetHashCode();
+            hashCode = hashCode * -1521134295 + C.GetHashCode();
+            return hashCode;
         }
     }
 }

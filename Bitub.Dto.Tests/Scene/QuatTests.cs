@@ -3,6 +3,10 @@ using Bitub.Dto.Scene;
 using Bitub.Dto.Spatial;
 using NUnit.Framework;
 
+#if NETFRAMEWORK
+using MathF = System.Math;
+#endif
+
 namespace Bitub.Dto.Tests.Scene
 {
     public class QuatTests : TestBase<QuatTests>
@@ -34,7 +38,7 @@ namespace Bitub.Dto.Tests.Scene
         [Test]
         public void RotateZAndTransformOneX()
         {
-            var q = M33.Identity.RotateZ(MathF.PI / 2).ToQuat();
+            var q = M33.Identity.RotateZ((float)MathF.PI / 2).ToQuat();
             var v = q.Transform(XYZ.OneX);
             Assert.IsTrue(XYZ.OneY.IsAlmostEqualTo(v));
         }
@@ -42,7 +46,7 @@ namespace Bitub.Dto.Tests.Scene
         [Test]
         public void RotateXAndTransformOneY()
         {
-            var q = M33.Identity.RotateX(MathF.PI / 2).ToQuat();
+            var q = M33.Identity.RotateX((float)MathF.PI / 2).ToQuat();
             var v = q.Transform(XYZ.OneY);
             Assert.IsTrue(XYZ.OneZ.IsAlmostEqualTo(v));
         }
@@ -50,7 +54,7 @@ namespace Bitub.Dto.Tests.Scene
         [Test]
         public void RotateYAndTransformOneZ()
         {
-            var q = M33.Identity.RotateY(MathF.PI / 2).ToQuat();
+            var q = M33.Identity.RotateY((float)MathF.PI / 2).ToQuat();
             var v = q.Transform(XYZ.OneZ);
             Assert.IsTrue(XYZ.OneX.IsAlmostEqualTo(v));
         }
@@ -58,8 +62,8 @@ namespace Bitub.Dto.Tests.Scene
         [Test]
         public void DeltaPostRotateX()
         {
-            var q0 = M33.Identity.RotateX(MathF.PI / 4).ToQuat();
-            var q1 = M33.Identity.RotateX(MathF.PI / 2).ToQuat();
+            var q0 = M33.Identity.RotateX((float)MathF.PI / 4).ToQuat();
+            var q1 = M33.Identity.RotateX((float)MathF.PI / 2).ToQuat();
             var d = q0.DeltaPost(q1);
             
             Assert.IsTrue(d.IsAlmostEqualTo(q0));
@@ -69,8 +73,8 @@ namespace Bitub.Dto.Tests.Scene
         [Test]
         public void DeltaPreRotateX()
         {
-            var q0 = M33.Identity.RotateX(MathF.PI / 4).ToQuat();
-            var q1 = M33.Identity.RotateX(MathF.PI / 2).ToQuat();
+            var q0 = M33.Identity.RotateX((float)MathF.PI / 4).ToQuat();
+            var q1 = M33.Identity.RotateX((float)MathF.PI / 2).ToQuat();
             var d = q0.DeltaPre(q1);
             
             Assert.IsTrue(d.IsAlmostEqualTo(q0));

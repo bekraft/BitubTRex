@@ -105,7 +105,7 @@ namespace Bitub.Dto.Spatial
         public static string FromLineString(string lineString, out XYZ newXYZ) 
         {
             var splitted = lineString
-                .Split(' ', 4, StringSplitOptions.None);
+                .Split(new char[]{' '}, 4, StringSplitOptions.None);
             var xyz = splitted
                 .Take(3)
                 .Select(s => float.Parse(s))

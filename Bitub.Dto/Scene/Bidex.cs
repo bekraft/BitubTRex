@@ -21,7 +21,7 @@
 
         public override int GetHashCode()
         {
-            int hashCode = 866298673;
+            var hashCode = 866298673;
             hashCode = hashCode * -1521134295 + O.GetHashCode();
             hashCode = hashCode * -1521134295 + T.GetHashCode();
             return hashCode;
