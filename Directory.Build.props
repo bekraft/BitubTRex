@@ -63,14 +63,9 @@
     <IncludeSymbols>false</IncludeSymbols>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)' != 'Debug' ">
+  <PropertyGroup>
     <ReleaseVersion>$(BuildMajor).$(BuildMinor).$(BuildRelease).$(Build)</ReleaseVersion>
     <BuildVersion>$(BuildMajor).$(BuildMinor).$(BuildRelease)$(BuildQualifier).$(Build)</BuildVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <ReleaseVersion>$(BuildMajor).$(BuildMinor).$(BuildRelease).65534</ReleaseVersion>
-    <BuildVersion>$(BuildMajor).$(BuildMinor).$(BuildRelease)$(BuildQualifier).65534</BuildVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -85,10 +80,11 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://www.github.com/bekraft/BitubTRex</PackageProjectUrl>
   </PropertyGroup>
-
+  
   <Target Name="VersionReport" BeforeTargets="BeforeBuild">
-    <Message Text="$(TargetFramework) ==> Building version  : $(BuildVersion)" Importance="High" />
-    <Message Text="$(TargetFramework) ==> Building platform : Windows" Importance="High" Condition="'$(IsWindows)' == 'true'" />
-    <Message Text="$(TargetFramework) ==> Building platform : OSX or Linux" Importance="High" Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'" />
+    <Message Text="===> Start building using $(TargetFramework)" Importance="high" />
+    <Message Text="     Building version  : $(BuildVersion)" Importance="High" />
+    <Message Text="     Building platform : Windows" Importance="High" Condition="'$(IsWindows)' == 'true'" />
+    <Message Text="     Building platform : OSX or Linux" Importance="High" Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'" />
   </Target>
 </Project>
