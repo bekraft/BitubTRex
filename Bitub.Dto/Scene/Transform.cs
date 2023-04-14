@@ -84,5 +84,7 @@ namespace Bitub.Dto.Scene
             var q = RotationQ;
             return new Transform { Q = q * t.Q, T = T + t.T };
         }
+
+        public Transform Offset(XYZ offset) => new Transform { R = R, Q = Q, T = T.Add(offset) };
     }
 }
