@@ -14,16 +14,16 @@
 
         public override bool Equals(object obj)
         {
-            return obj is Bidex duodex &&
-                   O == duodex.O &&
-                   T == duodex.T;
+            return obj is Bidex bidex &&
+                   O == bidex.O &&
+                   T == bidex.T;
         }
 
         public override int GetHashCode()
         {
             var hashCode = 866298673;
-            hashCode = hashCode * -1521134295 + O.GetHashCode();
-            hashCode = hashCode * -1521134295 + T.GetHashCode();
+            hashCode = hashCode * -1521134295 + (int)O;
+            hashCode = hashCode * -1521134295 + (int)T;
             return hashCode;
         }
     }

@@ -3,7 +3,7 @@ using Bitub.Dto.Scene;
 using Bitub.Dto.Spatial;
 using NUnit.Framework;
 
-#if NETFRAMEWORK
+#if NETFRAMEWORK || NETSTANDARD
 using MathF = System.Math;
 #endif
 

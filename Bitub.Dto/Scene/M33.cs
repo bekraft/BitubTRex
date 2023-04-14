@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Bitub.Dto.Spatial;
 
-#if NETFRAMEWORK
+#if NETFRAMEWORK || NETSTANDARD
 using MathF = System.Math;
 #endif
 
