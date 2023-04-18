@@ -17,7 +17,7 @@ namespace Bitub.Dto.Scene
         {
             get {
                 var c = new XYZ();
-                for(int i=0; i<Points.Xyz.Count; i+=3)
+                for(var i = 0; i < Points.Xyz.Count; i += 3)
                 {
                     c.X += Points.Xyz[i];
                     c.Y += Points.Xyz[i + 1];

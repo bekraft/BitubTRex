@@ -16,17 +16,18 @@
     <IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux>
 
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <NugetLocalRepository></NugetLocalRepository>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IsWindows)' == 'true'">
     <UserHome>$(UserProfile)</UserHome>
-    <TargetFrameworks>netstandard2.1;net47;net471;net472;net48;net481;net6.0;net7.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net47;net471;net472;net48;net481;net6.0;net7.0</TargetFrameworks>
     <DefineConstants>$(DefineConstants);Is_WINDOWS</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'">
     <UserHome>$(HOME)</UserHome>
-    <TargetFrameworks>netstandard2.1;net6.0;net7.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net6.0;net7.0</TargetFrameworks>
     <DefineConstants>$(DefineConstants);Is_OSX_or_LINUX</DefineConstants>
   </PropertyGroup>
 
@@ -79,10 +80,11 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://www.github.com/bekraft/BitubTRex</PackageProjectUrl>
   </PropertyGroup>
-
+  
   <Target Name="VersionReport" BeforeTargets="BeforeBuild">
-    <Message Text="$(TargetFramework) ==> Building version  : $(BuildVersion)" Importance="High" />
-    <Message Text="$(TargetFramework) ==> Building platform : Windows" Importance="High" Condition="'$(IsWindows)' == 'true'" />
-    <Message Text="$(TargetFramework) ==> Building platform : OSX or Linux" Importance="High" Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'" />
+    <Message Text="===> Start building using $(TargetFramework)" Importance="high" />
+    <Message Text="     Building version  : $(BuildVersion)" Importance="High" />
+    <Message Text="     Building platform : Windows" Importance="High" Condition="'$(IsWindows)' == 'true'" />
+    <Message Text="     Building platform : OSX or Linux" Importance="High" Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'" />
   </Target>
 </Project>

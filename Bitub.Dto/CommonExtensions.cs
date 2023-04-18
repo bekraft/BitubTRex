@@ -29,17 +29,13 @@ namespace Bitub.Dto
         /// <returns>A base64 representation</returns>
         public static string ToBase64String(this GlobalUniqueId id)
         {
-            switch (id.GuidOrStringCase)
+            return id.GuidOrStringCase switch
             {
-                case GlobalUniqueId.GuidOrStringOneofCase.Base64:
-                    return id.Base64;
-                case GlobalUniqueId.GuidOrStringOneofCase.Guid:
-                    return id.Guid.Raw.ToBase64();
-                case GlobalUniqueId.GuidOrStringOneofCase.None:
-                    return null;
-                default:
-                    throw new NotImplementedException($"Missing implementation for '{id.GuidOrStringCase}'");
-            }
+                GlobalUniqueId.GuidOrStringOneofCase.Base64 => id.Base64,
+                GlobalUniqueId.GuidOrStringOneofCase.Guid => id.Guid.Raw.ToBase64(),
+                GlobalUniqueId.GuidOrStringOneofCase.None => null,
+                _ => throw new NotImplementedException($"Missing implementation for '{id.GuidOrStringCase}'"),
+            };
         }
 
         public static GlobalUniqueId ToGlobalUniqueId(this string guid)

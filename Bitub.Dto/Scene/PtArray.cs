@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 
 using Bitub.Dto.Spatial;
 
@@ -14,7 +12,7 @@ namespace Bitub.Dto.Scene
         /// <returns>Points</returns>
         public IEnumerable<XYZ> ToXYZ()
         {
-            for (int k = 0; k < Xyz.Count; k += 3)
+            for (var k = 0; k < Xyz.Count; k += 3)
             {
                 yield return new XYZ
                 {

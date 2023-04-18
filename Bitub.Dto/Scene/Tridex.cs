@@ -9,7 +9,7 @@ namespace Bitub.Dto.Scene
     {
         public uint A, B, C;
 
-        public bool IsValid { get => A != B && B != C; }
+        public bool IsValid => A != B && B != C;
 
         /// <summary>
         /// Shifting the indices by some positive value.
@@ -19,6 +19,23 @@ namespace Bitub.Dto.Scene
         public Tridex Shift(uint shift)
         {
             return new Tridex { A = A + shift, B = B + shift, C = C + shift };
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Tridex tridex)
+                return A == tridex.A && B == tridex.B && C == tridex.C;
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = 866298673;
+            hashCode = hashCode * -1521134295 + (int)A;
+            hashCode = hashCode * -1521134295 + (int)B;
+            hashCode = hashCode * -1521134295 + (int)C;
+            return hashCode;
         }
     }
 }

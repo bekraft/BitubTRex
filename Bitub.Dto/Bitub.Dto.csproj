@@ -1,8 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>    
-    <ProtobufTools>$(UserHome)/.nuget/packages/google.protobuf.tools/3.21.12/tools</ProtobufTools>
+  <PropertyGroup>
+    <ProtobufVersion>3.22.1</ProtobufVersion>
+    <ProtobufTools>$(UserHome)/.nuget/packages/google.protobuf.tools/$(ProtobufVersion)/tools</ProtobufTools>
     
     <Title>Bitub.Dto</Title>
     <Description>Bitub common model transferring library</Description>
@@ -17,6 +18,10 @@
     <BuildDependsOn>GenerateProto</BuildDependsOn>
 
     <Platforms>AnyCPU</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(NugetLocalRepository)' != ''">
+    <ProtobufTools>$(NugetLocalRepository)/google.protobuf.tools/$(ProtobufVersion)/tools</ProtobufTools>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(IsWindows)' == 'true'">
@@ -78,17 +83,18 @@
   </PropertyGroup>
     
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf" Version="3.21.12" />
-    <PackageReference Include="Google.Protobuf.Tools" Version="3.21.12" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.9" />
-    <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
-    <PackageReference Include="System.Text.Json" Version="5.0.0" />
+    <PackageReference Include="Google.Protobuf" Version="3.22.1" />
+    <PackageReference Include="Google.Protobuf.Tools" Version="3.22.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="7.0.0" />
+    <PackageReference Include="System.Text.Json" Version="7.0.2" />
   </ItemGroup>
     
   <Target Name="GenerateProto" BeforeTargets="BeforeBuild">
     <Message Text="Generating Protos for $(Version)" Importance="High" />
     <Exec Condition="'$(IsWindows)' == 'true'" Command="if not exist  &quot;$(ProjectDir)Generated&quot; mkdir &quot;$(ProjectDir)Generated&quot;" />
     <Exec Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'" Command="mkdir -p &quot;$(ProjectDir)Generated&quot;" />
+    <Exec Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'" Command="chmod u+x $(Protoc)" />
     <Exec Command="$(Protoc) -I=&quot;$(ProtobufTools)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Common.proto&quot;" />
     <Exec Command="$(Protoc) -I=&quot;$(ProtobufTools)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Spatial.proto&quot;" />
     <Exec Command="$(Protoc) -I=&quot;$(ProtobufTools)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Concept.proto&quot;" />

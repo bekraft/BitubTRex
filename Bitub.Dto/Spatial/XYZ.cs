@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using Bitub.Dto.Scene;
 
 namespace Bitub.Dto.Spatial
 {
@@ -24,11 +26,16 @@ namespace Bitub.Dto.Spatial
         /// </summary>
         public static XYZ OneZ => new XYZ(0, 0, 1);
 
+        /// <summary>
+        /// New vevtor (1,1,1)
+        /// </summary>
+        public static XYZ Ones => new XYZ(1, 1, 1);
+
         public XYZ(float x, float y, float z)
         {
-            X = x;
-            Y = y;
-            Z = z;
+            x_ = x;
+            y_ = y;
+            z_ = z;
         }
 
         public double Magnitude => Math.Sqrt(Dot(this));
@@ -58,16 +65,11 @@ namespace Bitub.Dto.Spatial
         public static XYZ operator -(XYZ a) => a.Negate();
         public static XYZ operator *(XYZ a, XYZ b) => a.Cross(b);
         public static XYZ operator *(XYZ a, float s) => a.Scale(s);
+        public static XYZ operator *(XYZ a, double s) => a.Scale(s);
 
-        public static XYZ PositiveInfinity
-        {
-            get => new XYZ(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
-        }
+        public static XYZ PositiveInfinity => new XYZ(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
 
-        public static XYZ NegativeInfinity
-        {
-            get => new XYZ(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
-        }
+        public static XYZ NegativeInfinity => new XYZ(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
 
         public float GetCoordinate(int index)
         {
@@ -98,7 +100,19 @@ namespace Bitub.Dto.Spatial
             }
         }
 
-        public string ToLinedString() => $"{X:G} {Y:G} {Z:G}";        
+        public string ToLinedString() => $"{X:G} {Y:G} {Z:G}";
+
+        public static string FromLineString(string lineString, out XYZ newXYZ) 
+        {
+            var splitted = lineString
+                .Split(new char[]{' '}, 4, StringSplitOptions.None);
+            var xyz = splitted
+                .Take(3)
+                .Select(s => float.Parse(s))
+                .ToArray();
+            newXYZ = new XYZ { X = xyz[0], Y = xyz[1], Z = xyz[2] };
+            return splitted[3]?.Trim();
+        }
 
         /// <summary>
         /// True, if this XYZ is almost equal by each component within given eps inclusively.
@@ -106,7 +120,7 @@ namespace Bitub.Dto.Spatial
         /// <param name="other">Other XYZ</param>
         /// <param name="eps">Threshold, meant inclusively, default 10e-6</param>
         /// <returns>True, if almost equal</returns>
-        public bool IsAlmostEqualTo(XYZ other, double precision = 10e-6)
+        public bool IsAlmostEqualTo(XYZ other, double precision = 1e-6)
         {
             return !(Math.Abs(X - other.X) > precision || Math.Abs(Y - other.Y) > precision || Math.Abs(Z - other.Z) > precision);
         }
@@ -149,6 +163,22 @@ namespace Bitub.Dto.Spatial
             Z = Z + other.Z
         };
 
+        public XYZ Inc(XYZ other)
+        {
+            X += other.X;
+            Y += other.Y;
+            Z += other.Z;
+            return this;
+        }
+
+        public XYZ Dec(XYZ other)
+        {
+            X -= other.X;
+            Y -= other.Y;
+            Z -= other.Z;
+            return this;
+        }
+
         public XYZ Scale(float s) => new XYZ
         {
             X = X * s,
@@ -156,6 +186,17 @@ namespace Bitub.Dto.Spatial
             Z = Z * s,
         };
 
+        public XYZ Scale(double s) => new XYZ
+        {
+            X = (float)(X * s),
+            Y = (float)(Y * s),
+            Z = (float)(Z * s),
+        };
 
+        /// <summary>
+        /// Transform cartesian to quaternion space.
+        /// </summary>
+        /// <returns>An Quat</returns>
+        public Quat ToQuat() => new Quat { X = X, Y = Y, Z = Z, W = 0 };
     }
 }

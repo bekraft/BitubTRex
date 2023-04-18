@@ -31,6 +31,12 @@ Building by given configuration (and optionally *Release* and *Build* identifier
 dotnet build -c [Test|Debug|Dev|Release] [-p:BuildRelease=<Release> -p:Build=<Build>]
 ```
 
+TRex utilizes [Protobuf](https://protobuf.dev) to generate its domain models. It silently assumes, that nuget uses the default configuration. If your nuget package repository location has been customzed, run:
+
+```
+dotnet build -c [Test|Debug|Dev|Release] -p:NugetLocalRepository=<path to repo> [-p:BuildRelease=<Release> -p:Build=<Build>]
+```
+
 ## License
 
 >Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
