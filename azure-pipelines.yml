@@ -21,12 +21,16 @@ variables:
   buildPlatform: 'Any CPU'
   ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
     buildConfiguration: 'Test'
+    buildQualifier: '-Test'
   ${{ elseif eq(variables['Build.SourceBranchName'], 'master') }}: 
     buildConfiguration: 'Release'
+    buildQualifier: ''
   ${{ elseif eq(variables['Build.SourceBranchName'], 'dev') }}: 
     buildConfiguration: 'Dev'
+    buildQualifier: '-Dev'
   ${{ else }}:
     buildConfiguration: 'Debug'
+    buildQualifier: '-Debug'
 
 steps:
 - checkout: self
@@ -56,7 +60,7 @@ steps:
     solution: '$(solution)'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
-    msbuildArgs: '-p:BuildRelease=$(buildDate) -p:Build=$(buildSecond)'
+    msbuildArgs: '-p:BuildRelease=$(buildDate) -p:Build=$(buildSecond) -p:BuildQualifier=$(buildQualifier)'
 
 - task: DotNetCoreCLI@2
   condition: and(succeeded(), eq(variables.skipTests, 'false'))
@@ -74,8 +78,8 @@ steps:
     publishFeedCredentials: 'nuget.org'
 
 - script: |
-    git tag $(majorVersion).$(minorVersion).$(buildDate).$(buildSecond)
-    git push origin $(majorVersion).$(minorVersion).$(buildDate).$(buildSecond)
+    git tag $(majorVersion).$(minorVersion).$(buildDate)$(buildQualifier).$(buildSecond)
+    git push origin $(majorVersion).$(minorVersion).$(buildDate)$(buildQualifier).$(buildSecond)
   workingDirectory: $(Build.SourcesDirectory)
   displayName: Git Commit and Tag from pipeline
   continueOnError: true
