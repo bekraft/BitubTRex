@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bitub.Dto
 {
@@ -36,7 +34,41 @@ namespace Bitub.Dto
         public static bool IsValid(this Classifier classifier)
         {
             var set = new HashSet<Qualifier>(classifier?.Path);
-            return set.Count == classifier?.Path.Count;
+            return null != classifier && set.Count == classifier.Path.Count;
+        }
+
+        /// <summary>
+        /// True, if the given classifier is semantically equal to to the qualifier. Means: The only path node
+        /// of the classifier is equal to the given qualifier.
+        /// </summary>
+        /// <param name="classifier">A classifier</param>
+        /// <param name="other">A qualifier</param>
+        /// <param name="comparisonType">Comparison type</param>
+        /// <returns>True, if classifier's only qualifier is the same as given</returns>
+        public static bool IsEquivTo(this Classifier classifier, Qualifier other, StringComparison comparisonType = StringComparison.Ordinal)
+        {
+            return 1 == classifier.Path.Count && classifier.Path[0].IsEqualTo(other, comparisonType);
+        }
+
+        /// <summary>
+        /// True, if the given classifier is semantically equal to to the second classifier. Means: Both have the 
+        /// same path length with the same sequence of qualifiers
+        /// </summary>
+        /// <param name="classifier">A classifier</param>
+        /// <param name="other">Another classifier</param>
+        /// <param name="comparisonType">Comparison type</param>
+        /// <returns>True, if classifier's only qualifier is the same as given</returns>
+        public static bool IsEquivTo(this Classifier classifier, Classifier other, StringComparison comparisonType = StringComparison.Ordinal)
+        {
+            if (classifier.Path.Count != other.Path.Count)
+                return false;
+            
+            for (int i=0; i<classifier.Path.Count; i++)
+            {
+                if (!classifier.Path[i].IsEqualTo(other.Path[i], comparisonType))
+                    return false;
+            }
+            return true;
         }
 
         /// <summary>
@@ -44,10 +76,84 @@ namespace Bitub.Dto
         /// </summary>
         /// <param name="classifier">The classifier</param>
         /// <param name="qualifier">The qualifier</param>
+        /// <param name="comparisonType">The comparison in case of named qualifiers</param>
         /// <returns>True, if the qualifier is held by this classifier</returns>
-        public static bool IsExactMatching(this Classifier classifier, Qualifier qualifier)
+        public static bool IsMatching(this Classifier classifier, Qualifier qualifier, StringComparison comparisonType = StringComparison.Ordinal)
         {
-            return classifier.Path.Any(q => q.Equals(qualifier));
+            return classifier?.Path.Any(q => q.IsEqualTo(qualifier, comparisonType)) ?? false;
+        }
+        
+        /// <summary>
+        /// Test the classifier whether it is a general match somewhere in the other classifier.
+        /// </summary>
+        /// <param name="classifier">The context classifier</param>
+        /// <param name="other">The other classifier</param>
+        /// <param name="comparisonType">Type of fragment matching</param>
+        /// <returns>True, if there's a match</returns>
+        public static bool IsMatching(this Classifier classifier, Classifier other, StringComparison comparisonType = StringComparison.Ordinal)
+        {
+            // Consequitely exclusion by edge cases
+            if (classifier.Path.Count == 0 || other.Path.Count == 0)
+                return false;
+            else if (other.Path.Count < classifier.Path.Count)
+                // other is only a sub set, so no match can exist
+                return false;
+            else if (other.Path.Count == classifier.Path.Count)
+                return IsEquivTo(classifier, other, comparisonType);
+
+            // Test most expensive case, context path length is less than other classifier
+            int j = 0;
+            for (int i = 0; i < other.Path.Count; i++)
+            {
+                if (j < classifier.Path.Count)
+                {
+                    if (classifier.Path[j].IsEqualTo(other.Path[i], comparisonType))
+                        // Scan for next path fragment
+                        j++;
+                    else if (j > 0)
+                        // If already found first => fails
+                        return false;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            // Only true, if context completely matches
+            return j == classifier.Path.Count;
+        }
+
+        /// <summary>
+        /// The grad of classifier concept.
+        /// </summary>
+        /// <param name="classifier">A classifier</param>
+        /// <returns>Some value greater or equal than 0</returns>
+        public static int Grad(this Classifier classifier) => classifier.Path.Count;
+
+        /// <summary>
+        /// Tests whether the classifier in context is a super classifier of the given sub classifier.
+        /// </summary>
+        /// <param name="supClassifier">An suggested super classifier</param>
+        /// <param name="strictSuper">A flag indicating whether to include equiv case or strict super, too</param>
+        /// <param name="subClassifier">An expected sub classifier</param>
+        /// <param name="comparisonType">A method of name comparision</param>
+        /// <returns>True, if assumption holds</returns>
+        public static bool IsSuperClassifierOf(this Classifier supClassifier, Classifier subClassifier, bool strictSuper, StringComparison comparisonType = StringComparison.Ordinal)
+        {
+            // Consequitely exclusion by edge cases
+            if (supClassifier.Path.Count == 0 || subClassifier.Path.Count == 0)
+                return false;
+            else if (subClassifier.Path.Count < supClassifier.Path.Count)
+                return false;
+
+            // Test most expensive case, supClassifier path length is less than sub classifier's
+            for (int i = 0; i < supClassifier.Path.Count; i++)
+            {
+                if (!supClassifier.Path[i].IsEqualTo(subClassifier.Path[i], comparisonType))
+                    return false;
+            }
+            // Only true, if super classifier completely matches
+            return !strictSuper || (supClassifier.Path.Count < subClassifier.Path.Count);
         }
 
         /// <summary>
@@ -57,15 +163,15 @@ namespace Bitub.Dto
         /// <param name="superQualifier">The qualifier</param>
         /// <param name="comparison">The string comparision method</param>
         /// <returns>True, if the given qualifier is (paritally) a super qualifier of the classifier</returns>
-        public static bool IsSubMatching(this Classifier classifier, Qualifier superQualifier, StringComparison comparison = StringComparison.Ordinal)
+        public static bool IsSubNameMatching(this Classifier classifier, Qualifier superQualifier, StringComparison comparisonType = StringComparison.Ordinal)
         {
             switch(superQualifier.GuidOrNameCase)
             {
                 case Qualifier.GuidOrNameOneofCase.Anonymous:
                     // Same as matching if using GUIDs
-                    return classifier.IsExactMatching(superQualifier);
+                    return classifier.IsMatching(superQualifier);
                 default:
-                    return classifier.Path.Any(q => superQualifier.IsSuperQualifierOf(q, comparison));
+                    return classifier.Path.Any(q => superQualifier.IsSuperQualifierOf(q, comparisonType));
             }
         }
 
@@ -76,15 +182,41 @@ namespace Bitub.Dto
         /// <param name="superQualifier"></param>
         /// <param name="comparison"></param>
         /// <returns>An enumerable of the qualifiers</returns>
-        public static IEnumerable<Qualifier> FilterSubMatching(this Classifier classifier, Qualifier superQualifier, StringComparison comparison = StringComparison.Ordinal)
+        public static IEnumerable<Qualifier> FilterSubNameMatching(this Classifier classifier, Qualifier superQualifier, StringComparison comparison = StringComparison.Ordinal)
         {
             switch (superQualifier.GuidOrNameCase)
             {
                 case Qualifier.GuidOrNameOneofCase.Anonymous:
                     // Same as matching if using GUIDs
-                    return classifier.IsExactMatching(superQualifier) ? new Qualifier[] { superQualifier } : Enumerable.Empty<Qualifier>();
+                    return classifier.IsMatching(superQualifier) ? new Qualifier[] { superQualifier } : Enumerable.Empty<Qualifier>();
                 default:
                     return classifier.Path.Where(q => superQualifier.IsSuperQualifierOf(q, comparison));
+            }
+        }
+
+        public static IEnumerable<Qualifier> FilterSubPathMatching(this Classifier classifier, Qualifier pathIndicator, StringComparison comparison = StringComparison.Ordinal)
+        {
+            switch (pathIndicator.GuidOrNameCase)
+            {
+                case Qualifier.GuidOrNameOneofCase.Anonymous:
+                    // Same as matching if using GUIDs
+                    return classifier.IsMatching(pathIndicator) ? new Qualifier[] { pathIndicator } : Enumerable.Empty<Qualifier>();
+                default:
+                    var index = classifier.Path.Select((q, i) => (q,i)).FirstOrDefault(qi => pathIndicator.IsSuperQualifierOf(qi.q, comparison));
+                    return null != index.q ? classifier.Path.Skip(index.i) : Enumerable.Empty<Qualifier>();
+            }
+        }
+
+        public static IEnumerable<Qualifier> FilterSuperPathMatching(this Classifier classifier, Qualifier pathIndicator, StringComparison comparison = StringComparison.Ordinal)
+        {
+            switch (pathIndicator.GuidOrNameCase)
+            {
+                case Qualifier.GuidOrNameOneofCase.Anonymous:
+                    // Same as matching if using GUIDs
+                    return classifier.IsMatching(pathIndicator) ? new Qualifier[] { pathIndicator } : Enumerable.Empty<Qualifier>();
+                default:
+                    var index = classifier.Path.Select((q, i) => (q, i)).FirstOrDefault(qi => pathIndicator.IsSuperQualifierOf(qi.q, comparison));
+                    return null != index.q ? classifier.Path.Take(index.i + 1) : Enumerable.Empty<Qualifier>();
             }
         }
 

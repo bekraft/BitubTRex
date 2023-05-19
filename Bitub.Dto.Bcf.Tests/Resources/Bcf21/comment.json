@@ -1,0 +1,14 @@
+{
+  "guid": "C4215F4D-AC45-A43A-D615-AA456BEF832B",
+  "date": "2016-08-01T12:34:22.409Z",
+  "author": "max.muster@example.com",
+  "comment": "Clash found",
+  "modified_date": "2016-08-01T19:24:11.316Z",
+  "modified_author": "bob.heater@example.com",
+  "topic_guid": "B345F4F2-3A04-B43B-A713-5E456BEF8228",
+  "authorization": {
+    "comment_actions": [
+      "update"
+    ]
+  }
+}

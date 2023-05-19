@@ -31,8 +31,8 @@ namespace Bitub.Dto.Scene
                 MeshPtOffsetArray recentFace = null;
                 foreach (var facet in body.Faces.SelectMany(f => new MeshPtOffsetArray(f.Mesh, PtOffsetArray).ToFacets()))
                 {
-                    IsNewFace = facet.Meshed != recentFace;
-                    recentFace = facet.Meshed;                    
+                    IsNewFace = facet.meshed != recentFace;
+                    recentFace = facet.meshed;                    
                     yield return facet;
                 }
             }

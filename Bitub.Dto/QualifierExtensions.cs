@@ -1,11 +1,63 @@
 ﻿using System;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace Bitub.Dto
 {
     public static class QualifierExtensions
     {
+        public static Qualifier Append(this Qualifier qualifier, string fragment)
+        {
+            switch (qualifier.GuidOrNameCase)
+            {
+                case Qualifier.GuidOrNameOneofCase.Named:
+                    var q = new Qualifier(qualifier);
+                    q.Named.Frags.Add(fragment);
+                    return q;
+                case Qualifier.GuidOrNameOneofCase.None:
+                    var name = new Name();
+                    name.Frags.Add(fragment);
+                    return new Qualifier { Named = name };
+                default:
+                    throw new NotSupportedException($"Cannot append '{fragment}' to qualifier of type '{qualifier.GuidOrNameCase}'");
+            }
+        }
+
+        public static Qualifier Prepend(this Qualifier qualifier, string fragment)
+        {
+            switch (qualifier.GuidOrNameCase)
+            {
+                case Qualifier.GuidOrNameOneofCase.Named:
+                    var q = new Qualifier(qualifier);
+                    q.Named.Frags.Insert(0, fragment);
+                    return q;
+                case Qualifier.GuidOrNameOneofCase.None:
+                    var name = new Name();
+                    name.Frags.Add(fragment);
+                    return new Qualifier { Named = name };
+                default:
+                    throw new NotSupportedException($"Cannot prepend '{fragment}' to qualifier of type '{qualifier.GuidOrNameCase}'");
+            }
+        }
+
+        public static string GetFragment(this Name name, int index = 0)
+        {
+            if (index == 0)
+                return name.Frags.FirstOrDefault();
+            else
+                return name.Frags.Skip(index).FirstOrDefault();
+        }
+
+        public static Name SetFragment(this Name name, int index, string fragment, string defaultParent = "")
+        {
+            for (int i=0; i<=index; i++)
+            {
+                if (name.Frags.Count == i)
+                    name.Frags.Add(defaultParent);
+            }
+            name.Frags[index] = fragment;
+            return name;
+        }
+
         public static bool IsEmpty(this Qualifier qualifier)
         {
             if (null == qualifier)
@@ -24,7 +76,61 @@ namespace Bitub.Dto
             }
         }
 
-        public static Qualifier ToTrimmedNamed(this Qualifier qualifier, int startFrag, int countFrags = int.MaxValue)
+        public static string GetLastFragment(this Qualifier qualifier)
+        {
+            switch (qualifier.GuidOrNameCase)
+            {
+                case Qualifier.GuidOrNameOneofCase.Named:
+                    return qualifier.Named.Frags.Count > 0 ? qualifier.Named.Frags[qualifier.Named.Frags.Count - 1] : null;
+                default:
+                    return null;
+            }
+        }
+
+        public static Qualifier ToHead(this Qualifier qualifier)
+        {
+            switch (qualifier.GuidOrNameCase)
+            {
+                case Qualifier.GuidOrNameOneofCase.Named:
+                    return qualifier.Named.Frags.Take(1).ToArray().ToQualifier();
+                default:
+                    return qualifier;
+            }
+        }
+
+        public static Qualifier ToTail(this Qualifier qualifier)
+        {
+            switch (qualifier.GuidOrNameCase)
+            {
+                case Qualifier.GuidOrNameOneofCase.Named:
+                    return qualifier.Named.Frags.Skip(1).ToArray().ToQualifier();
+                default:
+                    return qualifier;
+            }
+        }
+
+        public static (Qualifier, Qualifier) ToHeadAndTail(this Qualifier qualifier)
+        {
+            switch (qualifier.GuidOrNameCase)
+            {
+                case Qualifier.GuidOrNameOneofCase.Named:
+                    return (qualifier.Named.Frags.Take(1).ToArray().ToQualifier(), qualifier.Named.Frags.Skip(1).ToArray().ToQualifier());
+                default:
+                    return (qualifier, new Qualifier());
+            }
+        }
+
+        public static bool IsEqualTo(this Qualifier qualifier, Qualifier other, StringComparison stringComparison)
+        {
+            return QualifierCaseEqualityComparer.Equals(qualifier, other, stringComparison);
+        }
+
+        public static Qualifier ToTrimmedLength(this Qualifier qualifier, int countFrags)
+        {
+            return ToTrimmed(qualifier, 0, countFrags);
+        }
+
+        public static Qualifier ToTrimmed(this Qualifier qualifier, int startFrag, int countFrags = int.MaxValue)
         {
             if (null == qualifier)
                 return null;
@@ -81,7 +187,7 @@ namespace Bitub.Dto
                 case int.MinValue:
                     return new Qualifier();
                 default:
-                    return qualifier.ToTrimmedNamed(0, fragmentLength);
+                    return qualifier.ToTrimmed(0, fragmentLength);
             }
         }
 
@@ -102,7 +208,7 @@ namespace Bitub.Dto
                 default:
                     if (fragmentLength == supQualifier.Named.Frags.Count)
                         // Only if super qualifier is completely covered by sub qualifier
-                        return qualifier.ToTrimmedNamed(supQualifier.Named.Frags.Count);
+                        return qualifier.ToTrimmed(supQualifier.Named.Frags.Count);
                     else
                         return new Qualifier();
             }
@@ -146,11 +252,11 @@ namespace Bitub.Dto
             switch (c.GuidOrNameCase)
             {
                 case Qualifier.GuidOrNameOneofCase.Anonymous:
-                    switch(c.Anonymous.NumericalOrStringCase)
+                    switch(c.Anonymous.GuidOrStringCase)
                     {
-                        case GlobalUniqueId.NumericalOrStringOneofCase.Guid:
+                        case GlobalUniqueId.GuidOrStringOneofCase.Guid:
                             return new System.Guid(c.Anonymous.Guid.Raw.ToByteArray()).ToString();
-                        case GlobalUniqueId.NumericalOrStringOneofCase.Base64:
+                        case GlobalUniqueId.GuidOrStringOneofCase.Base64:
                             return c.Anonymous.ToBase64String();
                     }
                     return null;

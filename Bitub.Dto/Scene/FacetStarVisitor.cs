@@ -29,12 +29,12 @@ namespace Bitub.Dto.Scene
         /// <summary>
         /// Vertices pending investigation queue.
         /// </summary>
-        private readonly Stack<uint> _pending = new Stack<uint>();
+        private readonly Stack<uint> pending = new Stack<uint>();
 
         /// <summary>
         /// Known facets.
         /// </summary>
-        private readonly ISet<Facet> _visited = new HashSet<Facet>();
+        private readonly ISet<Facet> visited = new HashSet<Facet>();
 
         /// <summary>
         /// Base mesh.
@@ -61,7 +61,7 @@ namespace Bitub.Dto.Scene
         /// </summary>
         public Func<uint, bool> VertexIsVisited { get; set; } = (v) => false;
 
-        private MeshPtOffsetArray _representative;
+        private MeshPtOffsetArray representative;
 
         /// <summary>
         /// A new packing state wrapping the given facet index.
@@ -84,10 +84,10 @@ namespace Bitub.Dto.Scene
             switch (Strategy)
             {
                 case InvestigationStrategy.FirstWins:
-                    predicate = f => !_visited.Contains(f);
+                    predicate = f => !visited.Contains(f);
                     break;
                 case InvestigationStrategy.SameFaceFirst:
-                    predicate = f => !_visited.Contains(f) && (null == _representative || f.Meshed == _representative);
+                    predicate = f => !visited.Contains(f) && (null == representative || f.meshed == representative);
                     break;
                 default:
                     throw new NotImplementedException($"Not implemented for '{Strategy}'");
@@ -95,7 +95,7 @@ namespace Bitub.Dto.Scene
 
             var star = facetedMesh.FirstOrDefault(f => f.Any(predicate));
             if (null != star)
-                _pending.Push(star.Key);
+                pending.Push(star.Key);
 
             return null != star;
         }
@@ -103,7 +103,7 @@ namespace Bitub.Dto.Scene
         public bool HasNextCandidate
         {
             get {
-                if (_pending.Count > 0)
+                if (pending.Count > 0)
                 {   // In general case of connected meshes
                     return true;
                 }
@@ -113,10 +113,10 @@ namespace Bitub.Dto.Scene
                 }
                 else
                 {   // Last fall back, try reset and find any unvisited facet
-                    if (null == _representative)
+                    if (null == representative)
                         return false;
                     else
-                        _representative = null;
+                        representative = null;
 
                     return FindStar(Index);
                 }
@@ -125,29 +125,29 @@ namespace Bitub.Dto.Scene
 
         public void Append(uint vertex)
         {
-            _pending.Push(vertex);
+            pending.Push(vertex);
         }
 
         public IEnumerable<Facet> Visited 
         { 
-            get => _visited; 
+            get => visited; 
         }
 
         protected IEnumerable<Facet> InvestigateNext()
         {
-            PivotVertex = _pending.Pop();
+            PivotVertex = pending.Pop();
 
             IEnumerable<Facet> facets = Index[PivotVertex.Value];
             foreach (Facet f in facets)
             {
-                if (!_visited.Contains(f))
+                if (!visited.Contains(f))
                 {
                     switch (Strategy)
                     {
                         case InvestigationStrategy.FirstWins:
                             break;
                         case InvestigationStrategy.SameFaceFirst:
-                            if (null != _representative && f.Meshed != _representative)
+                            if (null != representative && f.meshed != representative)
                                 // Skip, if face isn't representative
                                 continue;
 
@@ -156,9 +156,9 @@ namespace Bitub.Dto.Scene
                             throw new NotImplementedException($"Not implemented for '{Strategy}'");
                     }
 
-                    IsNewFace = _representative != f.Meshed;
-                    _representative = f.Meshed;
-                    _visited.Add(f);
+                    IsNewFace = representative != f.meshed;
+                    representative = f.meshed;
+                    visited.Add(f);
 
                     yield return f;
                 }
@@ -175,7 +175,7 @@ namespace Bitub.Dto.Scene
                     {
                         uint v = f[i];
                         if (!VertexIsVisited(v))
-                            _pending.Push(v);
+                            pending.Push(v);
                     }
 
                     yield return f;

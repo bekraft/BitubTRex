@@ -1,24 +1,54 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+# PARAMS: skipPush (boolean), skipTests (boolean), majorVersion (number), minorVersion (number)
 
 trigger:
   branches:
    include:
      - dev
+     - master
+     - feature/*
   paths:
     exclude:
+      - .gitignore
       - README.md
+      - azure-pipelines.yml
 
 pool:
   vmImage: 'windows-latest'
 
 variables:
-  solution: '**/*.sln'
+  solution: '**/*.sln'     
   buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
-  major: 1
-  minor: 0
+  ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
+    buildConfiguration: 'Test'
+    buildQualifier: '-Test'
+  ${{ elseif eq(variables['Build.SourceBranchName'], 'master') }}: 
+    buildConfiguration: 'Release'
+    buildQualifier: ''
+  ${{ elseif eq(variables['Build.SourceBranchName'], 'dev') }}: 
+    buildConfiguration: 'Dev'
+    buildQualifier: '-Dev'
+  ${{ else }}:
+    buildConfiguration: 'Debug'
+    buildQualifier: '-Debug'
 
 steps:
+- checkout: self
+  persistCredentials: true
+  clean: true
+
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+      Write-Host "Retrieving stable build number"
+      $date=Get-Date
+      [int] $buildSecond=[int][Math]::Floor((([int]$date.Hour) * 3600 + ([int]$date.Minute) * 60 + ([int]$date.Second))/2)
+      [string] $buildDate=-join($(Get-Date -format yy), ([string]$date.DayOfYear).PadLeft(3,'0'))
+      Write-Host "##vso[task.setvariable variable=buildSecond]$buildSecond"
+      Write-Host "##vso[task.setvariable variable=buildDate]$buildDate"
+      Write-Host "##vso[build.updatebuildnumber]$buildDate.$buildSecond"
+
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
@@ -27,6 +57,30 @@ steps:
 
 - task: VSBuild@1
   inputs:
+    solution: '$(solution)'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
-    msbuildArgs: '/p:BuildMajor=$(major) /p:BuildMinor=$(minor)'
+    msbuildArgs: '-p:BuildRelease=$(buildDate) -p:Build=$(buildSecond) -p:BuildQualifier=$(buildQualifier)'
+
+- task: DotNetCoreCLI@2
+  condition: and(succeeded(), eq(variables.skipTests, 'false'))
+  inputs:
+    command: test
+    projects: '**/*Tests/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: NuGetCommand@2
+  condition: and(succeeded(), in(variables.buildConfiguration, 'Release', 'Dev'), eq(variables.skipPush, 'false'))
+  inputs:
+    command: push
+    packagesToPush: '$(Agent.BuildDirectory)/**/*.nupkg'
+    nuGetFeedType: 'external'
+    publishFeedCredentials: 'nuget.org'
+
+- script: |
+    git tag $(majorVersion).$(minorVersion).$(buildDate)$(buildQualifier).$(buildSecond)
+    git push origin $(majorVersion).$(minorVersion).$(buildDate)$(buildQualifier).$(buildSecond)
+  workingDirectory: $(Build.SourcesDirectory)
+  displayName: Git Commit and Tag from pipeline
+  continueOnError: true
+  condition: and(succeeded(), in(variables.buildConfiguration, 'Release', 'Dev'), eq(variables.skipPush, 'false'))

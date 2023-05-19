@@ -1,21 +1,21 @@
 ﻿syntax = "proto3";
 package Bitub.Dto.Spatial;
 
-// Version 1.0
+// Version 1.1
 option csharp_namespace = "Bitub.Dto.Spatial";
-option java_package = "bitub.dto.spatial";
+option java_package = "bitub.dto";
 
 // Standalone XYZ concept
 message XYZ {
-	double x = 1;
-	double y = 2;
-	double z = 3;
+	float x = 1;
+	float y = 2;
+	float z = 3;
 }
 
 // Standalone Latitude-Longitude concept
 message LatLon {
-	double lat = 1;
-	double lon = 2;
+	float lat = 1;
+	float lon = 2;
 }
 
 // Oriented bounding box with principal axes
@@ -34,8 +34,10 @@ message ABox {
 
 // Bounding box select
 message BoundingBox {
-	OBox oBox = 1;
-	ABox aBox = 2;
+	oneof OBoxOrABox {
+		OBox oBox = 1;
+		ABox aBox = 2;
+	}
 }
 
 // Bounding box having a population indicator

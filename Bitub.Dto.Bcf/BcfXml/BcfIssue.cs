@@ -12,7 +12,6 @@ namespace Bitub.Dto.BcfXml
         public static string DefaultBcfvFileNamePerIDPattern = "Viewpoint_{0}";
         public static string DefaultSnapshotFileNamePerIDPattern = "Snapshot_{0}";
         public static BcfBitmapFormat DefaultSnapshotFormat = BcfBitmapFormat.PNG;
-        public static readonly Regex GuidRegex = new Regex(@"^[{(]?[0-9A-F]{8}[-]?([0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public (BcfViewpoint, BcfVisualizationInfo)[] Viewpoints { get; private set; }
 
@@ -55,12 +54,16 @@ namespace Bitub.Dto.BcfXml
         private void Init()
         {
             Markup = BcfFile.Deserialize<BcfMarkup>(FileAccessor("markup.bcf"));
+            if (null == Markup)
+                throw new NotSupportedException($"Non BXFXML conformant: Required markup.bcf missing.");
 
-            Viewpoints = Markup.Viewpoints
+            var extractedViewpoints = Markup.Viewpoints?
                 .Select(v => (v, BcfFile.Deserialize<BcfVisualizationInfo>(FileAccessor(v.Reference))))
                 .ToArray();
 
-            var topic = Markup?.Topic;            
+            Viewpoints = extractedViewpoints ?? new (BcfViewpoint v, BcfVisualizationInfo)[0];
+
+            var topic = Markup.Topic;            
             if (null == topic)
                 throw new NotSupportedException($"Empty Markup or Topic of BCF topic not supported.");
             ID = topic.ID;

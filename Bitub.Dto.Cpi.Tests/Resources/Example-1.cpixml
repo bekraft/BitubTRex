@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="CPI-Objects.xsd" projectID="default-color-scheme [material-colorscheme.cpixml]" createdBy="ceapoint" sourceApp="N/A" sourceFormat="N/A" created="2021-06-23T15:25:31" cpiversion="1.4" sourceFileName=":/Navigator/default-color-scheme.cpixml">
+  <content version="1.2">
+    <section name="objectSection"/>
+    <section name="extendedObjectSection"/>
+    <section name="objectDataSection"/>
+  </content>
+  <IDMapping>
+    <ID k="19" v="NA1"/>
+    <ID k="20" v="NA2"/>
+    <ID k="18" v="RC1"/>
+    <ID k="9" v="aaac79e5-1a0e-4143-b4a5-73c524ce7811"/>
+    <ID k="6" v="default-mat-01"/>
+    <ID k="13" v="default-mat-02"/>
+    <ID k="12" v="default-mat-03"/>
+    <ID k="14" v="default-mat-04"/>
+    <ID k="11" v="default-mat-05"/>
+    <ID k="16" v="default-mat-06"/>
+    <ID k="8" v="default-mat-07"/>
+    <ID k="3" v="default-mat-08"/>
+    <ID k="4" v="default-mat-09"/>
+    <ID k="7" v="default-mat-10"/>
+    <ID k="15" v="default-mat-11"/>
+    <ID k="1" v="default-mat-12"/>
+    <ID k="10" v="default-mat-13"/>
+    <ID k="17" v="default-mat-14"/>
+    <ID k="5" v="default-mat-15"/>
+    <ID k="2" v="default-mat-16"/>
+  </IDMapping>
+  <objectSection unit="m" version="1.4">
+    <materialSection version="1.4">
+      <material ID="1" name="default-mat-12">
+        <diff r="30" b="100" g="140" a="1"/>
+        <amb r="30" b="100" g="140" a="1"/>
+        <spec r="255" b="255" g="255" a="1"/>
+        <trans v="0"/>
+        <shin v="0.5"/>
+      </material>
+      <material ID="2" name="default-mat-16">
+        <diff r="124" b="126" g="128" a="1"/>
+        <amb r="124" b="126" g="128" a="1"/>
+        <spec r="255" b="255" g="255" a="1"/>
+        <trans v="0"/>
+        <shin v="0.5"/>
+      </material>
+      <material ID="3" name="default-mat-08">
+        <diff r="224" b="255" g="78" a="1"/>
+        <amb r="224" b="255" g="78" a="1"/>
+        <spec r="255" b="255" g="255" a="1"/>
+        <trans v="0"/>
+        <shin v="0.5"/>
+      </material>
+      <material ID="4" name="default-mat-09">
+        <diff r="100" b="126" g="100" a="1"/>
+        <amb r="100" b="126" g="100" a="1"/>
+        <spec r="255" b="255" g="255" a="1"/>
+        <trans v="0"/>
+        <shin v="0.5"/>
+      </material>
+      <material ID="5" name="default-mat-15">
+        <diff r="224" b="126" g="78" a="1"/>
+        <amb r="224" b="126" g="78" a="1"/>
+        <spec r="255" b="255" g="255" a="1"/>
+        <trans v="0"/>
+        <shin v="0.5"/>
+      </material>
+      <material ID="6" name="default-mat-01">
+        <diff r="90" b="140" g="90" a="1"/>
+        <amb r="90" b="140" g="90" a="1"/>
+        <spec r="255" b="255" g="255" a="1"/>
+        <trans v="0"/>
+        <shin v="0.5"/>
+      </material>
+      <material ID="7" name="default-mat-10">
+        <diff r="12" b="126" g="100" a="1"/>
+        <amb r="12" b="126" g="100" a="1"/>
+        <spec r="255" b="255" g="255" a="1"/>
+        <trans v="0"/>
+        <shin v="0.5"/>
+      </material>
+      <material ID="8" name="default-mat-07">
+        <diff r="24" b="226" g="178" a="1"/>
+        <amb r="24" b="226" g="178" a="1"/>
+        <spec r="255" b="255" g="255" a="1"/>
+        <trans v="0"/>
+        <shin v="0.5"/>
+      </material>
+      <material ID="9" name="/Locked">
+        <diff r="200" b="200" g="200" a="1"/>
+        <amb r="200" b="200" g="200" a="1"/>
+        <spec r="255" b="255" g="255" a="1"/>
+        <trans v="0"/>
+        <shin v="0.5"/>
+      </material>
+      <material ID="10" name="default-mat-13">
+        <diff r="254" b="126" g="78" a="1"/>
+        <amb r="254" b="126" g="78" a="1"/>
+        <spec r="255" b="255" g="255" a="1"/>
+        <trans v="0"/>
+        <shin v="0.5"/>
+      </material>
+      <material ID="11" name="default-mat-05">
+        <diff r="0" b="192" g="128" a="1"/>
+        <amb r="0" b="192" g="128" a="1"/>
+        <spec r="255" b="255" g="255" a="1"/>
+        <trans v="0"/>
+        <shin v="0.5"/>
+      </material>
+      <material ID="12" name="default-mat-03">
+        <diff r="118" b="51" g="70" a="1"/>
+        <amb r="118" b="51" g="70" a="1"/>
+        <spec r="255" b="255" g="255" a="1"/>
+        <trans v="0"/>
+        <shin v="0.5"/>
+      </material>
+      <material ID="13" name="default-mat-02">
+        <diff r="128" b="255" g="255" a="1"/>
+        <amb r="128" b="255" g="255" a="1"/>
+        <spec r="255" b="255" g="255" a="1"/>
+        <trans v="0"/>
+        <shin v="0.5"/>
+      </material>
+      <material ID="14" name="default-mat-04">
+        <diff r="210" b="95" g="159" a="1"/>
+        <amb r="210" b="95" g="159" a="1"/>
+        <spec r="255" b="255" g="255" a="1"/>
+        <trans v="0"/>
+        <shin v="0.5"/>
+      </material>
+      <material ID="15" name="default-mat-11">
+        <diff r="140" b="40" g="150" a="1"/>
+        <amb r="140" b="40" g="150" a="1"/>
+        <spec r="255" b="255" g="255" a="1"/>
+        <trans v="0"/>
+        <shin v="0.5"/>
+      </material>
+      <material ID="16" name="default-mat-06">
+        <diff r="184" b="126" g="178" a="1"/>
+        <amb r="184" b="126" g="178" a="1"/>
+        <spec r="255" b="255" g="255" a="1"/>
+        <trans v="0"/>
+        <shin v="0.5"/>
+      </material>
+      <material ID="17" name="default-mat-14">
+        <diff r="224" b="255" g="178" a="1"/>
+        <amb r="224" b="255" g="178" a="1"/>
+        <spec r="255" b="255" g="255" a="1"/>
+        <trans v="0"/>
+        <shin v="0.5"/>
+      </material>
+    </materialSection>
+    <rootContainer ID="18" name="NorthArrow" mRot="1 0 0 0 1 0 0 0 1" vTrans="0 0 0">
+      <object3D ID="19" matID="6" name="NA1"/>
+      <object3D ID="20" matID="6" name="NA2"/>
+    </rootContainer>
+    <propertySection version="1.3">
+      <!-- Properties from Property Providers -->
+      <!-- Default Model [material-colorscheme.cpixml] -->
+      <property refID="18" name="ImportFileName" datatype="xs:string">material-colorscheme.cpixml</property>
+    </propertySection>
+  </objectSection>
+  <extendedObjectSection version="1.5"/>
+  <objectDataSection version="1.4">
+    <data3D refID="19">
+      <p nr="0" x="-0.152074" y="0.591965" z="0.000000"/>
+      <p nr="1" x="-0.231108" y="0.591965" z="0.000000"/>
+      <p nr="2" x="-0.157255" y="0.469374" z="0.000000"/>
+      <p nr="3" x="-0.152074" y="0.591965" z="0.149992"/>
+      <p nr="4" x="-0.231108" y="0.591965" z="0.149992"/>
+      <p nr="5" x="-0.157255" y="0.469374" z="0.149992"/>
+      <p nr="6" x="0.156567" y="0.591965" z="0.000000"/>
+      <p nr="7" x="0.156567" y="0.591965" z="0.149992"/>
+      <p nr="8" x="0.230420" y="0.591965" z="0.000000"/>
+      <p nr="9" x="0.230420" y="0.591965" z="0.149992"/>
+      <p nr="10" x="0.156567" y="0.123945" z="0.000000"/>
+      <p nr="11" x="0.156567" y="0.123945" z="0.149992"/>
+      <p nr="12" x="-0.157255" y="0.001202" z="0.000000"/>
+      <p nr="13" x="-0.231108" y="0.001202" z="0.000000"/>
+      <p nr="14" x="-0.157255" y="0.001202" z="0.149992"/>
+      <p nr="15" x="-0.231108" y="0.001202" z="0.149992"/>
+      <p nr="16" x="0.151385" y="0.001202" z="0.000000"/>
+      <p nr="17" x="0.151385" y="0.001202" z="0.149992"/>
+      <p nr="18" x="0.230420" y="0.001202" z="0.000000"/>
+      <p nr="19" x="0.230420" y="0.001202" z="0.149992"/>
+      <solid>
+        <face shape="Planar">
+          <t p1="15" p2="14" p3="5"/>
+          <t p1="5" p2="4" p3="15"/>
+          <t p1="4" p2="5" p3="3"/>
+          <t p1="3" p2="5" p3="11"/>
+          <t p1="5" p2="17" p3="11"/>
+          <t p1="17" p2="19" p3="11"/>
+          <t p1="9" p2="11" p3="19"/>
+          <t p1="11" p2="9" p3="7"/>
+        </face>
+        <face shape="Planar">
+          <t p1="0" p2="2" p3="1"/>
+          <t p1="1" p2="2" p3="13"/>
+          <t p1="0" p2="10" p3="2"/>
+          <t p1="12" p2="13" p3="2"/>
+          <t p1="10" p2="16" p3="2"/>
+          <t p1="18" p2="16" p3="10"/>
+          <t p1="10" p2="8" p3="18"/>
+          <t p1="8" p2="10" p3="6"/>
+        </face>
+        <face shape="Planar">
+          <t p1="15" p2="4" p3="1"/>
+          <t p1="1" p2="13" p3="15"/>
+        </face>
+        <face shape="Planar">
+          <t p1="8" p2="6" p3="7"/>
+          <t p1="7" p2="9" p3="8"/>
+        </face>
+        <face shape="Planar">
+          <t p1="14" p2="15" p3="13"/>
+          <t p1="13" p2="12" p3="14"/>
+        </face>
+        <face shape="Planar">
+          <t p1="19" p2="17" p3="16"/>
+          <t p1="16" p2="18" p3="19"/>
+        </face>
+        <face shape="Planar">
+          <t p1="10" p2="0" p3="3"/>
+          <t p1="3" p2="11" p3="10"/>
+        </face>
+        <face shape="Planar">
+          <t p1="18" p2="8" p3="9"/>
+          <t p1="9" p2="19" p3="18"/>
+        </face>
+        <face shape="Planar">
+          <t p1="4" p2="3" p3="0"/>
+          <t p1="0" p2="1" p3="4"/>
+        </face>
+        <face shape="Planar">
+          <t p1="2" p2="16" p3="17"/>
+          <t p1="17" p2="5" p3="2"/>
+        </face>
+        <face shape="Planar">
+          <t p1="5" p2="14" p3="2"/>
+          <t p1="12" p2="2" p3="14"/>
+        </face>
+        <face shape="Planar">
+          <t p1="6" p2="10" p3="11"/>
+          <t p1="11" p2="7" p3="6"/>
+        </face>
+      </solid>
+    </data3D>
+    <data3D refID="20">
+      <p nr="0" x="0.316861" y="-1.149601" z="0.149992"/>
+      <p nr="1" x="0.437806" y="-1.149601" z="0.149992"/>
+      <p nr="2" x="0.316861" y="-1.149601" z="0.000000"/>
+      <p nr="3" x="0.437806" y="-1.149601" z="0.000000"/>
+      <p nr="4" x="-0.336905" y="-1.149601" z="0.149992"/>
+      <p nr="5" x="-0.336905" y="-1.149601" z="0.000000"/>
+      <p nr="6" x="-0.447242" y="-1.149601" z="0.149992"/>
+      <p nr="7" x="-0.447242" y="-1.149601" z="0.000000"/>
+      <p nr="8" x="-0.001777" y="-0.245138" z="0.149992"/>
+      <p nr="9" x="-0.001777" y="-0.245138" z="0.000000"/>
+      <p nr="10" x="-0.000314" y="-0.000932" z="0.149992"/>
+      <p nr="11" x="-0.000314" y="-0.000932" z="0.000000"/>
+      <solid>
+        <face shape="Planar">
+          <t p1="11" p2="9" p3="7"/>
+          <t p1="5" p2="7" p3="9"/>
+          <t p1="3" p2="9" p3="11"/>
+          <t p1="9" p2="3" p3="2"/>
+        </face>
+        <face shape="Planar">
+          <t p1="1" p2="0" p3="3"/>
+          <t p1="2" p2="3" p3="0"/>
+        </face>
+        <face shape="Planar">
+          <t p1="5" p2="9" p3="8"/>
+          <t p1="8" p2="4" p3="5"/>
+        </face>
+        <face shape="Planar">
+          <t p1="11" p2="7" p3="6"/>
+          <t p1="6" p2="10" p3="11"/>
+        </face>
+        <face shape="Planar">
+          <t p1="4" p2="6" p3="5"/>
+          <t p1="7" p2="5" p3="6"/>
+        </face>
+        <face shape="Planar">
+          <t p1="0" p2="8" p3="9"/>
+          <t p1="9" p2="2" p3="0"/>
+        </face>
+        <face shape="Planar">
+          <t p1="1" p2="8" p3="0"/>
+          <t p1="10" p2="8" p3="1"/>
+          <t p1="8" p2="10" p3="6"/>
+          <t p1="6" p2="4" p3="8"/>
+        </face>
+        <face shape="Planar">
+          <t p1="10" p2="1" p3="3"/>
+          <t p1="3" p2="11" p3="10"/>
+        </face>
+      </solid>
+    </data3D>
+  </objectDataSection>
+</objects>

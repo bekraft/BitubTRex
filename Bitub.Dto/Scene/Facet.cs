@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
+
 using Bitub.Dto.Spatial;
+using Bitub.Dto.Scene;
 
 namespace Bitub.Dto.Scene
 {
@@ -12,12 +15,12 @@ namespace Bitub.Dto.Scene
     /// </summary>
     public sealed class Facet : IEquatable<Facet>
     {
-        public readonly MeshPtOffsetArray Meshed;
+        public readonly MeshPtOffsetArray meshed;
         public int Index { get; private set; }
     
         public Facet(MeshPtOffsetArray mesh, int index)
         {
-            Meshed = mesh;
+            meshed = mesh;
             Index = index;
         }
 
@@ -29,12 +32,10 @@ namespace Bitub.Dto.Scene
         /// <returns>An enumerable facet</returns>
         public static IEnumerable<Facet> TransientFacetsOf(MeshPtOffsetArray mesh)
         {
-            var maxIndex = mesh.Mesh.FacetCount();
+            var maxIndex = mesh.Mesh.FacetCount;
             if (maxIndex > 0)
             {
                 Facet f = new Facet(mesh, 0);
-                yield return f;
-
                 for (int i = 0; i < maxIndex; i++)
                 {
                     f.Index = i;
@@ -43,48 +44,144 @@ namespace Bitub.Dto.Scene
             }
         }
 
-        public FacetType Type { get => Meshed.Mesh.Type; }
+        public FacetType Type { get => meshed.Mesh.Type; }
 
-        public Orientation Orientation { get => Meshed.Mesh.Orient; }
+        public Orientation Orientation { get => meshed.Mesh.Orient; }
 
-        public uint Shift { get => Meshed.PtOffsetArray.Offset; }
+        public IEnumerable<Arc<uint>> Loop
+        {
+            get => ArcExtensions.FromLoop(Enumerable.Range(0, (int)Size).Cast<uint>());
+        }
+
+        public IEnumerable<Arc<XYZ>> LoopXYZ
+        {
+            get => ArcExtensions.FromLoop(Enumerable.Range(0, (int)Size).Select(k => GetXYZ(k)));
+        }
+
+        /// <summary>
+        /// Returns a <see cref="Tridex"/> struct wrapping only the index information.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<Tridex> Triangles
+        {
+            get 
+            {
+                yield return new Tridex { A = A, B = B, C = C };
+                if (!IsTriangle)
+                    yield return new Tridex { A = A, B = C, C = D };
+            }
+        }
+
+        /// <summary>
+        /// A new <see cref="Tridex"/> with reordered vertices keeping the global orientation.
+        /// </summary>
+        /// <param name="pivot">The pivot index (A index)</param>
+        /// <returns>A reordered topological triangle</returns>
+        public IEnumerable<Tridex> ToTriangles(uint? pivot)
+        {
+            if (!pivot.HasValue)
+                pivot = A;
+
+            uint? pivotIdx = null;
+            for (uint k = 0; k < Size; ++k)
+            {
+                if (Vertex(k) == pivot)
+                    pivotIdx = k;
+            }
+
+            if (!pivotIdx.HasValue)
+                throw new ArgumentException($"Pivot {pivot} has no equivalent within facet.");
+
+            yield return new Tridex { A = Vertex(pivotIdx.Value), B = Vertex((pivotIdx.Value + 1) % Size), C = Vertex((pivotIdx.Value + 2) % Size) };
+            if (!IsTriangle)
+                yield return new Tridex { A = Vertex(pivotIdx.Value), B = Vertex((pivotIdx.Value + 2) % Size), C = Vertex((pivotIdx.Value + 3) % Size) };
+        }
+
+        public uint Shift 
+        { 
+            get => meshed.PtOffsetArray.Offset; 
+        }
+
+        public uint Vertex(uint offset)
+        {
+            if (offset >= Size || offset < 0)
+                throw new ArgumentException($"Offset {offset} out of allowed range [0;{Size-1}].");
+
+            return meshed.Mesh.Vertex[IndexOffset(Index, (int)offset)] + Shift;
+        }
 
         /// <summary>
         /// Returns the shifted A vertex of the facet.
         /// </summary>
-        public uint A
-        {
-            get {
-                return Meshed.Mesh.Vertex[IndexOffset(Index, 0)] + Shift;
-            }
+        public uint A 
+        { 
+            get => meshed.Mesh.Vertex[IndexOffset(Index, 0)] + Shift; 
         }
 
-        public bool HasNormals { get => Meshed.Mesh.Normal.Count > 0; }
+        public bool HasNormals 
+        { 
+            get => meshed.Mesh.Normal.Count > 0; 
+        }
 
-        public bool HasUVs { get => Meshed.Mesh.Uv.Count > 0; }
+        public bool HasUVs 
+        { 
+            get => meshed.Mesh.Uv.Count > 0; 
+        }
 
-        public XYZ NormalOf(int offset)
+        /// <summary>
+        /// Will return the normal of the face at given vertex (0 to n-1).
+        /// </summary>
+        /// <param name="offset">The offset starting from 0.</param>
+        /// <param name="computeIfAbsent">Compute, if no normal exists</param>
+        /// <returns>A normal vector pointing towards spectator.</returns>
+        public XYZ GetNormal(int offset, bool computeIfAbsent = false)
         {
-            switch (Meshed.Mesh.Normal.Count)
+            switch (meshed.Mesh.Normal.Count)
             {
                 case 0:
+                    //meshed.PtOffsetArray.Points
                     return null;
                 case 3:
                     // Planar case
                     return new XYZ
                     {
-                        X = Meshed.Mesh.Normal[0],
-                        Y = Meshed.Mesh.Normal[1],
-                        Z = Meshed.Mesh.Normal[2]
+                        X = meshed.Mesh.Normal[0],
+                        Y = meshed.Mesh.Normal[1],
+                        Z = meshed.Mesh.Normal[2]
                     };
                 default:
-                    // Default case
+                    // Default case, each point has a normal
+                    var baseOffset = IndexOffset(Index, offset) * 3;
                     return new XYZ
                     {
-                        X = Meshed.Mesh.Normal[IndexOffset(Index, offset) * 3],
-                        Y = Meshed.Mesh.Normal[IndexOffset(Index, offset) * 3 + 1],
-                        Z = Meshed.Mesh.Normal[IndexOffset(Index, offset) * 3 + 2]
+                        X = meshed.Mesh.Normal[baseOffset],
+                        Y = meshed.Mesh.Normal[baseOffset + 1],
+                        Z = meshed.Mesh.Normal[baseOffset + 2]
                     };
+            }
+        }
+
+        public XYZ GetXYZ(int offset)
+        {
+            var baseOffset = (int)meshed.Mesh.Vertex[IndexOffset(Index, offset)] * 3;
+            return new XYZ
+            {
+                X = meshed.PtOffsetArray.Points.Xyz[baseOffset],
+                Y = meshed.PtOffsetArray.Points.Xyz[baseOffset + 1],
+                Z = meshed.PtOffsetArray.Points.Xyz[baseOffset + 2]
+            };
+        }
+
+        /// <summary>
+        /// Returns the facet normal according the the embedding plane.
+        /// </summary>
+        public XYZ Normal
+        {
+            get {
+                var a = GetXYZ(0);
+                var ab = GetXYZ(1).Sub(a);
+                var ac = GetXYZ(2).Sub(a);
+                return ab.Cross(ac).ToNormalized();
             }
         }
 
@@ -94,7 +191,7 @@ namespace Bitub.Dto.Scene
         public uint B
         {
             get {
-                return Meshed.Mesh.Vertex[IndexOffset(Index, 1)] + Shift;
+                return meshed.Mesh.Vertex[IndexOffset(Index, 1)] + Shift;
             }
         }
 
@@ -104,7 +201,7 @@ namespace Bitub.Dto.Scene
         public uint C
         {
             get {
-                return Meshed.Mesh.Vertex[IndexOffset(Index, 2)] + Shift;
+                return meshed.Mesh.Vertex[IndexOffset(Index, 2)] + Shift;
             }
         }
 
@@ -115,7 +212,7 @@ namespace Bitub.Dto.Scene
         {
             get {
                 if(FacetType.QuadMesh == Type)
-                    return Meshed.Mesh.Vertex[IndexOffset(Index, 3)] + Shift;
+                    return meshed.Mesh.Vertex[IndexOffset(Index, 3)] + Shift;
                 else
                     throw new NotSupportedException($"{Type} does not support indices > 2");
             }
@@ -128,7 +225,7 @@ namespace Bitub.Dto.Scene
         public uint this[int offset]
         {
             get {
-                return Meshed.Mesh.Vertex[IndexOffset(Index, Math.Abs(offset % Size))] + Shift;
+                return meshed.Mesh.Vertex[IndexOffset(Index, Math.Abs(offset % (int)Size))] + Shift;
             }
         }
 
@@ -154,19 +251,27 @@ namespace Bitub.Dto.Scene
 
         public bool Equals(Facet other)
         {
-            return (Meshed == other.Meshed) && (Index == other.Index);
-        }        
+            return (meshed == other.meshed) && (Index == other.Index);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Facet f)
+                return Equals(f);
+            else
+                return false;
+        }       
 
         public bool IsValidIndex(int index)
         {
             // True, if more vertices than the given offset index
-            return Meshed.Mesh.Vertex.Count > IndexOffset(index, Size - 1);                
+            return meshed.Mesh.Vertex.Count > IndexOffset(index, (int)Size - 1);                
         }
 
         /// <summary>
         /// The count of vertices for this facet depending on its type
         /// </summary>
-        public int Size
+        public uint Size
         {
             get {
                 switch (Type)
@@ -179,6 +284,34 @@ namespace Bitub.Dto.Scene
                         return 4;
                     default:
                         throw new NotImplementedException($"Missing implementation of '{Type}'");
+                }
+            }
+        }
+
+        public bool IsTriangle 
+        {
+            get {
+                switch (Type)
+                {
+                    case FacetType.TriFan:
+                    case FacetType.TriStripe:
+                    case FacetType.TriMesh:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        }
+
+        public bool IsQuad
+        {
+            get {
+                switch (Type)
+                {
+                    case FacetType.QuadMesh:
+                        return true;
+                    default:
+                        return false;
                 }
             }
         }
@@ -206,7 +339,20 @@ namespace Bitub.Dto.Scene
             }
         }
 
+        public override int GetHashCode()
+        {
+            int hashCode = 749459680;
+            hashCode = hashCode * -1521134295 + EqualityComparer<MeshPtOffsetArray>.Default.GetHashCode(meshed);
+            hashCode = hashCode * -1521134295 + Index.GetHashCode();
+            return hashCode;
+        }
 
-
+        public override string ToString()
+        {
+            if (IsTriangle)
+                return $"{Type}{Index}[{A}-{B}-{C}]";
+            else
+                return $"{Type}{Index}[{A}-{B}-{C}-{D}]";
+        }
     }
 }

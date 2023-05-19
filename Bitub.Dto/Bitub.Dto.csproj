@@ -2,47 +2,55 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Protoc>$(UserProfile)\.nuget\packages\google.protobuf.tools\3.8.0\tools\windows_x64\protoc.exe</Protoc>
+    <ProtobufVersion>3.22.1</ProtobufVersion>
+    <ProtobufTools>$(UserHome)/.nuget/packages/google.protobuf.tools/$(ProtobufVersion)/tools</ProtobufTools>
     
-    <BuildMajor>1</BuildMajor>
-    <BuildMinor>0</BuildMinor>
-    <BuildRelease>0</BuildRelease>
-    <BuildQualifier></BuildQualifier>
-    <Build>0</Build>    
-    <Configurations>Debug;Release;Beta</Configurations>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <IsPackable>true</IsPackable>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-
-    <BuildRelease>$([System.DateTime]::Now.ToString("yy"))$([System.String]::Format("{0:000}",$([System.DateTime]::Now.DayOfYear)))</BuildRelease>
-    <DayOfMonth>$([MSBuild]::Multiply($([MSBuild]::Multiply($([System.DateTime]::Now.Day), 24)), 60))</DayOfMonth>
-    <HourOfDay>$([MSBuild]::Multiply($([System.DateTime]::Now.Hour), 60))</HourOfDay>
-    <Build>$([MSBuild]::Add($([MSBuild]::Add($([System.DateTime]::Now.Minute),$(HourOfDay))), $(DayOfMonth)))</Build>
-    <BuildQualifier>-Alpha</BuildQualifier>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <IncludeSymbols>true</IncludeSymbols>
-  </PropertyGroup>
-  
-  <PropertyGroup>
     <Title>Bitub.Dto</Title>
     <Description>Bitub common model transferring library</Description>
-
-    <TargetFrameworks>net47;netcoreapp3.1</TargetFrameworks>
-
-    <AssemblyFileVersionAttribute>[assembly:System.Reflection.AssemblyVersionAttribute("$(BuildMajor).$(BuildMinor).$(BuildRelease).$(Build)")];</AssemblyFileVersionAttribute>
-    <AssemblyVersion>$(BuildMajor).$(BuildMinor).$(BuildRelease).$(Build)</AssemblyVersion>
-    <FileVersion>$(BuildMajor).$(BuildMinor).$(BuildRelease).$(Build)</FileVersion>
-    <Version>$(BuildMajor).$(BuildMinor).$(BuildRelease)$(BuildQualifier).$(Build)</Version>
-
-    <Authors>Bernold Kraft</Authors>
-    <Company>Bitub</Company>
-    <Copyright>Bernold Kraft</Copyright>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageProjectUrl>https://www.github.com/bekraft/BitubTRex</PackageProjectUrl>
+    
+    <Configurations>Debug;Dev;Release;Test</Configurations>
+  
     <RootNamespace>Bitub.Dto</RootNamespace>
+  
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <LangVersion>8.0</LangVersion>
 
+    <BuildDependsOn>GenerateProto</BuildDependsOn>
+
+    <Platforms>AnyCPU</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(NugetLocalRepository)' != ''">
+    <ProtobufTools>$(NugetLocalRepository)/google.protobuf.tools/$(ProtobufVersion)/tools</ProtobufTools>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(IsWindows)' == 'true'">
+    <UserHome>$(UserProfile)</UserHome>    
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'">
+    <UserHome>$(HOME)</UserHome>    
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsWindows)'=='true'">
+    <Protoc>$(ProtobufTools)/windows_x64/protoc.exe</Protoc>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsOSX)'=='true'">
+    <Protoc>$(ProtobufTools)/macosx_x64/protoc</Protoc>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsLinux)'=='true'">
+    <Protoc>$(ProtobufTools)/linux_x64/protoc</Protoc>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Test|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>embedded</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Test</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -50,62 +58,51 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Beta|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev|AnyCPU'">
     <!-- Build debug profile -->
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>bin\Dev</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <!-- Build release profile -->
-    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>portable</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
+    <OutputPath>bin\Release</OutputPath>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-
+    
   <ItemGroup>
-    <Compile Remove="Data\**" />
-    <EmbeddedResource Remove="Data\**" />
-    <None Remove="Data\**" />
+    <PackageReference Include="Google.Protobuf" Version="3.22.1" />
+    <PackageReference Include="Google.Protobuf.Tools" Version="3.22.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="7.0.0" />
+    <PackageReference Include="System.Text.Json" Version="7.0.2" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <PackageReference Include="Google.Protobuf">
-      <Version>3.8.0</Version>
-    </PackageReference>
-    <PackageReference Include="Google.Protobuf.Tools">
-      <Version>3.8.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.1.1" />
-    <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="Rest\" />
-  </ItemGroup>
-
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Message Text="Building $(Version)" Importance="High" />
-    <Message Text="==&gt; Including from protobuf sources PROTOBUF_SRC=&quot;$(PROTOBUF_SRC)&quot;" Importance="High" />
-    <Exec Command="$(Protoc) -I=&quot;$(PROTOBUF_SRC)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Common.proto&quot;" />
-    <Exec Command="$(Protoc) -I=&quot;$(PROTOBUF_SRC)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Spatial.proto&quot;" />
-    <Exec Command="$(Protoc) -I=&quot;$(PROTOBUF_SRC)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Classify.proto&quot;" />
-    <Exec Command="$(Protoc) -I=&quot;$(PROTOBUF_SRC)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Collab.proto&quot;" />
-    <Exec Command="$(Protoc) -I=&quot;$(PROTOBUF_SRC)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)TRex.proto&quot;" />
-    <Exec Command="$(Protoc) -I=&quot;$(PROTOBUF_SRC)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Scene.proto&quot;" />    
+    
+  <Target Name="GenerateProto" BeforeTargets="BeforeBuild">
+    <Message Text="Generating Protos for $(Version)" Importance="High" />
+    <Exec Condition="'$(IsWindows)' == 'true'" Command="if not exist  &quot;$(ProjectDir)Generated&quot; mkdir &quot;$(ProjectDir)Generated&quot;" />
+    <Exec Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'" Command="mkdir -p &quot;$(ProjectDir)Generated&quot;" />
+    <Exec Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'" Command="chmod u+x $(Protoc)" />
+    <Exec Command="$(Protoc) -I=&quot;$(ProtobufTools)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Common.proto&quot;" />
+    <Exec Command="$(Protoc) -I=&quot;$(ProtobufTools)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Spatial.proto&quot;" />
+    <Exec Command="$(Protoc) -I=&quot;$(ProtobufTools)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Concept.proto&quot;" />
+    <Exec Command="$(Protoc) -I=&quot;$(ProtobufTools)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Scene.proto&quot;" />
+    <ItemGroup>
+        <GeneratedProtos Include="$(ProjectDir)Generated/*.cs" />
+        <Compile Include="@(GeneratedProtos)" />
+    </ItemGroup>
+    <Message Text="Generated: @(GeneratedProtos)" Importance="High" />
   </Target>
 </Project>

@@ -1,13 +1,27 @@
-﻿using Google.Protobuf;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace Bitub.Dto
 {
     public static class CommonExtensions
     {
+        public static readonly Regex guidRegExpression = new Regex(@"^[{(]?[0-9A-F]{8}[-]?([0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+        public static RefId ToRefId(this int index)
+        {
+            return new RefId { Nid = index };
+        }
+
+        public static RefId ToRefId(this Qualifier qualifier)
+        {
+            return new RefId { Sid = qualifier };
+        }
+
+        #region GlobalUniqueId context
+
         /// <summary>
         /// Converts a <c>GlobalUniqueId</c> into a serializable string representation in base64,
         /// </summary>
@@ -15,16 +29,42 @@ namespace Bitub.Dto
         /// <returns>A base64 representation</returns>
         public static string ToBase64String(this GlobalUniqueId id)
         {
-            switch (id.NumericalOrStringCase)
+            return id.GuidOrStringCase switch
             {
-                case GlobalUniqueId.NumericalOrStringOneofCase.Base64:
-                    return id.Base64;
-                case GlobalUniqueId.NumericalOrStringOneofCase.Guid:
-                    return id.Guid.Raw.ToBase64();
-                default:
-                    throw new NotImplementedException($"Missing implementation for '{id.NumericalOrStringCase}'");
-            }
+                GlobalUniqueId.GuidOrStringOneofCase.Base64 => id.Base64,
+                GlobalUniqueId.GuidOrStringOneofCase.Guid => id.Guid.Raw.ToBase64(),
+                GlobalUniqueId.GuidOrStringOneofCase.None => null,
+                _ => throw new NotImplementedException($"Missing implementation for '{id.GuidOrStringCase}'"),
+            };
         }
+
+        public static GlobalUniqueId ToGlobalUniqueId(this string guid)
+        {
+            if (guid.IsGuidStringRepresentation())
+                return System.Guid.Parse(guid).ToGlobalUniqueId();
+            else
+                return new GlobalUniqueId { Base64 = guid };
+        }
+
+        public static Qualifier ToQualifier(this GlobalUniqueId guid)
+        {
+            return new Qualifier
+            {
+                Anonymous = guid
+            };
+        }
+
+        public static Qualifier ToQualifier(this byte[] byteArray)
+        {
+            return new Qualifier 
+            {
+                Anonymous = new GlobalUniqueId { Base64 = Convert.ToBase64String(byteArray) }
+            };
+        }
+
+        #endregion
+
+        #region System.Guid context
 
         public static bool IsEqualTo(this Guid id, System.Guid guid)
         {
@@ -36,9 +76,19 @@ namespace Bitub.Dto
             return Enumerable.SequenceEqual(id.Raw.ToArray(), guid.ToByteArray());
         }
 
+        public static Guid ToDtoGuid(this System.Guid guid)
+        {
+            return new Guid { Raw = guid.ToByteArray().ToByteString() };
+        }
+
+        public static System.Guid ToGuid(this Guid dtoGuid)
+        {
+            return new System.Guid(dtoGuid.Raw.ToByteArray());
+        }
+
         public static GlobalUniqueId ToGlobalUniqueId(this System.Guid guid)
         {
-            return new GlobalUniqueId { Guid = new Guid { Raw = guid.ToByteArray().ToByteString() } };
+            return new GlobalUniqueId { Guid = guid.ToDtoGuid() };
         }
 
         public static Qualifier ToQualifier(this System.Guid guid)
@@ -46,13 +96,15 @@ namespace Bitub.Dto
             return new GlobalUniqueId{ Guid = new Guid { Raw = guid.ToByteArray().ToByteString() }}.ToQualifier();
         }
 
-        public static Qualifier ToQualifier(this GlobalUniqueId guid)
+        public static bool IsGuidStringRepresentation(this string guid)
         {
-            return new Qualifier
-            {
-                Anonymous = guid
-            };
+            var match = guidRegExpression.Match(guid);
+            return null != match && match.Length == guid.Length;
         }
+
+        #endregion
+
+        #region Name and string context
 
         public static Qualifier ToQualifier(this Name name)
         {
@@ -91,8 +143,7 @@ namespace Bitub.Dto
             return name;
         }
 
-        public static string ToLabel(this Name name, 
-            string separator = ".", int fromStart = 0, int fromEnd = 0)
+        public static string ToLabel(this Name name, string separator = ".", int fromStart = 0, int fromEnd = 0)
         {
             return string.Join(separator, name.Frags
                         .Skip(fromStart)
@@ -107,10 +158,16 @@ namespace Bitub.Dto
             return named;
         }
 
-        public static Name ToName(this Type t)
+        public static Name ToName(this System.Type t)
+        {
+            return ToName(t, null);
+        }
+
+        public static Name ToName(this System.Type t, Regex replacePattern, string replaceBy = "")
         {
             var named = new Name();
-            named.Frags.Add(t.Name);
+            var qualifiedName = null != replacePattern ? replacePattern.Replace(t.FullName, replaceBy) : t.FullName;
+            qualifiedName.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries).ForEach(f => named.Frags.Add(f));
             return named;
         }
 
@@ -129,11 +186,16 @@ namespace Bitub.Dto
             };
         }
 
-        public static Qualifier ToQualifier(this Type t)
+        public static Qualifier ToQualifier(this System.Type t)
+        {
+            return ToQualifier(t, null);
+        }
+
+        public static Qualifier ToQualifier(this System.Type t, Regex replacePattern, string replaceBy = "")
         {
             return new Qualifier
             {
-                Named = t.ToName()
+                Named = t.ToName(replacePattern, replaceBy)
             };
         }
 
@@ -144,6 +206,10 @@ namespace Bitub.Dto
                 Named = frags.ToName()
             };
         }
+
+        #endregion
+
+        #region Qualifier and Classifier context
 
         public static Classifier ToClassifier(this Qualifier name)
         {
@@ -163,6 +229,27 @@ namespace Bitub.Dto
             var c = new Classifier();
             c.Path.AddRange(qualifiers);
             return c;
+        }
+
+        #endregion
+
+        public static Logical ToLogical(this bool? logicalFlag)
+        {
+            if (logicalFlag.HasValue)
+                return new Logical { Known = logicalFlag.Value };
+            else
+                return new Logical { };
+        }
+
+        public static bool? ToBoolean(this Logical logical)
+        {
+            switch (logical.FlagCase)
+            {
+                case Logical.FlagOneofCase.Known:
+                    return logical.Known;
+                default:
+                    return null;
+            }
         }
     }
 }

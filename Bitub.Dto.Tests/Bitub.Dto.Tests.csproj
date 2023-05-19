@@ -1,16 +1,18 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{AA78A959-7C8E-4854-B66A-2B6A2DC0CBDE}</ProjectGuid>
-
-    <RootNamespace>Bitub.Dto.Tests</RootNamespace>
-    <AssemblyName>Bitub.Dto.Tests</AssemblyName>
-
-    <TargetFrameworks>net47;netcoreapp3.1</TargetFrameworks>
-
     <IsPackable>false</IsPackable>
+    <Configurations>Debug;Dev;Release;Test</Configurations>
+    <Platforms>AnyCPU</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>embedded</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Test</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,28 +22,14 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\Bitub.Dto\Bitub.Dto.csproj">
-      <Project>{d95907f9-1c22-471f-8e77-066c40d35e0d}</Project>
-      <Name>Bitub.Dto</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\Bitub.Dto\Bitub.Dto.csproj"></ProjectReference>
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0"/>
-    <PackageReference Include="Microsoft.Extensions.Logging">
-      <Version>2.1.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions">
-      <Version>2.1.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Logging.Console">
-      <Version>2.1.1</Version>
-    </PackageReference>
-    <PackageReference Include="MSTest.TestAdapter">
-      <Version>2.1.2</Version>
-    </PackageReference>
-    <PackageReference Include="MSTest.TestFramework">
-      <Version>2.1.2</Version>
-    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
+    <PackageReference Include="NUnit" Version="3.13.3" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.4.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
   </ItemGroup>
 </Project>

@@ -3,6 +3,8 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+*.7z
+
 # User-specific files
 *.suo
 *.user
@@ -17,6 +19,7 @@
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
+[Gg]enerated/
 x64/
 x86/
 bld/
@@ -328,5 +331,3 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
-/Bitub.PSet/Transform/PSetDsl.g4.parser.cs
-/Bitub.PSet/Transform/PSetDsl.g4.lexer.cs

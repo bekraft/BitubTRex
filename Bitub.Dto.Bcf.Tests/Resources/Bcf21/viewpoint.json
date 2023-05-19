@@ -1,0 +1,107 @@
+{
+  "index": 10,
+  "perspective_camera": {
+    "camera_view_point": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "camera_direction": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 2.0
+    },
+    "camera_up_vector": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 1.0
+    },
+    "field_of_view": 90.0
+  },
+  "lines": [
+    {
+      "start_point": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+      },
+      "end_point": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    }
+  ],
+  "clipping_planes": [
+    {
+      "location": {
+        "x": 0.5,
+        "y": 0.5,
+        "z": 0.5
+      },
+      "direction": {
+        "x": 1.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    }
+  ],
+  "bitmaps": [
+    {
+      "bitmap_type": "jpg",
+      "bitmap_data": "SGVsbG8gV29ybGQh",
+      "location": {
+        "x": 10.0,
+        "y": -10.0,
+        "z": 7.0
+      },
+      "normal": {
+        "x": -1.0,
+        "y": 1.25,
+        "z": 0.0
+      },
+      "up": {
+        "x": -5.4,
+        "y": -4.3,
+        "z": 1.0
+      },
+      "height": 1666
+    }
+  ],
+  "snapshot": {
+    "snapshot_type": "png",
+    "snapshot_data": "SGVsbG8gV29ybGQh"
+  },
+  "components": {
+    "selection": [
+      {
+        "ifc_guid": "2MF28NhmDBiRVyFakgdbCT",
+        "originating_system": "Example CAD Application",
+        "authoring_tool_id": "EXCAD/v1.0"
+      }
+    ],
+    "coloring": [
+      {
+        "color": "#ff0000",
+        "components": [
+          {
+            "ifc_guid": "3$cshxZO9AJBebsni$z9Yk"
+          }
+        ]
+      }
+    ],
+    "visibility": {
+      "default_visibility": false,
+      "exceptions": [
+        {
+          "ifc_guid": "4$cshxZO9AJBebsni$z9Yk"
+        }
+      ],
+      "view_setup_hints": {
+        "spaces_visible": true,
+        "space_boundaries_visible": false,
+        "openings_visible": true
+      }
+    }
+  }
+}
