@@ -59,25 +59,25 @@ namespace Bitub.Dto.Scene
         }
 
         /// <summary>
-        /// Returns a <see cref="Tridex"/> struct wrapping only the index information.
+        /// Returns a <see cref="Simplex2"/> struct wrapping only the index information.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<Tridex> Triangles
+        public IEnumerable<Simplex2> Triangles
         {
             get 
             {
-                yield return new Tridex { A = A, B = B, C = C };
+                yield return new Simplex2 { A = A, B = B, C = C };
                 if (!IsTriangle)
-                    yield return new Tridex { A = A, B = C, C = D };
+                    yield return new Simplex2 { A = A, B = C, C = D };
             }
         }
 
         /// <summary>
-        /// A new <see cref="Tridex"/> with reordered vertices keeping the global orientation.
+        /// A new <see cref="Simplex2"/> with reordered vertices keeping the global orientation.
         /// </summary>
         /// <param name="pivot">The pivot index (A index)</param>
         /// <returns>A reordered topological triangle</returns>
-        public IEnumerable<Tridex> ToTriangles(uint? pivot)
+        public IEnumerable<Simplex2> ToTriangles(uint? pivot)
         {
             if (!pivot.HasValue)
                 pivot = A;
@@ -92,9 +92,9 @@ namespace Bitub.Dto.Scene
             if (!pivotIdx.HasValue)
                 throw new ArgumentException($"Pivot {pivot} has no equivalent within facet.");
 
-            yield return new Tridex { A = Vertex(pivotIdx.Value), B = Vertex((pivotIdx.Value + 1) % Size), C = Vertex((pivotIdx.Value + 2) % Size) };
+            yield return new Simplex2 { A = Vertex(pivotIdx.Value), B = Vertex((pivotIdx.Value + 1) % Size), C = Vertex((pivotIdx.Value + 2) % Size) };
             if (!IsTriangle)
-                yield return new Tridex { A = Vertex(pivotIdx.Value), B = Vertex((pivotIdx.Value + 2) % Size), C = Vertex((pivotIdx.Value + 3) % Size) };
+                yield return new Simplex2 { A = Vertex(pivotIdx.Value), B = Vertex((pivotIdx.Value + 2) % Size), C = Vertex((pivotIdx.Value + 3) % Size) };
         }
 
         public uint Shift 
