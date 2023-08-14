@@ -5,7 +5,7 @@ namespace Bitub.Dto.Scene
     /// <summary>
     /// A simplified topological triangle representation based on indices.
     /// </summary>
-    public struct Tridex
+    public struct Simplex2
     {
         public uint A, B, C;
 
@@ -16,14 +16,14 @@ namespace Bitub.Dto.Scene
         /// </summary>
         /// <param name="shift">Unsigned shift</param>
         /// <returns>A new shifted Tridex</returns>
-        public Tridex Shift(uint shift)
+        public Simplex2 Shift(uint shift)
         {
-            return new Tridex { A = A + shift, B = B + shift, C = C + shift };
+            return new Simplex2 { A = A + shift, B = B + shift, C = C + shift };
         }
 
         public override bool Equals(object obj)
         {
-            if (obj is Tridex tridex)
+            if (obj is Simplex2 tridex)
                 return A == tridex.A && B == tridex.B && C == tridex.C;
 
             return false;

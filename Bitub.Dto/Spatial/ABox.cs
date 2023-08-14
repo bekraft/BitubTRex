@@ -23,17 +23,20 @@ namespace Bitub.Dto.Spatial
             }
         }
 
+        public ABox(XYZ center, float halfExtent)
+        {
+            Min = new XYZ(center.X - halfExtent, center.Y - halfExtent, center.Z - halfExtent);
+            Max = new XYZ(center.X + halfExtent, center.Y + halfExtent, center.Z + halfExtent);
+        }
+
         /// <summary>
         /// New empty ABox.
         /// </summary>
-        public static ABox Empty
-        {
-            get => new ABox
+        public static ABox Empty => new ABox
             {
                 Min = XYZ.PositiveInfinity,
                 Max = XYZ.NegativeInfinity
             };
-        }
 
         /// <summary>
         /// New open ABox.
@@ -114,6 +117,37 @@ namespace Bitub.Dto.Spatial
                 var volume = (Max.X - Min.X) * (Max.Y - Min.Y) * (Max.Z - Min.Z);
                 return volume > 0 ? volume : 0;
             }
+        }
+
+        public bool Covers(XYZ xyz)
+        {
+            return Min.X <= xyz.X && Min.Y <= xyz.Y && Min.Z <= xyz.Z 
+                   && Max.X >= xyz.X && Max.Y >= xyz.Y && Max.Z >= xyz.Z;
+        }
+        
+        public bool Contains(XYZ xyz)
+        {
+            return Min.X < xyz.X && Min.Y < xyz.Y && Min.Z < xyz.Z 
+                   && Max.X > xyz.X && Max.Y > xyz.Y && Max.Z > xyz.Z;
+        }
+
+        public ABox UnionWith(XYZ xyz)
+        {
+            return new ABox
+            {
+                Min = new XYZ
+                {
+                    X = Math.Min(Min.X, xyz.X),
+                    Y = Math.Min(Min.Y, xyz.Y),
+                    Z = Math.Min(Min.Z, xyz.Z)
+                },
+                Max = new XYZ
+                {
+                    X = Math.Max(Max.X, xyz.X),
+                    Y = Math.Max(Max.Y, xyz.Y),
+                    Z = Math.Max(Max.Z, xyz.Z)
+                }
+            };
         }
     }
 }

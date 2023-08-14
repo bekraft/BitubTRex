@@ -198,5 +198,12 @@ namespace Bitub.Dto.Spatial
         /// </summary>
         /// <returns>An Quat</returns>
         public Quat ToQuat() => new Quat { X = X, Y = Y, Z = Z, W = 0 };
+
+        /// <summary>
+        /// Get the euclidean distance between to XYZs.
+        /// </summary>
+        /// <param name="other">The XYZ with distance to.</param>
+        /// <returns>Distance</returns>
+        public double Distance(XYZ other) => (this - other).Magnitude;
     }
 }

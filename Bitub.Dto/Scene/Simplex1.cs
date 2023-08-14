@@ -1,20 +1,20 @@
 ﻿namespace Bitub.Dto.Scene
 {
-    public struct Bidex
+    public struct Simplex1
     {
         public readonly uint O, T;
         
-        public Bidex(uint o, uint t)
+        public Simplex1(uint o, uint t)
         {
             O = o;
             T = t;
         }
 
-        public Bidex Twin => new Bidex(T, O);
+        public Simplex1 Twin => new Simplex1(T, O);
 
         public override bool Equals(object obj)
         {
-            return obj is Bidex bidex &&
+            return obj is Simplex1 bidex &&
                    O == bidex.O &&
                    T == bidex.T;
         }
