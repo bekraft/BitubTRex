@@ -5,8 +5,13 @@ namespace Bitub.Dto.Spatial
 {
     public class KdRange : IRangeQuery<KdNode>
     {
-        public KdRange()
+        public KdRange() : this(1e-6f, 1e-4f)
+        {}
+        
+        public KdRange(float epsSame, float epsCluster)
         {
+            EpsSame = epsSame;
+            EpsCluster = epsCluster;
         }
         
         public KdNode Root { get; protected set; }
@@ -14,12 +19,12 @@ namespace Bitub.Dto.Spatial
         /// <summary>
         /// Minimal distance between any two points to be distinct.
         /// </summary>
-        public float EpsSame { get; private set; } = 1e-6f;
+        public float EpsSame { get; private set; } 
 
         /// <summary>
         /// Minimal distance between any two points to be clustered.
         /// </summary>
-        public float EpsCluster { get; private set; } = 1e-4f;
+        public float EpsCluster { get; private set; }
 
         /// <summary>
         /// The current Abox of this point cloud.

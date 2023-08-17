@@ -43,7 +43,7 @@ namespace Bitub.Dto.Spatial
                     parent.LMin = Math.Min(parent.LMin, leftPositive);
                     if (null == (newParent = parent.Left))
                     {
-                        node = CreateChildDimNode(xyz);
+                        node = CreateChildDimNode(parent, xyz);
                         parent.Left = node;
                     }
                 } 
@@ -53,7 +53,7 @@ namespace Bitub.Dto.Spatial
                     parent.RMin = Math.Min(parent.RMin, -leftPositive);
                     if (null == (newParent = parent.Right))
                     {
-                        node = CreateChildDimNode(xyz);
+                        node = CreateChildDimNode(parent, xyz);
                         parent.Right = node;
                     }
                 }
@@ -64,11 +64,11 @@ namespace Bitub.Dto.Spatial
             return node;
         }
 
-        private KdNode CreateChildDimNode(XYZ xyz)
+        private static KdNode CreateChildDimNode(KdNode parent, XYZ xyz)
         {
             return new KdNode(xyz)
             {
-                Dim = (this.Dim + 1) % 3
+                Dim = (parent.Dim + 1) % 3
             };
         }
     }

@@ -149,5 +149,17 @@ namespace Bitub.Dto.Spatial
                 }
             };
         }
+
+        public ABox Scale(double scale, XYZ center)
+        {
+            return new ABox
+            {
+                Min = ((Min - Center) * scale) + Center,
+                Max = ((Max - Center) * scale) + Center,
+            };
+        }
+
+        public ABox Scale(double scale) => Scale(scale, Center);
+
     }
 }
