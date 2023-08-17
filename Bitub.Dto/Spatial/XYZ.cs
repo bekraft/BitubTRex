@@ -38,6 +38,13 @@ namespace Bitub.Dto.Spatial
             z_ = z;
         }
 
+        public XYZ(double x, double y, double z)
+        {
+            x_ = (float)x;
+            y_ = (float)y;
+            z_ = (float)z;
+        }
+
         public double Magnitude => Math.Sqrt(Dot(this));
 
         public void Normalize()

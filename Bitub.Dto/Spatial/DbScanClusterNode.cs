@@ -56,12 +56,15 @@ namespace Bitub.Dto.Spatial
         {
             get
             {
-                yield return this;
-                for (var nextOnRing = _coreNext;
-                     nextOnRing != this && null != nextOnRing; 
-                     nextOnRing = nextOnRing._coreNext)
+                if (IsCluster)
                 {
-                    yield return nextOnRing;
+                    yield return this;
+                    for (var nextOnRing = _coreNext;
+                         nextOnRing != this && null != nextOnRing;
+                         nextOnRing = nextOnRing._coreNext)
+                    {
+                        yield return nextOnRing;
+                    }
                 }
             }
         }
@@ -74,7 +77,7 @@ namespace Bitub.Dto.Spatial
         /// <summary>
         /// Ring's successor
         /// </summary>
-        protected internal DbScanClusterNode<T> Predecessor => ClusterRing.First(n => n._coreNext == this);
+        protected internal DbScanClusterNode<T> Predecessor => ClusterRing.FirstOrDefault(n => n._coreNext == this);
 
         /// <summary>
         /// Will expel this cluster node from its cluster.
