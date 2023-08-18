@@ -4,6 +4,7 @@
     <IsPackable>false</IsPackable>
     <Configurations>Debug;Dev;Release;Test</Configurations>
     <Platforms>AnyCPU</Platforms>
+    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
