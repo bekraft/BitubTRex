@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Bitub.Dto.Scene.Validation;
 
 namespace Bitub.Dto.Scene
 {
-    public enum MeshManifoldResult
-    {
-        Closed, Open, OpenNonmanifold
-    }
-
     public partial class Mesh
     {
         /// <summary>

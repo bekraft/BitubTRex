@@ -1,10 +1,7 @@
 ﻿using NUnit.Framework;
 
-using System;
 using System.Linq;
-
 using Bitub.Dto.Xml;
-using System.Text;
 
 namespace Bitub.Dto.Tests
 {
@@ -23,20 +20,20 @@ namespace Bitub.Dto.Tests
 
             var aq1 = System.Guid.NewGuid().ToQualifier();
 
-            Assert.IsTrue(nq2.IsSuperQualifierOf(nq1));
-            Assert.IsFalse(nq1.IsSuperQualifierOf(nq2));
+            Assert.That(nq2.IsSuperQualifierOf(nq1), Is.True);
+            Assert.That(nq1.IsSuperQualifierOf(nq2), Is.False);
 
-            Assert.AreEqual(nq1, nq3);
+            Assert.That(nq1, Is.EqualTo(nq3));
 
             var q1 = nq1.ToSubQualifierOf(nq2);
-            Assert.IsTrue(nq1.IsCompliantTo(q1));
-            Assert.AreEqual(1, q1.Named.Frags.Count);
-            Assert.AreEqual("Test1", q1.Named.Frags[0]);
+            Assert.That(nq1.IsCompliantTo(q1), Is.True);
+            Assert.That(1, Is.EqualTo(q1.Named.Frags.Count));
+            Assert.That("Test1", Is.EqualTo(q1.Named.Frags[0]));
 
             var q2 = nq1.ToCommonRoot(nq4);
-            Assert.IsTrue(nq1.IsCompliantTo(q2));
-            Assert.AreEqual(1, q2.Named.Frags.Count);
-            Assert.AreEqual("A", q2.Named.Frags[0]);
+            Assert.That(nq1.IsCompliantTo(q2), Is.True);
+            Assert.That(1, Is.EqualTo(q2.Named.Frags.Count));
+            Assert.That("A", Is.EqualTo(q2.Named.Frags[0]));
         }
 
         [Test]
@@ -49,32 +46,32 @@ namespace Bitub.Dto.Tests
             c1.Path.AddRange(new[] { nc1, nc2, nc3 });
 
             var r1 = c1.FilterSubNameMatching(nc2).ToArray();
-            Assert.AreEqual(2, r1.Length);
-            Assert.AreEqual(nc2, r1[0]);
-            Assert.AreEqual(nc3, r1[1]);
+            Assert.That(2, Is.EqualTo(r1.Length));
+            Assert.That(nc2, Is.EqualTo(r1[0]));
+            Assert.That(nc3, Is.EqualTo(r1[1]));
 
             var r2 = c1.FilterSubPathMatching(nc2).ToArray();
-            Assert.AreEqual(2, r2.Length);
-            Assert.AreEqual(nc2, r2[0]);
-            Assert.AreEqual(nc3, r2[1]);
+            Assert.That(2, Is.EqualTo(r2.Length));
+            Assert.That(nc2, Is.EqualTo(r2[0]));
+            Assert.That(nc3, Is.EqualTo(r2[1]));
 
             var r3 = c1.FilterSuperPathMatching(nc2).ToArray();
-            Assert.AreEqual(2, r3.Length);
-            Assert.AreEqual(nc1, r3[0]);
-            Assert.AreEqual(nc2, r3[1]);
+            Assert.That(2, Is.EqualTo(r3.Length));
+            Assert.That(nc1, Is.EqualTo(r3[0]));
+            Assert.That(nc2, Is.EqualTo(r3[1]));
         }
 
         [Test]
         public void RoundtripXmlNamedTests()
         {
             var named = new string[] { "A", "Test1" }.ToQualifier();
-            Assert.AreEqual(named.ToLabel(), "A.Test1");
+            Assert.That(named.ToLabel(), Is.EqualTo("A.Test1"));
 
             var xmlNamed = WriteToXmlStream(named, (o, writer) => writer.WriteOuterXml(o, XmlSerializationExtensions.WriteToXml));
-            Assert.IsTrue(xmlNamed.Length > 0);                  
+            Assert.That(xmlNamed.Length > 0, Is.True);                  
 
             var readNamed = ReadFromXmlStream<Qualifier>(xmlNamed, XmlSerializationExtensions.ReadQualifierFromXml);
-            Assert.AreEqual(named, readNamed.First());
+            Assert.That(named, Is.EqualTo(readNamed.First()));
         }
 
 
@@ -84,10 +81,10 @@ namespace Bitub.Dto.Tests
             var anonymous = System.Guid.NewGuid().ToQualifier();
 
             var xmlAnonymous = WriteToXmlStream(anonymous, (o, writer) => writer.WriteOuterXml(o, XmlSerializationExtensions.WriteToXml));
-            Assert.IsTrue(xmlAnonymous.Length > 0);            
+            Assert.That(xmlAnonymous.Length > 0, Is.True);            
 
             var readAnonymous = ReadFromXmlStream<Qualifier>(xmlAnonymous, XmlSerializationExtensions.ReadQualifierFromXml);
-            Assert.AreEqual(anonymous, readAnonymous.First());
+            Assert.That(anonymous, Is.EqualTo(readAnonymous.First()));
         }
     }
 }

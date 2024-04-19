@@ -1,8 +1,6 @@
 ﻿using NUnit.Framework;
 
-using System.IO;
 using System.Collections.Generic;
-using System.Xml.Serialization;
 
 using Bitub.Dto.Xml;
 
@@ -22,15 +20,15 @@ namespace Bitub.Dto.Cpi.Tests
                 }
             };
 
-            Assert.IsTrue(fixture.IsValid);
+            Assert.That(fixture.IsValid, Is.True);
             var serializer = XmlSerializationExtensions.CreateHeadlessUtf8Serializer<ContentSection>();
             var xml = serializer(fixture);
 
             var deserializer = XmlSerializationExtensions.CreateUtf8Deserializer<ContentSection>();
             var read = deserializer(xml);
-            Assert.IsNotNull(read);
-            Assert.AreEqual(2, read.Section.Count);
-            Assert.IsTrue(read.IsValid);
+            Assert.That(read, Is.Not.Null);
+            Assert.That(2, Is.EqualTo(read.Section.Count));
+            Assert.That(read.IsValid, Is.True);
         }
     }
 }

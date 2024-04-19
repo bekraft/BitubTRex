@@ -13,8 +13,8 @@ namespace Bitub.Dto.Tests.Spatial
         {
             var fixture = $"{XYZ.OneX.ToLinedString()} Test";
             var tail = XYZ.FromLineString(fixture, out XYZ result);
-            Assert.AreEqual(XYZ.OneX, result);
-            Assert.AreEqual("Test", tail);
+            Assert.That(XYZ.OneX, Is.EqualTo(result));
+            Assert.That("Test", Is.EqualTo(tail));
         }
     }
 }

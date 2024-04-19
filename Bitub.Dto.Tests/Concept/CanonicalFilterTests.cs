@@ -35,7 +35,7 @@ namespace Bitub.Dto.Tests.Concept
             };
 
             var xml = WriteToXmlStream(filter, (o, writer) => writer.WriteOuterXml(o, XmlSerializationExtensions.WriteToXml));
-            Assert.IsTrue(xml.Length > 0);
+            Assert.That(xml.Length > 0, Is.True);
             var xmlString = Encoding.UTF8.GetString(xml);
         }
 

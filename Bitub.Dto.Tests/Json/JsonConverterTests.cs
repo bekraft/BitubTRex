@@ -25,10 +25,10 @@ namespace Bitub.Dto.Tests.Json
         {
             var namedQualifier = new[] { "A", "test" }.ToQualifier();
             var json = JsonSerializer.Serialize(namedQualifier, jsonTestOptions);
-            Assert.IsNotNull(json);
+            Assert.That(json, Is.Not.Null);
 
             var result = JsonSerializer.Deserialize<Qualifier>(json, jsonTestOptions);
-            Assert.AreEqual(namedQualifier, result);
+            Assert.That(namedQualifier, Is.EqualTo(result));
         }
 
         [Test]
@@ -36,10 +36,10 @@ namespace Bitub.Dto.Tests.Json
         {
             var guidQualifier = System.Guid.NewGuid().ToQualifier();
             var json = JsonSerializer.Serialize(guidQualifier, jsonTestOptions);
-            Assert.IsNotNull(json);
+            Assert.That(json, Is.Not.Null);
 
             var result = JsonSerializer.Deserialize<Qualifier>(json, jsonTestOptions);
-            Assert.AreEqual(guidQualifier, result);
+            Assert.That(guidQualifier, Is.EqualTo(result));
         }
 
         [Test]
@@ -49,10 +49,10 @@ namespace Bitub.Dto.Tests.Json
             var q = bytes.ToQualifier();
 
             var json = JsonSerializer.Serialize(q, jsonTestOptions);
-            Assert.IsNotNull(json);
+            Assert.That(json, Is.Not.Null);
 
             var result = JsonSerializer.Deserialize<Qualifier>(json, jsonTestOptions);
-            Assert.AreEqual(q, result);
+            Assert.That(q, Is.EqualTo(result));
         }
 
         [Test]
@@ -60,10 +60,10 @@ namespace Bitub.Dto.Tests.Json
         {
             var fixture = new XYZ { X = 1, Y = 2, Z = 3 };
             var json = JsonSerializer.Serialize(fixture, jsonTestOptions);
-            Assert.IsNotNull(json);
+            Assert.That(json, Is.Not.Null);
 
             var result = JsonSerializer.Deserialize<XYZ>(json, jsonTestOptions);
-            Assert.AreEqual(fixture, result);
+            Assert.That(fixture, Is.EqualTo(result));
         }
     }
 }

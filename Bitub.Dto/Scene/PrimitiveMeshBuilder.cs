@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Bitub.Dto.Spatial;
-using Google.Protobuf.Collections;
 
 namespace Bitub.Dto.Scene
 {
@@ -14,7 +11,7 @@ namespace Bitub.Dto.Scene
         /// <summary>
         /// Default deviation of angular gradients set to 2 deg.
         /// </summary>
-        public const double defaultAngularDeviation = Math.PI * 2 / 180;
+        public const double defaultAngularDeviation = System.Math.PI * 2 / 180;
 
         /// <summary>
         /// Default length deviation set to 5/1000.
@@ -26,13 +23,13 @@ namespace Bitub.Dto.Scene
         // Get the segment height given a radius and partition angle
         private static double GetSag(double radius, double radAngularPartition)
         {
-            return radius * (1 - Math.Cos(radAngularPartition / 2));
+            return radius * (1 - System.Math.Cos(radAngularPartition / 2));
         }
 
         // Gets the segment minimum partition angle given a sagment maximum height
         private static double GetAlpha(double radius, double sag)
         {
-            return 2 * Math.Acos(1 - sag / radius);
+            return 2 * System.Math.Acos(1 - sag / radius);
         }
 
         // Get a XYZ on the perimeter of a circle given a radius and a center
@@ -40,8 +37,8 @@ namespace Bitub.Dto.Scene
         {
             return new XYZ
             {
-                X = c.X + (float)(radius * Math.Cos(rad)),
-                Y = c.Y + (float)(radius * Math.Sin(rad)),
+                X = c.X + (float)(radius * System.Math.Cos(rad)),
+                Y = c.Y + (float)(radius * System.Math.Sin(rad)),
                 Z = c.Z
             };
         }
@@ -51,9 +48,9 @@ namespace Bitub.Dto.Scene
         {
             return new XYZ
             {
-                X = c.X + (float)(rX * Math.Cos(radAlpha) * Math.Sin(radGamma)),
-                Y = c.Y + (float)(rY * Math.Sin(radAlpha) * Math.Sin(radGamma)),
-                Z = c.Z + (float)(rZ * Math.Cos(radGamma)) 
+                X = c.X + (float)(rX * System.Math.Cos(radAlpha) * System.Math.Sin(radGamma)),
+                Y = c.Y + (float)(rY * System.Math.Sin(radAlpha) * System.Math.Sin(radGamma)),
+                Z = c.Z + (float)(rZ * System.Math.Cos(radGamma)) 
             };
         }
 
@@ -100,8 +97,8 @@ namespace Bitub.Dto.Scene
             if (GetSag(radius, radAngularPartition) > lengthDeviation)
                 radAngularPartition = GetAlpha(radius, lengthDeviation);
 
-            var count = Math.Ceiling(Math.PI / radAngularPartition);
-            var rad = Math.PI / count;
+            var count = System.Math.Ceiling(System.Math.PI / radAngularPartition);
+            var rad = System.Math.PI / count;
 
             for (int k = 0; k < count * 2; ++k)
             {
@@ -155,11 +152,11 @@ namespace Bitub.Dto.Scene
             if (GetSag(radiusXY, alpha) > lengthDeviation)
                 alpha = GetAlpha(radiusXY, lengthDeviation);
 
-            int zRings = Math.Max(2, (int)Math.Ceiling(Math.PI / gamma));
-            gamma = Math.PI / zRings;
+            int zRings = System.Math.Max(2, (int)System.Math.Ceiling(System.Math.PI / gamma));
+            gamma = System.Math.PI / zRings;
 
-            int xySegments = (int)Math.Ceiling(Math.PI / alpha) * 2;
-            alpha = Math.PI / alpha;
+            int xySegments = (int)System.Math.Ceiling(System.Math.PI / alpha) * 2;
+            alpha = System.Math.PI / alpha;
 
             // Add peak first
             ptArray.Xyz.AddRange(new[] 

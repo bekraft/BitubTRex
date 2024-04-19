@@ -18,8 +18,8 @@ namespace Bitub.Dto.Spatial
             }
             else
             {
-                Min = new XYZ(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y), Math.Min(a.Z, b.Z));
-                Max = new XYZ(Math.Max(a.X, b.X), Math.Max(a.Y, b.Y), Math.Max(a.Z, b.Z));
+                Min = new XYZ(System.Math.Min(a.X, b.X), System.Math.Min(a.Y, b.Y), System.Math.Min(a.Z, b.Z));
+                Max = new XYZ(System.Math.Max(a.X, b.X), System.Math.Max(a.Y, b.Y), System.Math.Max(a.Z, b.Z));
             }
         }
 
@@ -73,15 +73,15 @@ namespace Bitub.Dto.Spatial
                 {
                     Min = new XYZ
                     {
-                        X = Math.Max(Min.X, b.Min.X),
-                        Y = Math.Max(Min.Y, b.Min.Y),
-                        Z = Math.Max(Min.Z, b.Min.Z)
+                        X = System.Math.Max(Min.X, b.Min.X),
+                        Y = System.Math.Max(Min.Y, b.Min.Y),
+                        Z = System.Math.Max(Min.Z, b.Min.Z)
                     },
                     Max = new XYZ
                     {
-                        X = Math.Min(Max.X, b.Max.X),
-                        Y = Math.Min(Max.Y, b.Max.Y),
-                        Z = Math.Min(Max.Z, b.Max.Z)
+                        X = System.Math.Min(Max.X, b.Max.X),
+                        Y = System.Math.Min(Max.Y, b.Max.Y),
+                        Z = System.Math.Min(Max.Z, b.Max.Z)
                     }
                 };
         }
@@ -97,15 +97,15 @@ namespace Bitub.Dto.Spatial
                 {
                     Min = new XYZ
                     {
-                        X = Math.Min(Min.X, b.Min.X),
-                        Y = Math.Min(Min.Y, b.Min.Y),
-                        Z = Math.Min(Min.Z, b.Min.Z)
+                        X = System.Math.Min(Min.X, b.Min.X),
+                        Y = System.Math.Min(Min.Y, b.Min.Y),
+                        Z = System.Math.Min(Min.Z, b.Min.Z)
                     },
                     Max = new XYZ
                     {
-                        X = Math.Max(Max.X, b.Max.X),
-                        Y = Math.Max(Max.Y, b.Max.Y),
-                        Z = Math.Max(Max.Z, b.Max.Z)
+                        X = System.Math.Max(Max.X, b.Max.X),
+                        Y = System.Math.Max(Max.Y, b.Max.Y),
+                        Z = System.Math.Max(Max.Z, b.Max.Z)
                     }
                 };
         }
@@ -137,15 +137,15 @@ namespace Bitub.Dto.Spatial
             {
                 Min = new XYZ
                 {
-                    X = Math.Min(Min.X, xyz.X),
-                    Y = Math.Min(Min.Y, xyz.Y),
-                    Z = Math.Min(Min.Z, xyz.Z)
+                    X = System.Math.Min(Min.X, xyz.X),
+                    Y = System.Math.Min(Min.Y, xyz.Y),
+                    Z = System.Math.Min(Min.Z, xyz.Z)
                 },
                 Max = new XYZ
                 {
-                    X = Math.Max(Max.X, xyz.X),
-                    Y = Math.Max(Max.Y, xyz.Y),
-                    Z = Math.Max(Max.Z, xyz.Z)
+                    X = System.Math.Max(Max.X, xyz.X),
+                    Y = System.Math.Max(Max.Y, xyz.Y),
+                    Z = System.Math.Max(Max.Z, xyz.Z)
                 }
             };
         }

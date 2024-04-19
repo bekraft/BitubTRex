@@ -30,17 +30,17 @@ namespace Bitub.Dto.Spatial
                 var leftPositive = parent.Point.GetCoordinate(parent.Dim) - xyz.GetCoordinate(parent.Dim);
                 KdNode newParent = null;
 
-                if (Math.Abs(leftPositive) < epsSame)
+                if (System.Math.Abs(leftPositive) < epsSame)
                 {
                     if (parent.Point.Distance(xyz) < epsSame)
                     {
                         node = parent;
                     }
                 }
-                if (0 <= Math.Sign(leftPositive))
+                if (0 <= System.Math.Sign(leftPositive))
                 {
                     // If lefthand but outside epsSame
-                    parent.LMin = Math.Min(parent.LMin, leftPositive);
+                    parent.LMin = System.Math.Min(parent.LMin, leftPositive);
                     if (null == (newParent = parent.Left))
                     {
                         node = CreateChildDimNode(parent, xyz);
@@ -50,7 +50,7 @@ namespace Bitub.Dto.Spatial
                 else
                 {
                     // If righthand but outside of epsSame
-                    parent.RMin = Math.Min(parent.RMin, -leftPositive);
+                    parent.RMin = System.Math.Min(parent.RMin, -leftPositive);
                     if (null == (newParent = parent.Right))
                     {
                         node = CreateChildDimNode(parent, xyz);

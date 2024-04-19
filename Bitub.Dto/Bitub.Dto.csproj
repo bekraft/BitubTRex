@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <ProtobufVersion>3.22.1</ProtobufVersion>
+    <ProtobufVersion>3.26.1</ProtobufVersion>
     <ProtobufTools>$(UserHome)/.nuget/packages/google.protobuf.tools/$(ProtobufVersion)/tools</ProtobufTools>
     
     <Title>Bitub.Dto</Title>
@@ -13,7 +13,6 @@
     <RootNamespace>Bitub.Dto</RootNamespace>
   
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <LangVersion>8.0</LangVersion>
 
     <BuildDependsOn>GenerateProto</BuildDependsOn>
 
@@ -83,11 +82,11 @@
   </PropertyGroup>
     
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf" Version="3.22.1" />
-    <PackageReference Include="Google.Protobuf.Tools" Version="3.22.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
-    <PackageReference Include="System.Collections.Immutable" Version="7.0.0" />
-    <PackageReference Include="System.Text.Json" Version="7.0.2" />
+    <PackageReference Include="Google.Protobuf" Version="3.26.1" />
+    <PackageReference Include="Google.Protobuf.Tools" Version="3.26.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
+    <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.3" />
   </ItemGroup>
     
   <Target Name="GenerateProto" BeforeTargets="BeforeBuild">
@@ -104,5 +103,9 @@
         <Compile Include="@(GeneratedProtos)" />
     </ItemGroup>
     <Message Text="Generated: @(GeneratedProtos)" Importance="High" />
+  </Target>
+
+  <Target Name="CopyBitubPredicates" AfterTargets="AfterBuild">
+    <Copy Condition="'$(IsWindows)' == 'true'" DestinationFolder="$(OutDir)" SourceFiles="../x64/$(Configuration)/bitub.precision.dll" />
   </Target>
 </Project>
