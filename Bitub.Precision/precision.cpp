@@ -125,6 +125,30 @@
 
 #include "precision_internal.h"
 
+// Delivers 0, 1 or -1 for exact zero, positive or negative values
+int exactsign(REAL value)
+{
+    // Avoid zero-checking against floating point
+#ifdef SINGLE_PRECISION
+    const unsigned int& tmp = *reinterpret_cast<unsigned int*>(&value);
+    const unsigned int shift = 1 << ((sizeof(REAL) << 3) - 1);
+    unsigned int base = tmp & (shift - 1);
+    unsigned int flag = tmp & shift;
+#else
+    long& tmp = *reinterpret_cast<long*>(&value);
+    const unsigned long shift = 1 << ((sizeof(REAL) << 3) - 1);
+    unsigned long base = tmp & (shift - 1);
+    unsigned long flag = tmp & shift;
+#endif // SINGLE
+
+    if (0 == base)
+        return 0;
+    else if (0 == flag)
+        return 1;
+    else
+        return -1;
+}
+
 /*****************************************************************************/
 /*                                                                           */
 /*  exactinit()   Initialize the variables used for exact arithmetic.        */

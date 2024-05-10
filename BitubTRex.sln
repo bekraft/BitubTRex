@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.9.34701.34
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitub.Dto", "Bitub.Dto\Bitub.Dto.csproj", "{D95907F9-1C22-471F-8E77-066C40D35E0D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D837DE5A-30E9-4DC6-B665-6D3958017584} = {D837DE5A-30E9-4DC6-B665-6D3958017584}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitub.Dto.Tests", "Bitub.Dto.Tests\Bitub.Dto.Tests.csproj", "{AA78A959-7C8E-4854-B66A-2B6A2DC0CBDE}"
 EndProject
@@ -346,8 +349,8 @@ Global
 		{F75837B5-90DE-49B0-B994-186F0F67DEC5}.Debug|x64.Build.0 = Debug|x64
 		{F75837B5-90DE-49B0-B994-186F0F67DEC5}.Debug|x86.ActiveCfg = Debug|Win32
 		{F75837B5-90DE-49B0-B994-186F0F67DEC5}.Debug|x86.Build.0 = Debug|Win32
-		{F75837B5-90DE-49B0-B994-186F0F67DEC5}.Dev|Any CPU.ActiveCfg = Debug|x64
-		{F75837B5-90DE-49B0-B994-186F0F67DEC5}.Dev|Any CPU.Build.0 = Debug|x64
+		{F75837B5-90DE-49B0-B994-186F0F67DEC5}.Dev|Any CPU.ActiveCfg = Dev|x64
+		{F75837B5-90DE-49B0-B994-186F0F67DEC5}.Dev|Any CPU.Build.0 = Dev|x64
 		{F75837B5-90DE-49B0-B994-186F0F67DEC5}.Dev|ARM.ActiveCfg = Debug|x64
 		{F75837B5-90DE-49B0-B994-186F0F67DEC5}.Dev|ARM.Build.0 = Debug|x64
 		{F75837B5-90DE-49B0-B994-186F0F67DEC5}.Dev|ARM64.ActiveCfg = Debug|x64

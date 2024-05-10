@@ -48,8 +48,10 @@ typedef unsigned int uintptr_t;
 
 #ifdef SINGLE_PRECISION
 #define REAL float
+#define AsREAL(value) (value##f)
 #else
 #define REAL double
+#define AsREAL(value) (value)
 #endif
 
 // 3-dimensional vector
@@ -70,6 +72,8 @@ typedef struct {
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+LIB_EXPORTED int exactsign(REAL value);
 
 LIB_EXPORTED REAL exactinit();
 

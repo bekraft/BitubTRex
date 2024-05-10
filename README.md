@@ -6,7 +6,11 @@
 ![Nuget](https://img.shields.io/nuget/v/Bitub.Dto.Bcf.svg?label=Bitub.Dto.Bcf)
 ![Nuget](https://img.shields.io/nuget/v/Bitub.Dto.Cpi.svg?label=Bitub.Dto.Cpi)
 
-a cross-plattform .NET core / standard library collection for manipulation of data in AEC domain. It is used as baseline library for [Bitub TRexXbim](https://github.com/bekraft/BitubTRexXbim). It provides an API to compiled protocol buffers to exchange scene, spatial and semantic data of AEC models from multiple sources.
+## What is TRex ?
+
+Bitub.TRex is a cross-plattform .NET core (net6.0 and net8.0) library for data manipulation and enhancement in the AEC domain. 
+It is used as baseline library for [Bitub TRexXbim](https://github.com/bekraft/BitubTRexXbim). 
+It provides an API to compiled protocol buffers to exchange scene, spatial and semantic data of AEC models from multiple sources.
 
 ## Protocol schemata
 

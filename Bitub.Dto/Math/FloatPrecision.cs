@@ -6,11 +6,15 @@ namespace Bitub.Dto.Math
 {
     internal static class FloatPrecisionPrefs
     {
+#if Is_WINDOWS
         internal const string BITUB_PRECISION_LIB = "bitub.precision.dll";
+#endif
     }
 
     internal class FloatPrecision
     {
+        [DllImport(FloatPrecisionPrefs.BITUB_PRECISION_LIB, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int exactsign(float value);
         [DllImport(FloatPrecisionPrefs.BITUB_PRECISION_LIB, CallingConvention = CallingConvention.Cdecl)]
         internal static extern float exactinit();
 
@@ -43,9 +47,17 @@ namespace Bitub.Dto.Math
         internal static extern float incircleexact(ref Vec3 a, ref Vec3 b, ref Vec3 c, ref Vec3 d);
     }
 
-    public sealed class FloatPrecisionPredicate : ISimplexPrecisionPredicate
+    /// <summary>
+    /// Exact precision predicates.
+    /// </summary>
+    public sealed class FloatExactPrecisionPredicate : ISimplexPrecisionPredicate
     {
         public double NormativePrecision { get; private set; }
+
+        private Valency ExactSign(float value)
+        {
+            return Valency.NEGATIVE; // FloatPrecision.exactsign(value);
+        }
 
         public Valency InCircle(ref Vec3 a, ref Vec3 b, ref Vec3 c, ref Vec3 d)
         {
@@ -71,9 +83,9 @@ namespace Bitub.Dto.Math
         {
             public Builder() { }
 
-            public static FloatPrecisionPredicate Build()
+            public static FloatExactPrecisionPredicate Build()
             {
-                return new FloatPrecisionPredicate { NormativePrecision = FloatPrecision.exactinit() };
+                return new FloatExactPrecisionPredicate { NormativePrecision = FloatPrecision.exactinit() };
             }
 
             ISimplexPrecisionPredicate ISimplexPrecisionPredicateBuilder.Build()

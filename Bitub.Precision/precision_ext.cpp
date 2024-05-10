@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "precision_ext.h"
 
 /*****************************************************************************/
@@ -70,8 +73,17 @@ REAL tangent_3d(Vec3* pa, Vec3* pb, Vec3* pc)
 }
 
 /*
+ * Computes a difference of a and b given the normative epsilon.
+ *
+ */
+REAL diff(REAL a, REAL b)
+{
+	return diff(a, b, epsilon);
+}
+
+/*
  * Computes a difference of a and b given an clamping epsilon.
- * TODO
+ *
  */
 REAL diff(REAL a, REAL b, REAL eps)
 {
@@ -80,6 +92,7 @@ REAL diff(REAL a, REAL b, REAL eps)
 
 	REAL ab, abtail;
 	Two_Diff(a, b, ab, abtail);
+	printf("%10.16f, %10.16f\n", ab, abtail);
 	if (Absolute(ab) < eps)
 		return 0;
 	else
@@ -87,10 +100,17 @@ REAL diff(REAL a, REAL b, REAL eps)
 }
 
 /*
- * Clamps a value to zero if within eps.
- * TODO
+ * Clamps a value to zero if within normative epsilon.
  */
-REAL clamp(REAL a, REAL eps)
+int valency(REAL a)
 {
-	return 0;
+	return exactsign(diff(AsREAL(0.), a));
+}
+
+/*
+ * Clamps a value to zero if within eps.
+ */
+int valency(REAL a, REAL eps)
+{
+	return exactsign(diff(AsREAL(0.), a, eps));
 }

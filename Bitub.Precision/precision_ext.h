@@ -12,8 +12,10 @@ extern "C" {
 // Additional predicates using Adaptive Precision Logic
 LIB_EXPORTED REAL project_3d(Vec3* pa, Vec3* pb, Vec3* pc);
 LIB_EXPORTED REAL tangent_3d(Vec3* pa, Vec3* pb, Vec3* pc);
+LIB_EXPORTED REAL diff(REAL a, REAL b);
 LIB_EXPORTED REAL diff(REAL a, REAL b, REAL eps);
-LIB_EXPORTED REAL clamp(REAL a, REAL eps);
+LIB_EXPORTED int valency(REAL a);
+LIB_EXPORTED int valency(REAL a, REAL eps);
 
 #ifdef DLL_EXPORT
 #ifdef __cplusplus
