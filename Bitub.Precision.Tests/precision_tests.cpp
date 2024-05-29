@@ -33,8 +33,6 @@ int main()
     test_orient2d();
     test_exactsign();
 
-    std::cout << diff(0.24f + eps, 0.24f) << std::endl;
-
     std::cout << "Total test done: " << SUCCEEDED + FAILED << std::endl;
     std::cout << " succeeded     : " << SUCCEEDED << std::endl;
     std::cout << " failed        : " << FAILED << std::endl;

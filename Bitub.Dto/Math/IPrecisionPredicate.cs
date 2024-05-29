@@ -6,20 +6,20 @@ using System.Threading.Tasks;
 
 namespace Bitub.Dto.Math
 {
-    public enum Valency
+    public enum Valency : int
     {
         /// <summary>
         /// Coplanar configuration.
         /// </summary>
-        COPLANAR,
+        COPLANAR = 0,
         /// <summary>
         /// Negative configuration.
         /// </summary>
-        NEGATIVE,
+        NEGATIVE = -1,
         /// <summary>
         /// Positive configuration.
         /// </summary>
-        POSITIVE
+        POSITIVE = 1
     }
 
     public interface ISimplexPrecisionPredicateBuilder
@@ -37,7 +37,7 @@ namespace Bitub.Dto.Math
         Valency Orient3(ref Vec3 a, ref Vec3 b, ref Vec3 c, ref Vec3 d);
         Valency Orient2(ref Vec2 a, ref Vec2 b, ref Vec2 c);
         Valency InSphere(ref Vec3 a, ref Vec3 b, ref Vec3 c, ref Vec3 d, ref Vec3 e);
-        Valency InCircle(ref Vec3 a, ref Vec3 b, ref Vec3 c, ref Vec3 d);
+        Valency InCircle(ref Vec2 a, ref Vec2 b, ref Vec2 c, ref Vec2 d);
 
         double NormativePrecision { get; }
     }

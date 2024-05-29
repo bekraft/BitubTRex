@@ -11,7 +11,7 @@ namespace Bitub.Dto.Math
 #endif
     }
 
-    internal class FloatPrecision
+    internal sealed class FloatPrecision
     {
         [DllImport(FloatPrecisionPrefs.BITUB_PRECISION_LIB, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int exactsign(float value);
@@ -40,11 +40,11 @@ namespace Bitub.Dto.Math
         internal static extern float insphereexact(ref Vec3 a, ref Vec3 b, ref Vec3 c, ref Vec3 d, ref Vec3 e);
 
         [DllImport(FloatPrecisionPrefs.BITUB_PRECISION_LIB, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern float incircle(ref Vec3 a, ref Vec3 b, ref Vec3 c, ref Vec3 d);
+        internal static extern float incircle(ref Vec2 a, ref Vec2 b, ref Vec2 c, ref Vec2 d);
         [DllImport(FloatPrecisionPrefs.BITUB_PRECISION_LIB, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern float incirclefast(ref Vec3 a, ref Vec3 b, ref Vec3 c, ref Vec3 d);
+        internal static extern float incirclefast(ref Vec2 a, ref Vec2 b, ref Vec2 c, ref Vec2 d);
         [DllImport(FloatPrecisionPrefs.BITUB_PRECISION_LIB, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern float incircleexact(ref Vec3 a, ref Vec3 b, ref Vec3 c, ref Vec3 d);
+        internal static extern float incircleexact(ref Vec2 a, ref Vec2 b, ref Vec2 c, ref Vec2 d);
     }
 
     /// <summary>
@@ -54,29 +54,29 @@ namespace Bitub.Dto.Math
     {
         public double NormativePrecision { get; private set; }
 
-        private Valency ExactSign(float value)
+        private Valency ConvertToValency(float value)
         {
-            return Valency.NEGATIVE; // FloatPrecision.exactsign(value);
+            return (Valency)FloatPrecision.exactsign(value);
         }
 
-        public Valency InCircle(ref Vec3 a, ref Vec3 b, ref Vec3 c, ref Vec3 d)
+        public Valency InCircle(ref Vec2 a, ref Vec2 b, ref Vec2 c, ref Vec2 d)
         {
-            throw new NotImplementedException();
+            return ConvertToValency(FloatPrecision.incircleexact(ref a, ref b, ref c, ref d));
         }
 
         public Valency InSphere(ref Vec3 a, ref Vec3 b, ref Vec3 c, ref Vec3 d, ref Vec3 e)
         {
-            throw new NotImplementedException();
+            return ConvertToValency(FloatPrecision.insphereexact(ref a, ref b, ref c, ref d, ref e));
         }
 
         public Valency Orient2(ref Vec2 a, ref Vec2 b, ref Vec2 c)
         {
-            throw new NotImplementedException();
+            return ConvertToValency(FloatPrecision.orient2dexact(ref a, ref b, ref c));
         }
 
         public Valency Orient3(ref Vec3 a, ref Vec3 b, ref Vec3 c, ref Vec3 d)
         {
-            throw new NotImplementedException();
+            return ConvertToValency(FloatPrecision.orient3dexact(ref a, ref b, ref c, ref d));
         }
 
         public sealed class Builder : ISimplexPrecisionPredicateBuilder

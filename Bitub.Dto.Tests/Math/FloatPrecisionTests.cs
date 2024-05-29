@@ -3,14 +3,14 @@ using NUnit.Framework;
 
 namespace Bitub.Dto.Tests.Math
 {
-    public class FloatPrecisionTests : TestBase<FloatPrecisionTests>
+    public class FloatExactPrecisionTests : TestBase<FloatExactPrecisionTests>
     {
-        protected FloatPrecisionPredicate fixture;
+        protected FloatExactPrecisionPredicate fixture;
 
         [SetUp]
         public void SetUp() 
         { 
-            fixture = FloatPrecisionPredicate.Builder.Build();
+            fixture = FloatExactPrecisionPredicate.Builder.Build();
         }
 
         [Test]
