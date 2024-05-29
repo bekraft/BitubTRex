@@ -225,7 +225,7 @@ namespace Bitub.Dto.Scene
         public uint this[int offset]
         {
             get {
-                return meshed.Mesh.Vertex[IndexOffset(Index, Math.Abs(offset % (int)Size))] + Shift;
+                return meshed.Mesh.Vertex[IndexOffset(Index, System.Math.Abs(offset % (int)Size))] + Shift;
             }
         }
 

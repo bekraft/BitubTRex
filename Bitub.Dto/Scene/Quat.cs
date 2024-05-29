@@ -22,7 +22,7 @@ namespace Bitub.Dto.Scene
         /// <summary>
         /// Magnitude of this quaternion.
         /// </summary>
-        public double Magnitude => Math.Sqrt(Dot(this));
+        public double Magnitude => System.Math.Sqrt(Dot(this));
 
         /// <summary>
         /// Dot product with other quaternion.
@@ -146,7 +146,7 @@ namespace Bitub.Dto.Scene
         /// <returns>True, if almost equal</returns>
         public bool IsAlmostEqualTo(Quat other, double precision = 10e-6) 
         {
-            return !(Math.Abs(X - other.X) > precision || Math.Abs(Y - other.Y) > precision || Math.Abs(Z - other.Z) > precision || Math.Abs(W - other.W) > precision);
+            return !(System.Math.Abs(X - other.X) > precision || System.Math.Abs(Y - other.Y) > precision || System.Math.Abs(Z - other.Z) > precision || System.Math.Abs(W - other.W) > precision);
         }
 
         public Quat Times(Quat other) 

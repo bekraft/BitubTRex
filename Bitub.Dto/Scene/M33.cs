@@ -2,10 +2,6 @@
 using System.Collections.Generic;
 using Bitub.Dto.Spatial;
 
-#if NETFRAMEWORK || NETSTANDARD
-using MathF = System.Math;
-#endif
-
 namespace Bitub.Dto.Scene
 {
     public partial class M33
@@ -157,7 +153,7 @@ namespace Bitub.Dto.Scene
             double qz = 0;
 
             if (tr > 0) { 
-                var s = Math.Sqrt(tr + 1.0) * 2; // S=4*qw 
+                var s = System.Math.Sqrt(tr + 1.0) * 2; // S=4*qw 
                 qw = 0.25 * s;
                 qx = (Rz.Y - Ry.Z) / s;
                 qy = (Rx.Z - Rz.X) / s; 
@@ -165,7 +161,7 @@ namespace Bitub.Dto.Scene
             } 
             else if ((Rx.X > Ry.Y)&(Rx.X > Rz.Z)) 
             { 
-                var s = Math.Sqrt(1.0 + Rx.X - Ry.Y - Rz.Z) * 2; // S=4*qx 
+                var s = System.Math.Sqrt(1.0 + Rx.X - Ry.Y - Rz.Z) * 2; // S=4*qx 
                 qw = (Rz.Y - Ry.Z) / s;
                 qx = 0.25 * s;
                 qy = (Rx.Y + Ry.X) / s; 
@@ -173,7 +169,7 @@ namespace Bitub.Dto.Scene
             } 
             else if (Ry.Y > Rz.Z) 
             { 
-                var s = Math.Sqrt(1.0 + Ry.Y - Rx.X - Rz.Z) * 2; // S=4*qy
+                var s = System.Math.Sqrt(1.0 + Ry.Y - Rx.X - Rz.Z) * 2; // S=4*qy
                 qw = (Rx.Z - Rz.X) / s;
                 qx = (Rx.Y + Ry.X) / s; 
                 qy = 0.25 * s;
@@ -181,7 +177,7 @@ namespace Bitub.Dto.Scene
             } 
             else 
             { 
-                var s = Math.Sqrt(1.0 + Rz.Z - Rx.X - Ry.Y) * 2; // S=4*qz
+                var s = System.Math.Sqrt(1.0 + Rz.Z - Rx.X - Ry.Y) * 2; // S=4*qz
                 qw = (Ry.X - Rx.Y) / s;
                 qx = (Rx.Z + Rz.X) / s;
                 qy = (Ry.Z + Rz.Y) / s;

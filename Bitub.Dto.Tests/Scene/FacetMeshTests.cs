@@ -21,8 +21,8 @@ namespace Bitub.Dto.Scene.Tests
         {
             var facetStar = new FacetStars(body, new PtOffsetArray(ptArray, SHIFT));
             
-            Assert.AreEqual(8, facetStar.Vertices.Count(), "8 vertices");
-            Assert.AreEqual(8, facetStar.Count, "8 stars");
+            Assert.That(8, Is.EqualTo(facetStar.Vertices.Count()), "8 vertices");
+            Assert.That(8, Is.EqualTo(facetStar.Count), "8 stars");
             // Use no visitor's index cache
             var visitor = new FacetStarVisitor(facetStar, (i) => false, strategy);
             var faces = new List<MeshPtOffsetArray>();
@@ -35,26 +35,26 @@ namespace Bitub.Dto.Scene.Tests
                         if (!f.meshed.Equals(faces.LastOrDefault()))
                         {
                             foreach (var known in faces.Take(faces.Count - 1))
-                                Assert.AreNotEqual(known, f.meshed, "Face shouldn't be processed before");
+                                Assert.That(known, Is.Not.EqualTo(f.meshed), "Face shouldn't be processed before");
 
                             faces.Add(f.meshed);
-                            Assert.IsTrue(visitor.IsNewFace);
+                            Assert.That(visitor.IsNewFace, Is.True);
                         }
                         else
                         {
-                            Assert.IsFalse(visitor.IsNewFace);
+                            Assert.That(visitor.IsNewFace, Is.False);
                         }
                         break;
                 }
 
                 facets.Add(f);
-                Assert.AreEqual(SHIFT, f.Shift);
-                Assert.IsTrue(f.IsTriangle, "Is Triangle");
-                Assert.IsTrue(f.IsValid(), "Is Valid");
+                Assert.That(SHIFT, Is.EqualTo(f.Shift));
+                Assert.That(f.IsTriangle, Is.True, "Is Triangle");
+                Assert.That(f.IsValid(), Is.True, "Is Valid");
             }
 
-            Assert.IsFalse(visitor.HasNextCandidate, "All facets have been processed");
-            Assert.AreEqual(12, facets.Count, "12 facets");
+            Assert.That(visitor.HasNextCandidate, Is.False, "All facets have been processed");
+            Assert.That(12, Is.EqualTo(facets.Count), "12 facets");
         }
 
         [Test]

@@ -16,37 +16,37 @@ namespace Bitub.Dto.Bcf.Tests
         public void ReadExample1()
         {
             var fixture = GetEmbeddedFileStream("Bcf21.Example1.bcfzip");
-            Assert.IsNotNull(fixture);
+            Assert.That(fixture, Is.Not.Null);
             var example1 = BcfFile.ReadFrom(fixture);
-            Assert.IsNotNull(example1);
+            Assert.That(example1, Is.Not.Null);
             
             var issues = example1.Issues.ToArray();
 
-            Assert.IsNotNull(issues);
-            Assert.AreEqual(16, issues.Length);
+            Assert.That(issues, Is.Not.Null);
+            Assert.That(16, Is.EqualTo(issues.Length));
 
-            Assert.IsTrue(issues.All(i => null != i.Markup.Topic && 0 < i.Viewpoints.Length));
+            Assert.That(issues.All(i => null != i.Markup.Topic && 0 < i.Viewpoints.Length), Is.True);
         }
 
         [Test]
         public void ReadExample2()
         {
             var fixture = GetEmbeddedFileStream("Bcf21.Example2.bcfzip");
-            Assert.IsNotNull(fixture);
+            Assert.That(fixture, Is.Not.Null);
             var example2 = BcfFile.ReadFrom(fixture);
-            Assert.IsNotNull(example2);
+            Assert.That(example2, Is.Not.Null);
 
             var issues = example2.Issues.ToArray();
 
-            Assert.IsNotNull(issues);
-            Assert.AreEqual(2, issues.Length);
+            Assert.That(issues, Is.Not.Null);
+            Assert.That(2, Is.EqualTo(issues.Length));
 
-            Assert.IsTrue(issues.All(i => null != i.Markup.Topic));
-            Assert.AreEqual(1, issues.Count(i => i.Viewpoints.Length == 0));
+            Assert.That(issues.All(i => null != i.Markup.Topic), Is.True);
+            Assert.That(1, Is.EqualTo(issues.Count(i => i.Viewpoints.Length == 0)));
 
             var extensions = example2.Extensions;
-            Assert.AreEqual(6, extensions.Count);
-            Assert.AreEqual(3, extensions.First(e => e.Key == "TopicType").Count());
+            Assert.That(6, Is.EqualTo(extensions.Count));
+            Assert.That(3, Is.EqualTo(extensions.First(e => e.Key == "TopicType").Count()));
         }
     }
 }

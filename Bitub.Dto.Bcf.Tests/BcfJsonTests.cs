@@ -31,11 +31,11 @@ namespace Bitub.Dto.Bcf.Tests
                 ProjectActions = Enum.GetValues(typeof(BcfProjectActions)).Cast<BcfProjectActions>().Aggregate((a, b) => a | b)
             };
             var json = JsonSerializer.Serialize<IBcfProjectAuthorization>(projectActions, jsonSerializerOptions);
-            Assert.IsFalse(string.IsNullOrWhiteSpace(json));
+            Assert.That(string.IsNullOrWhiteSpace(json), Is.False);
 
             var deserializedActions = JsonSerializer.Deserialize<BcfAuthorization>(json, jsonSerializerOptions);
-            Assert.IsNotNull(deserializedActions);
-            Assert.AreEqual(projectActions.ProjectActions, deserializedActions.ProjectActions);
+            Assert.That(deserializedActions, Is.Not.Null);
+            Assert.That(projectActions.ProjectActions, Is.EqualTo(deserializedActions.ProjectActions));
         }
 
         [Test]
@@ -46,11 +46,11 @@ namespace Bitub.Dto.Bcf.Tests
                 TopicActions = Enum.GetValues(typeof(BcfTopicActions)).Cast<BcfTopicActions>().Aggregate((a, b) => a | b)
             };
             var json = JsonSerializer.Serialize<IBcfTopicAuthorization>(projectActions, jsonSerializerOptions);
-            Assert.IsFalse(string.IsNullOrWhiteSpace(json));
+            Assert.That(string.IsNullOrWhiteSpace(json), Is.False);
 
             var deserializedActions = JsonSerializer.Deserialize<BcfAuthorization>(json, jsonSerializerOptions);
-            Assert.IsNotNull(deserializedActions);
-            Assert.AreEqual(projectActions.TopicActions, deserializedActions.TopicActions);
+            Assert.That(deserializedActions, Is.Not.Null);
+            Assert.That(projectActions.TopicActions, Is.EqualTo(deserializedActions.TopicActions));
         }
 
         [Test]
@@ -61,27 +61,27 @@ namespace Bitub.Dto.Bcf.Tests
                 CommentActions = Enum.GetValues(typeof(BcfCommentActions)).Cast<BcfCommentActions>().Aggregate((a, b) => a | b)
             };
             var json = JsonSerializer.Serialize<IBcfCommentAuthorization>(projectActions, jsonSerializerOptions);
-            Assert.IsFalse(string.IsNullOrWhiteSpace(json));
+            Assert.That(string.IsNullOrWhiteSpace(json), Is.False);
 
             var deserializedActions = JsonSerializer.Deserialize<BcfAuthorization>(json, jsonSerializerOptions);
-            Assert.IsNotNull(deserializedActions);
-            Assert.AreEqual(projectActions.CommentActions, deserializedActions.CommentActions);
+            Assert.That(deserializedActions, Is.Not.Null);
+            Assert.That(projectActions.CommentActions, Is.EqualTo(deserializedActions.CommentActions));
         }
 
         [Test]
         public void RoundtripProjects()
         {
             var json = GetUtf8TextFrom("Bcf21.project.json").ToCompactJson();
-            Assert.IsNotNull(json);
+            Assert.That(json, Is.Not.Null);
 
             var project = JsonSerializer.Deserialize<BcfProject>(json, jsonSerializerOptions);
-            Assert.IsNotNull(project);
-            Assert.AreEqual("F445F4F2-4D02-4B2A-B612-5E456BEF9137", project.Id.ToString().ToUpper());
-            Assert.AreEqual("Example project 1", project.Name);
-            Assert.AreEqual(BcfProjectActions.Read|BcfProjectActions.CreateDocument|BcfProjectActions.CreateTopic, project.ProjectAuthorization.ProjectActions);
+            Assert.That(project, Is.Not.Null);
+            Assert.That("F445F4F2-4D02-4B2A-B612-5E456BEF9137", Is.EqualTo(project.Id.ToString().ToUpper()));
+            Assert.That("Example project 1", Is.EqualTo(project.Name));
+            Assert.That(BcfProjectActions.Read|BcfProjectActions.CreateDocument|BcfProjectActions.CreateTopic, Is.EqualTo(project.ProjectAuthorization.ProjectActions));
 
             var jsonWritten = JsonSerializer.Serialize(project, jsonSerializerOptions);
-            Assert.AreEqual(json, jsonWritten);
+            Assert.That(json, Is.EqualTo(jsonWritten));
         }
 
 

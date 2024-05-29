@@ -6,8 +6,7 @@
 
     <Configurations>Debug;Dev;Release;Test</Configurations>
 
-    <RootNamespace>Bitub.Dto.Bcf</RootNamespace>
-    <LangVersion>8.0</LangVersion>
+    <RootNamespace>Bitub.Dto.Bcf</RootNamespace> 
     <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 

@@ -14,7 +14,7 @@ namespace Bitub.Dto.Tests.Spatial
         public void SetUp()
         {
             fixture = new KdRange(1e-6f, 1e-4f);
-            Assert.IsNull(fixture.Root);
+            Assert.That(fixture.Root, Is.Null);
         }
 
         [Test]
@@ -31,13 +31,13 @@ namespace Bitub.Dto.Tests.Spatial
                 .Select(xyz => fixture.Append(xyz))
                 .ForEach(n =>
                 {
-                    Assert.IsNotNull(n);
-                    Assert.IsNotNull(n.Point);
+                    Assert.That(n, Is.Not.Null);
+                    Assert.That(n.Point, Is.Not.Null);
                 });
 
-            Assert.IsNotNull(fixture.Root);
-            Assert.IsFalse(fixture.ABox.Equals(ABox.Empty));
-            Assert.IsFalse(fixture.ABox.Equals(ABox.Open));
+            Assert.That(fixture.Root, Is.Not.Null);
+            Assert.That(fixture.ABox.Equals(ABox.Empty), Is.False);
+            Assert.That(fixture.ABox.Equals(ABox.Open), Is.False);
 
             var testAbox = fixture.ABox.Scale(0.5);
 
@@ -48,7 +48,7 @@ namespace Bitub.Dto.Tests.Spatial
                 .Where(xyz => testAbox.Contains(xyz))
                 .ToImmutableHashSet();
             
-            Assert.IsTrue(result.SetEquals(expected));
+            Assert.That(result.SetEquals(expected), Is.True);
         }
     }
 }

@@ -45,7 +45,7 @@ namespace Bitub.Dto.Spatial
             z_ = (float)z;
         }
 
-        public double Magnitude => Math.Sqrt(Dot(this));
+        public double Magnitude => System.Math.Sqrt(Dot(this));
 
         public void Normalize()
         {
@@ -129,7 +129,7 @@ namespace Bitub.Dto.Spatial
         /// <returns>True, if almost equal</returns>
         public bool IsAlmostEqualTo(XYZ other, double precision = 1e-6)
         {
-            return !(Math.Abs(X - other.X) > precision || Math.Abs(Y - other.Y) > precision || Math.Abs(Z - other.Z) > precision);
+            return !(System.Math.Abs(X - other.X) > precision || System.Math.Abs(Y - other.Y) > precision || System.Math.Abs(Z - other.Z) > precision);
         }
 
         public float[] ToArray()
