@@ -147,7 +147,7 @@ namespace Bitub.Dto
         {
             return string.Join(separator, name.Frags
                         .Skip(fromStart)
-                        .Take(Math.Max(0, name.Frags.Count - fromEnd - fromStart)));
+                        .Take(System.Math.Max(0, name.Frags.Count - fromEnd - fromStart)));
         }
 
         public static Name ToName(this XName t)

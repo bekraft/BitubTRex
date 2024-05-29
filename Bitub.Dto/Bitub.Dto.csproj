@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <ProtobufVersion>3.22.1</ProtobufVersion>
+    <ProtobufVersion>3.26.1</ProtobufVersion>
     <ProtobufTools>$(UserHome)/.nuget/packages/google.protobuf.tools/$(ProtobufVersion)/tools</ProtobufTools>
     
     <Title>Bitub.Dto</Title>
@@ -13,7 +13,6 @@
     <RootNamespace>Bitub.Dto</RootNamespace>
   
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <LangVersion>8.0</LangVersion>
 
     <BuildDependsOn>GenerateProto</BuildDependsOn>
 
@@ -23,24 +22,16 @@
   <PropertyGroup Condition="'$(NugetLocalRepository)' != ''">
     <ProtobufTools>$(NugetLocalRepository)/google.protobuf.tools/$(ProtobufVersion)/tools</ProtobufTools>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(IsWindows)' == 'true'">
-    <UserHome>$(UserProfile)</UserHome>    
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'">
-    <UserHome>$(HOME)</UserHome>    
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(IsWindows)'=='true'">
     <Protoc>$(ProtobufTools)/windows_x64/protoc.exe</Protoc>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(IsOSX)'=='true'">
+  <PropertyGroup Condition="'$(IsOSX)' == 'true'">
     <Protoc>$(ProtobufTools)/macosx_x64/protoc</Protoc>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(IsLinux)'=='true'">
+  <PropertyGroup Condition="'$(IsLinux)' == 'true'">
     <Protoc>$(ProtobufTools)/linux_x64/protoc</Protoc>
   </PropertyGroup>
 
@@ -49,7 +40,7 @@
     <DebugType>embedded</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Test</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
@@ -59,7 +50,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
@@ -69,7 +60,7 @@
     <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Dev</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
@@ -83,18 +74,18 @@
   </PropertyGroup>
     
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf" Version="3.22.1" />
-    <PackageReference Include="Google.Protobuf.Tools" Version="3.22.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
-    <PackageReference Include="System.Collections.Immutable" Version="7.0.0" />
-    <PackageReference Include="System.Text.Json" Version="7.0.2" />
+    <PackageReference Include="Google.Protobuf" Version="3.26.1" />
+    <PackageReference Include="Google.Protobuf.Tools" Version="3.26.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
+    <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.3" />
   </ItemGroup>
     
   <Target Name="GenerateProto" BeforeTargets="BeforeBuild">
-    <Message Text="Generating Protos for $(Version)" Importance="High" />
+    <Message Text="==> Generating Protos for $(Version)" Importance="High" />
     <Exec Condition="'$(IsWindows)' == 'true'" Command="if not exist  &quot;$(ProjectDir)Generated&quot; mkdir &quot;$(ProjectDir)Generated&quot;" />
-    <Exec Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'" Command="mkdir -p &quot;$(ProjectDir)Generated&quot;" />
-    <Exec Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'" Command="chmod u+x $(Protoc)" />
+    <Exec Condition="'$(IsLinuxOrOSX)' == 'true'" Command="mkdir -p &quot;$(ProjectDir)Generated&quot;" />
+    <Exec Condition="'$(IsLinuxOrOSX)' == 'true'" Command="chmod u+x $(Protoc)" />
     <Exec Command="$(Protoc) -I=&quot;$(ProtobufTools)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Common.proto&quot;" />
     <Exec Command="$(Protoc) -I=&quot;$(ProtobufTools)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Spatial.proto&quot;" />
     <Exec Command="$(Protoc) -I=&quot;$(ProtobufTools)&quot; -I=&quot;$(ProjectDir).&quot; --csharp_out=&quot;$(ProjectDir)Generated&quot; &quot;$(ProjectDir)Concept.proto&quot;" />
@@ -103,6 +94,6 @@
         <GeneratedProtos Include="$(ProjectDir)Generated/*.cs" />
         <Compile Include="@(GeneratedProtos)" />
     </ItemGroup>
-    <Message Text="Generated: @(GeneratedProtos)" Importance="High" />
+    <Message Text="==> Generated: @(GeneratedProtos)" Importance="High" />
   </Target>
 </Project>

@@ -18,22 +18,25 @@ namespace Bitub.Dto.Spatial
             }
             else
             {
-                Min = new XYZ(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y), Math.Min(a.Z, b.Z));
-                Max = new XYZ(Math.Max(a.X, b.X), Math.Max(a.Y, b.Y), Math.Max(a.Z, b.Z));
+                Min = new XYZ(System.Math.Min(a.X, b.X), System.Math.Min(a.Y, b.Y), System.Math.Min(a.Z, b.Z));
+                Max = new XYZ(System.Math.Max(a.X, b.X), System.Math.Max(a.Y, b.Y), System.Math.Max(a.Z, b.Z));
             }
+        }
+
+        public ABox(XYZ center, float halfExtent)
+        {
+            Min = new XYZ(center.X - halfExtent, center.Y - halfExtent, center.Z - halfExtent);
+            Max = new XYZ(center.X + halfExtent, center.Y + halfExtent, center.Z + halfExtent);
         }
 
         /// <summary>
         /// New empty ABox.
         /// </summary>
-        public static ABox Empty
-        {
-            get => new ABox
+        public static ABox Empty => new ABox
             {
                 Min = XYZ.PositiveInfinity,
                 Max = XYZ.NegativeInfinity
             };
-        }
 
         /// <summary>
         /// New open ABox.
@@ -70,15 +73,15 @@ namespace Bitub.Dto.Spatial
                 {
                     Min = new XYZ
                     {
-                        X = Math.Max(Min.X, b.Min.X),
-                        Y = Math.Max(Min.Y, b.Min.Y),
-                        Z = Math.Max(Min.Z, b.Min.Z)
+                        X = System.Math.Max(Min.X, b.Min.X),
+                        Y = System.Math.Max(Min.Y, b.Min.Y),
+                        Z = System.Math.Max(Min.Z, b.Min.Z)
                     },
                     Max = new XYZ
                     {
-                        X = Math.Min(Max.X, b.Max.X),
-                        Y = Math.Min(Max.Y, b.Max.Y),
-                        Z = Math.Min(Max.Z, b.Max.Z)
+                        X = System.Math.Min(Max.X, b.Max.X),
+                        Y = System.Math.Min(Max.Y, b.Max.Y),
+                        Z = System.Math.Min(Max.Z, b.Max.Z)
                     }
                 };
         }
@@ -94,15 +97,15 @@ namespace Bitub.Dto.Spatial
                 {
                     Min = new XYZ
                     {
-                        X = Math.Min(Min.X, b.Min.X),
-                        Y = Math.Min(Min.Y, b.Min.Y),
-                        Z = Math.Min(Min.Z, b.Min.Z)
+                        X = System.Math.Min(Min.X, b.Min.X),
+                        Y = System.Math.Min(Min.Y, b.Min.Y),
+                        Z = System.Math.Min(Min.Z, b.Min.Z)
                     },
                     Max = new XYZ
                     {
-                        X = Math.Max(Max.X, b.Max.X),
-                        Y = Math.Max(Max.Y, b.Max.Y),
-                        Z = Math.Max(Max.Z, b.Max.Z)
+                        X = System.Math.Max(Max.X, b.Max.X),
+                        Y = System.Math.Max(Max.Y, b.Max.Y),
+                        Z = System.Math.Max(Max.Z, b.Max.Z)
                     }
                 };
         }
@@ -115,5 +118,48 @@ namespace Bitub.Dto.Spatial
                 return volume > 0 ? volume : 0;
             }
         }
+
+        public bool Covers(XYZ xyz)
+        {
+            return Min.X <= xyz.X && Min.Y <= xyz.Y && Min.Z <= xyz.Z 
+                   && Max.X >= xyz.X && Max.Y >= xyz.Y && Max.Z >= xyz.Z;
+        }
+        
+        public bool Contains(XYZ xyz)
+        {
+            return Min.X < xyz.X && Min.Y < xyz.Y && Min.Z < xyz.Z 
+                   && Max.X > xyz.X && Max.Y > xyz.Y && Max.Z > xyz.Z;
+        }
+
+        public ABox UnionWith(XYZ xyz)
+        {
+            return new ABox
+            {
+                Min = new XYZ
+                {
+                    X = System.Math.Min(Min.X, xyz.X),
+                    Y = System.Math.Min(Min.Y, xyz.Y),
+                    Z = System.Math.Min(Min.Z, xyz.Z)
+                },
+                Max = new XYZ
+                {
+                    X = System.Math.Max(Max.X, xyz.X),
+                    Y = System.Math.Max(Max.Y, xyz.Y),
+                    Z = System.Math.Max(Max.Z, xyz.Z)
+                }
+            };
+        }
+
+        public ABox Scale(double scale, XYZ center)
+        {
+            return new ABox
+            {
+                Min = ((Min - Center) * scale) + Center,
+                Max = ((Max - Center) * scale) + Center,
+            };
+        }
+
+        public ABox Scale(double scale) => Scale(scale, Center);
+
     }
 }

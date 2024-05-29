@@ -26,12 +26,12 @@ namespace Bitub.Dto.Scene.Tests
                 T = new XYZ { X = 0, Y = 0, Z = 0 }
             };
 
-            Assert.AreEqual(t1, t2);
+            Assert.That(t1, Is.EqualTo(t2));
 
             t1 = Transform.Parser.ParseJson(tExample1);
             t2 = Transform.Parser.ParseJson(tExample1);
 
-            Assert.AreEqual(t1, t2);
+            Assert.That(t1, Is.EqualTo(t2));
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace Bitub.Dto.Scene.Tests
             var t1 = Transform.Parser.ParseJson(tExample1);
             var t2 = Transform.Parser.ParseJson(tExample1);
 
-            Assert.AreEqual(t1, t2);
+            Assert.That(t1, Is.EqualTo(t2));
         }
 
     }

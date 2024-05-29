@@ -135,14 +135,14 @@ namespace Bitub.Dto
             if (null == qualifier)
                 return null;
 
-            startFrag = Math.Max(0, startFrag);
+            startFrag = System.Math.Max(0, startFrag);
             switch(qualifier.GuidOrNameCase)
             {
                 case Qualifier.GuidOrNameOneofCase.Named:
                     if (startFrag > qualifier.Named.Frags.Count)
                         return new Qualifier();
 
-                    var newFrags = new string[Math.Min(qualifier.Named.Frags.Count - startFrag, countFrags)];
+                    var newFrags = new string[System.Math.Min(qualifier.Named.Frags.Count - startFrag, countFrags)];
                     Array.Copy(qualifier.Named.Frags.ToArray(), startFrag, newFrags, 0, newFrags.Length);
                     return newFrags.ToQualifier();
                 default:
@@ -223,7 +223,7 @@ namespace Bitub.Dto
             if (q1.GuidOrNameCase != Qualifier.GuidOrNameOneofCase.Named)
                 return int.MinValue;
 
-            int count = Math.Min(q1.Named.Frags.Count, q2.Named.Frags.Count);
+            int count = System.Math.Min(q1.Named.Frags.Count, q2.Named.Frags.Count);
             int index;
             for (index = 0; index < count; index++)
             {
