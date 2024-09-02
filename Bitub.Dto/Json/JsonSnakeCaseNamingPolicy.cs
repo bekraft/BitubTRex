@@ -10,6 +10,9 @@ using System.Text.RegularExpressions;
 
 namespace Bitub.Dto.Json
 {
+    /// <summary>
+    /// Simple snake case naming policy.
+    /// </summary>
     public sealed class JsonSnakeCaseNamingPolicy : JsonNamingPolicy
     {
         public static readonly Regex lowerUpperCaseMatcher = new Regex("(([a-z]|[0-9])?[A-Z])", RegexOptions.Compiled);

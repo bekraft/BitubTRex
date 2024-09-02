@@ -10,64 +10,63 @@ namespace Bitub.Dto.Concept
             if (concept.Canonical?.IsEmpty() ?? true)
                 return false;
 
-            return concept.Feature.All(f => f.IsValid()) 
-                && concept.Equivalent.All(q => !q.IsEmpty()) 
+            return concept.Feature.All(f => f.IsValid())
                 && concept.Subsumes.All(q => !q.IsEmpty());
         }
 
-        public static bool IsValid(this ELFeature feature)
+        public static bool IsValid(this Feature feature)
         {
             if (feature.Name?.IsEmpty() ?? true)
                 return false;
 
             switch (feature.FeatureCase)
             {
-                case ELFeature.FeatureOneofCase.None:
+                case Feature.FeatureOneofCase.None:
                     return false;
-                case ELFeature.FeatureOneofCase.Data:
+                case Feature.FeatureOneofCase.Data:
                     return feature.Data.IsValid();
-                case ELFeature.FeatureOneofCase.Role:
+                case Feature.FeatureOneofCase.Role:
                     return feature.Role.IsValid();
                 default:
                     throw new NotImplementedException();
             }
         }
 
-        public static bool IsValid(this RoleConcept roleConcept)
+        public static bool IsValid(this FeatureRole FeatureRole)
         {
-            return !roleConcept.Qualifier.IsEmpty();
+            return !FeatureRole.Qualifier.IsEmpty();
         }
 
-        public static bool IsValid(this DataConcept dataConcept)
+        public static bool IsValid(this FeatureData FeatureData)
         {
-            return dataConcept.DataValueCase != DataConcept.DataValueOneofCase.None && dataConcept.ToAnyValue() != null;
+            return FeatureData.DataValueCase != FeatureData.DataValueOneofCase.None && FeatureData.ToAnyValue() != null;
         }
 
-        public static object ToAnyValue(this DataConcept dataConcept)
+        public static object ToAnyValue(this FeatureData FeatureData)
         {
-            switch (dataConcept.DataValueCase)
+            switch (FeatureData.DataValueCase)
             {
-                case DataConcept.DataValueOneofCase.None:
+                case FeatureData.DataValueOneofCase.None:
                     return null;
-                case DataConcept.DataValueOneofCase.Digit:
-                    return dataConcept.Digit;
-                case DataConcept.DataValueOneofCase.Value:
-                    return dataConcept.Value;
-                case DataConcept.DataValueOneofCase.TimeStamp:
-                    return dataConcept.TimeStamp.ToDateTime();
-                case DataConcept.DataValueOneofCase.Logical:
-                    return dataConcept.Logical.ToBoolean();
-                case DataConcept.DataValueOneofCase.Guid:
-                    switch (dataConcept.Guid.GuidOrStringCase)
+                case FeatureData.DataValueOneofCase.Digit:
+                    return FeatureData.Digit;
+                case FeatureData.DataValueOneofCase.Value:
+                    return FeatureData.Value;
+                case FeatureData.DataValueOneofCase.TimeStamp:
+                    return FeatureData.TimeStamp.ToDateTime();
+                case FeatureData.DataValueOneofCase.Logical:
+                    return FeatureData.Logical.ToBoolean();
+                case FeatureData.DataValueOneofCase.Guid:
+                    switch (FeatureData.Guid.GuidOrStringCase)
                     {
                         case GlobalUniqueId.GuidOrStringOneofCase.Guid:
-                            return dataConcept.Guid.Guid.ToGuid();
+                            return FeatureData.Guid.Guid.ToGuid();
                         case GlobalUniqueId.GuidOrStringOneofCase.Base64:
-                            return dataConcept.Guid.Base64;
+                            return FeatureData.Guid.Base64;
                     }
                     return null;
                 default:
-                    throw new NotImplementedException($"Missing implementation for '{dataConcept.DataValueCase}'");
+                    throw new NotImplementedException($"Missing implementation for '{FeatureData.DataValueCase}'");
             }
         }
     }

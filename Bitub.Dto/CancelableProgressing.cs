@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace Bitub.Dto
 {
@@ -16,17 +17,24 @@ namespace Bitub.Dto
         private EventHandler<ProgressStateToken> _progressEventDelegate;
         private EventHandler<ProgressStateToken> _onProgressEndDelegates;
         private EventHandler<ProgressStateToken> _cancellingEventDelegate;
+
+        private readonly CancellationTokenSource _cancellationTokenSource;
         #endregion
 
         /// <summary>
         /// The sender of emitted events.
         /// </summary>
-        public readonly object Sender;
+        public readonly object sender;
 
         /// <summary>
         /// The associated progress state token.
         /// </summary>
         public ProgressStateToken State { get => _state; }
+
+        /// <summary>
+        /// Cancellation token used by generic async processes.
+        /// </summary>
+        public CancellationToken CancellationToken { get => _cancellationTokenSource.Token; }
 
         /// <summary>
         /// The wrapped progress reporter.
@@ -103,8 +111,9 @@ namespace Bitub.Dto
         /// <param name="isCancelable">True, if cancelable progress</param>
         public CancelableProgressing(object sender, bool isCancelable)
         {
-            Sender = sender ?? this;
+            this.sender = sender ?? this;
             _state = new ProgressStateToken(isCancelable, 1);
+            _cancellationTokenSource = new CancellationTokenSource();  
         }
 
         public void NotifyOnProgressChange()
@@ -148,6 +157,8 @@ namespace Bitub.Dto
 
             lock (_state)
                 _cancellingEventDelegate.RaiseAsync(this, _state);
+
+            _cancellationTokenSource.Cancel();
         }
 
         public long NotifyProgressEstimateChange(long deltaEstimate)

@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml;
 using System.Xml.Schema;
-using System.Xml.Serialization;
-
-using Bitub.Dto.Xml;
 
 namespace Bitub.Dto.Concept
 {
