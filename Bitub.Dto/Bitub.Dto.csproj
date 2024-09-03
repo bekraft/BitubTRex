@@ -4,6 +4,7 @@
   <PropertyGroup>
     <ProtobufVersion>3.26.1</ProtobufVersion>
     <ProtobufTools>$(UserHome)/.nuget/packages/google.protobuf.tools/$(ProtobufVersion)/tools</ProtobufTools>
+    <PackageReadmeFile>package-readme.md</PackageReadmeFile>
     
     <Title>Bitub.Dto</Title>
     <Description>Bitub common model transferring library</Description>
@@ -72,6 +73,10 @@
     <OutputPath>bin\Release</OutputPath>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="package-readme.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
     
   <ItemGroup>
     <PackageReference Include="Google.Protobuf" Version="3.26.1" />

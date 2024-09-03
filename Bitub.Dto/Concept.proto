@@ -4,7 +4,7 @@ package Bitub.Dto.Concept;
 import "Common.proto";
 import "google/protobuf/timestamp.proto";
 
-// Version 1.3
+// Version 1.3.1
 
 option csharp_namespace = "Bitub.Dto.Concept";
 option java_package = "bitub.dto";
@@ -18,29 +18,32 @@ message ELDomain {
 // A general composite concept
 message ELConcept {
 	Qualifier canonical = 1; // canonical name
-	
-	repeated ELFeature feature = 2;
+	repeated Feature feature = 2; // features of this concept
+	repeated Qualifier subsumes = 3; // concept subsumption of hyponyms (conjunction if > 1)
+}
 
-	repeated Qualifier subsumes = 3; // hyponyms (conjunction if > 1)
-	repeated Qualifier equivalent = 4; // equivalents (conjunction if > 1)
+// A list of feature bag
+message FeatureBag {
+	Qualifier name = 1;
+	repeated Feature feature = 2;
 }
 
 // A feature is either a role or a data concept
-message ELFeature {
+message Feature {
 	Qualifier name = 1;
 	oneof feature {
-		RoleConcept role = 2;
-		DataConcept data = 3;
+		FeatureRole role = 2;
+		FeatureData data = 3;
 	}
 }
 
-// A role concept
-message RoleConcept {
+// A role concept (i.e. a classification)
+message FeatureRole {
 	Qualifier qualifier = 1;
 }
 
-// A feature data concept
-message DataConcept {
+// A data concept (i.e. a single value of primitive type)
+message FeatureData {
 	DataType type = 1;
 	DataUnitSI unit = 2;
 	DataUnitPrefix unitPrefix = 3;

@@ -46,5 +46,5 @@ message FeatureMapping {
 
 message FeatureAddition {
 	Qualifier target = 1;
-	DataConcept data = 2;
+	FeatureData data = 2;
 }
