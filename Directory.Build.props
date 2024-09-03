@@ -24,8 +24,8 @@
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <NugetLocalRepository></NugetLocalRepository>
-    <ArtifactFolder>$(SolutionDir)..\..\artifacts</ArtifactFolder>
+    <NugetLocalRepository/>
+    <ArtifactFolder/>
   </PropertyGroup>
 
   <!-- Specific environments -->
@@ -40,7 +40,7 @@
   <!-- Global configuration settings -->
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <IsPackable>true</IsPackable>
-    <BuildQualifier></BuildQualifier>
+    <BuildQualifier/>
     <IncludeSymbols>false</IncludeSymbols>
   </PropertyGroup>
 
@@ -60,7 +60,7 @@
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Test' ">
     <IsPackable>false</IsPackable>
-    <BuildQualifier></BuildQualifier>
+    <BuildQualifier/>
     <IncludeSymbols>false</IncludeSymbols>
   </PropertyGroup>
 
