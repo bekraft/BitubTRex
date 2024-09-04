@@ -83,7 +83,7 @@
     <PackageProjectUrl>https://www.github.com/bekraft/BitubTRex</PackageProjectUrl>
   </PropertyGroup>
   
-  <Target Name="GitDescribe" BeforeTargets="InitializeSourceControlInformation">
+  <Target Name="GitDescribe" BeforeTargets="InitializeSourceControlInformation" Condition="'$(Configuration)' != 'Release'">
     <Exec Command="git describe --long --always --exclude=* --abbrev=8" ConsoleToMSBuild="True" IgnoreExitCode="False">
       <Output PropertyName="GitShortHash" TaskParameter="ConsoleOutput"/>
     </Exec>
@@ -93,13 +93,10 @@
     <Message Text="     GitShortHash         : $(GitShortHash)" Importance="High" />
    
     <PropertyGroup>
-      <ReleaseVersion>$(BuildMajor).$(BuildMinor).$(BuildRelease).$(Build)</ReleaseVersion>
       <BuildVersion>$(BuildMajor).$(BuildMinor).$(BuildRelease)$(BuildQualifier)$(GitShortHash).$(Build)</BuildVersion>
-
       <AssemblyFileVersionAttribute>[assembly:System.Reflection.AssemblyVersionAttribute("$(BuildVersion)")];</AssemblyFileVersionAttribute>
-      <AssemblyVersion>$(ReleaseVersion)</AssemblyVersion>
-      <FileVersion>$(ReleaseVersion)</FileVersion>
       <PackageVersion>$(BuildVersion)</PackageVersion>
+      <Version>$(BuildVersion)</Version>
     </PropertyGroup>
   </Target>
 
