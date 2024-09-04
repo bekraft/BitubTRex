@@ -38,7 +38,14 @@ namespace Bitub.Dto.Spatial
             z_ = z;
         }
 
-        public double Magnitude => Math.Sqrt(Dot(this));
+        public XYZ(double x, double y, double z)
+        {
+            x_ = (float)x;
+            y_ = (float)y;
+            z_ = (float)z;
+        }
+
+        public double Magnitude => System.Math.Sqrt(Dot(this));
 
         public void Normalize()
         {
@@ -122,7 +129,7 @@ namespace Bitub.Dto.Spatial
         /// <returns>True, if almost equal</returns>
         public bool IsAlmostEqualTo(XYZ other, double precision = 1e-6)
         {
-            return !(Math.Abs(X - other.X) > precision || Math.Abs(Y - other.Y) > precision || Math.Abs(Z - other.Z) > precision);
+            return !(System.Math.Abs(X - other.X) > precision || System.Math.Abs(Y - other.Y) > precision || System.Math.Abs(Z - other.Z) > precision);
         }
 
         public float[] ToArray()
@@ -198,5 +205,12 @@ namespace Bitub.Dto.Spatial
         /// </summary>
         /// <returns>An Quat</returns>
         public Quat ToQuat() => new Quat { X = X, Y = Y, Z = Z, W = 0 };
+
+        /// <summary>
+        /// Get the euclidean distance between to XYZs.
+        /// </summary>
+        /// <param name="other">The XYZ with distance to.</param>
+        /// <returns>Distance</returns>
+        public double Distance(XYZ other) => (this - other).Magnitude;
     }
 }

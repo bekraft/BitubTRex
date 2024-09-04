@@ -1,10 +1,11 @@
 ﻿<Project>
+  <!-- Global settings -->
   <PropertyGroup>    
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
     <BuildMajor>1</BuildMajor>
-    <BuildMinor>0</BuildMinor>
-
+    <BuildMinor>1</BuildMinor>
+   
     <BuildRelease>$([System.DateTime]::Now.ToString("yy"))$([System.String]::Format("{0:000}",$([System.DateTime]::Now.DayOfYear)))</BuildRelease>
     <SecondsByMinute>$([MSBuild]::Multiply($([System.DateTime]::Now.Minute), 60))</SecondsByMinute>
     <SecondsByHour>$([MSBuild]::Multiply($([System.DateTime]::Now.Hour), 3600))</SecondsByHour>
@@ -14,32 +15,32 @@
     <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows>
     <IsOSX Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">true</IsOSX>    
     <IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux>
+    <IsLinuxOrOSX Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'"/>
+    
+    <DefineConstants Condition="'$(IsWindows)' == 'true'">$(DefineConstants);Is_WINDOWS</DefineConstants>
+    <DefineConstants Condition="'$(IsLinux)' == 'true'">$(DefineConstants);Is_OSX_or_LINUX;Is_LINUX</DefineConstants>
+    <DefineConstants Condition="'$(IsOSX)' == 'true'">$(DefineConstants);Is_OSX_or_LINUX;Is_OSX</DefineConstants>
 
+    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+    
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <NugetLocalRepository></NugetLocalRepository>
+    <NugetLocalRepository/>
+    <ArtifactFolder/>
   </PropertyGroup>
 
+  <!-- Specific environments -->
   <PropertyGroup Condition="'$(IsWindows)' == 'true'">
     <UserHome>$(UserProfile)</UserHome>
-    <TargetFrameworks>netstandard2.0;net47;net471;net472;net48;net481;net6.0;net7.0</TargetFrameworks>
-    <DefineConstants>$(DefineConstants);Is_WINDOWS</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'">
+  <PropertyGroup Condition="'$(IsLinuxOrOSX)' == 'true'">
     <UserHome>$(HOME)</UserHome>
-    <TargetFrameworks>netstandard2.0;net6.0;net7.0</TargetFrameworks>
-    <DefineConstants>$(DefineConstants);Is_OSX_or_LINUX</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup Condition="$(TargetFramework.StartsWith('net4'))">
-    <Reference Include="System.Net" Version="4.0.0.0" />
-    <Reference Include="System.Net.Http" Version="4.0.0.0" />
-    <Reference Include="System.IO.Compression" Version="4.0.0.0" />
-  </ItemGroup>
-
+  <!-- Global configuration settings -->
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <IsPackable>true</IsPackable>
-    <BuildQualifier></BuildQualifier>
+    <BuildQualifier/>
     <IncludeSymbols>false</IncludeSymbols>
   </PropertyGroup>
 
@@ -59,10 +60,11 @@
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Test' ">
     <IsPackable>false</IsPackable>
-    <BuildQualifier></BuildQualifier>
+    <BuildQualifier/>
     <IncludeSymbols>false</IncludeSymbols>
   </PropertyGroup>
 
+  <!-- Global build properties -->
   <PropertyGroup>
     <ReleaseVersion>$(BuildMajor).$(BuildMinor).$(BuildRelease).$(Build)</ReleaseVersion>
     <BuildVersion>$(BuildMajor).$(BuildMinor).$(BuildRelease)$(BuildQualifier).$(Build)</BuildVersion>
@@ -81,10 +83,34 @@
     <PackageProjectUrl>https://www.github.com/bekraft/BitubTRex</PackageProjectUrl>
   </PropertyGroup>
   
-  <Target Name="VersionReport" BeforeTargets="BeforeBuild">
+  <Target Name="GitDescribe" BeforeTargets="InitializeSourceControlInformation">
+    <Exec Command="git describe --long --always --exclude=* --abbrev=8" ConsoleToMSBuild="True" IgnoreExitCode="False">
+      <Output PropertyName="GitShortHash" TaskParameter="ConsoleOutput"/>
+    </Exec>
     <Message Text="===> Start building using $(TargetFramework)" Importance="high" />
-    <Message Text="     Building version  : $(BuildVersion)" Importance="High" />
-    <Message Text="     Building platform : Windows" Importance="High" Condition="'$(IsWindows)' == 'true'" />
-    <Message Text="     Building platform : OSX or Linux" Importance="High" Condition="'$(IsLinux)' == 'true' Or '$(IsOSX)' == 'true'" />
+    <Message Text="     Building version     : $(BuildVersion)" Importance="High" />
+    <Message Text="     Building definitions : $(DefineConstants)" Importance="High" />
+    <Message Text="     GitShortHash         : $(GitShortHash)" Importance="High" />
+   
+    <PropertyGroup>
+      <ReleaseVersion>$(BuildMajor).$(BuildMinor).$(BuildRelease).$(Build)</ReleaseVersion>
+      <BuildVersion>$(BuildMajor).$(BuildMinor).$(BuildRelease)$(BuildQualifier)$(GitShortHash).$(Build)</BuildVersion>
+
+      <AssemblyFileVersionAttribute>[assembly:System.Reflection.AssemblyVersionAttribute("$(BuildVersion)")];</AssemblyFileVersionAttribute>
+      <AssemblyVersion>$(ReleaseVersion)</AssemblyVersion>
+      <FileVersion>$(ReleaseVersion)</FileVersion>
+      <PackageVersion>$(BuildVersion)</PackageVersion>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="CopyPgksToCacheFolder" AfterTargets="Pack" Condition="'$(ArtifactFolder)' != ''">
+    <ItemGroup>
+      <SourceNuPkgs Include="$(OutputPath)*.nupkg;$(OutputPath)*.snupkg" />
+    </ItemGroup>
+
+    <Message Importance="High" Text="Started deploying `@(SourceNuPkgs)` from $(OutputPath) to artifact folder at `$(ArtifactFolder)`." Condition="'@(SourceNuPkgs)' != ''"/>
+
+    <Copy SourceFiles="@(SourceNuPkgs)" DestinationFolder="$(ArtifactFolder)" />
+    <Delete Files="@(SourceNuPkgs)" />
   </Target>
 </Project>

@@ -49,7 +49,7 @@ namespace Bitub.Dto
         /// </summary>
         public int Percentage
         {
-            get => Math.Max(0, Math.Min(100, (int)Math.Ceiling(100.0 * ((double)Done / Math.Max(1, TotalEstimate)))));
+            get => System.Math.Max(0, System.Math.Min(100, (int)System.Math.Ceiling(100.0 * ((double)Done / System.Math.Max(1, TotalEstimate)))));
         }
 
         /// <summary>
@@ -219,7 +219,7 @@ namespace Bitub.Dto
         /// <returns>The recent estimate</returns>
         public long UpdateEstimate(long newEstimatedTotal)
         {
-            return Interlocked.Exchange(ref __total, Math.Max(0, newEstimatedTotal));
+            return Interlocked.Exchange(ref __total, System.Math.Max(0, newEstimatedTotal));
         }
 
         /// <summary>

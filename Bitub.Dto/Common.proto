@@ -50,3 +50,48 @@ message RefId {
 		Qualifier sid = 2;
 	}
 }
+
+// The semantic data type
+enum DataType {
+	UNDEFINED = 0;
+	LABEL = 1;
+	GUID = 2;
+	ID = 3;
+	DECIMAL = 4;
+	INTEGER = 5;
+	TEXT = 6;
+	ENUM = 7;
+	BOOLEAN = 8;
+	LOGICAL = 9;
+	TIMESTAMP = 10;
+}
+
+// SI Unit
+enum DataUnitSI {
+	NONE = 0;
+	METER = 1;
+	KILOGRAM = 2;
+	SECOND = 3;
+}
+
+// Unit's prefix
+enum DataUnitPrefix {
+	UNIT = 0;
+	NANO = -9;
+	MICRO = -6;
+	MILLI = -3;
+	DECI = 1;
+	CENTI = 2;
+	KILO = 3;
+	MEGA = 6;
+	GIGA = 9;
+}
+
+// The feature data operator
+enum DataOp {
+	Equals = 0;
+	Less = 1;
+	LessThanEquals = 2;
+	Greater = 3;
+	GreaterThanEquals = 4;
+}

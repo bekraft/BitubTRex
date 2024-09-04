@@ -5,9 +5,27 @@ using System.Text.Json;
 
 namespace Bitub.Dto.Json
 {
+    /// <summary>
+    /// Boolean serialisation types.
+    /// </summary>
     public enum JsonBoolSerializationType
     {
-        JsonConformant, AsString, AsFlag, AsStringFlag
+        /// <summary>
+        /// As json boolean.
+        /// </summary>
+        JsonConformant, 
+        /// <summary>
+        /// As string (i.e. "true" or "false")
+        /// </summary>
+        AsString, 
+        /// <summary>
+        /// As flag (i.e. 0 or 1)
+        /// </summary>
+        AsFlag, 
+        /// <summary>
+        /// As string flag (i.e. "0" or "1")
+        /// </summary>
+        AsStringFlag
     }
 
     public sealed class JsonBoolSafeReadWriteFlagConverter : JsonBoolSafeConverter
@@ -16,6 +34,9 @@ namespace Bitub.Dto.Json
         { }
     }
 
+    /// <summary>
+    /// Json converter handling the serialization types of <see cref="JsonBoolSerializationType"/>.
+    /// </summary>
     public abstract class JsonBoolSafeConverter : JsonConverter<bool>
     {
         public JsonBoolSerializationType WriteOutType { get; set; } = JsonBoolSerializationType.JsonConformant;

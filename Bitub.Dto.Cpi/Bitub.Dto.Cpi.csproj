@@ -7,7 +7,6 @@
     <Configurations>Debug;Dev;Release;Test</Configurations>
 
     <RootNamespace>Bitub.Dto.Cpi</RootNamespace>
-    <LangVersion>8.0</LangVersion>
     <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 

@@ -8,14 +8,32 @@ option csharp_namespace = "Bitub.Dto.TRex";
 option java_package = "bitub.dto";
 
 enum FeatureStageStrategy {
-	LASTOF = 0;
-	FIRSTOF = 1;
-	ALLOF = 2;
+	LASTOF = 0; // Last occurance in hierarchy is leading
+	FIRSTOF = 1;  // First occurance in hierarchy is leading
+	ALLOF = 2;  // All occurances in hierarchy should be aggregated
 }
 
 enum FeatureRangeStrategy {
 	HEAD = 0;
 	TAIL = 1;
+}
+
+enum FeatureDefaultStrategy {
+	PROCESS_ONLY_GIVEN = 0; // Process only declared feature mappings
+	PROCESS_ALL = 1; // Process all including declared (add sources as duplicates)
+	PROCESS_ALL_EXCLUDE_GIVEN = 2; // Process all excluding declared (skip mapped sources) but add all other
+}
+
+message FeatureRule {
+	oneof rule {
+		FeatureExclusion exclude = 1;
+		FeatureMapping map = 2;
+		FeatureAddition add = 3;
+	}
+}
+
+message FeatureExclusion {
+	Qualifier target = 1;
 }
 
 message FeatureMapping {
@@ -24,4 +42,9 @@ message FeatureMapping {
 
 	FeatureStageStrategy stageStrategy = 3;
 	FeatureRangeStrategy rangeStrategy = 4;
+}
+
+message FeatureAddition {
+	Qualifier target = 1;
+	FeatureData data = 2;
 }

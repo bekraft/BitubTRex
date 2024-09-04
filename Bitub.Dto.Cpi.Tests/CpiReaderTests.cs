@@ -1,9 +1,5 @@
 using NUnit.Framework;
 
-using System.IO;
-
-using Bitub.Dto.Cpi;
-
 namespace Bitub.Dto.Cpi.Tests
 {
     public class CpiReaderTests : TestBase<CpiReaderTests>
@@ -15,16 +11,16 @@ namespace Bitub.Dto.Cpi.Tests
             {
                 var fixture = new CpiResourceReader(resource);
             
-                Assert.IsNotNull(fixture.ProjectID);
-                Assert.IsNotNull(fixture.SourceApplication);
+                Assert.That(fixture.ProjectID, Is.Not.Null);
+                Assert.That(fixture.SourceApplication, Is.Not.Null);
 
-                Assert.AreEqual(3, fixture.Contents.Length);
+                Assert.That(3, Is.EqualTo(fixture.Contents.Length));
 
                 var dataSection = fixture.ObjectDataSection;
-                Assert.IsNotNull(dataSection);
+                Assert.That(dataSection, Is.Not.Null);
 
                 var objectSection = fixture.ObjectSection;
-                Assert.IsNotNull(objectSection);
+                Assert.That(objectSection, Is.Not.Null);
             }
         }
     }

@@ -4,11 +4,6 @@ using System.Linq;
 
 namespace Bitub.Dto.Scene
 {
-    public enum MeshManifoldResult
-    {
-        Closed, Open, OpenNonmanifold
-    }
-
     public partial class Mesh
     {
         /// <summary>
@@ -53,38 +48,6 @@ namespace Bitub.Dto.Scene
             return newMesh;
         }
 
-        public MeshManifoldResult DecomposeManifold(PtOffsetArray ptArray, out List<Body> components)
-        {
-            var hull = new Dictionary<uint, List<Arc<uint>>>();
-            components = new List<Body>();
-            var queue = new Queue<Arc<uint>>();
-
-            // First index all facets
-            foreach (var f in ToFacets(ptArray))
-            {
-                foreach (var b in f.Loop)
-                {
-                    List<Arc<uint>> star;
-                    if (!hull.TryGetValue(b.Origin, out star))
-                    {
-                        star = new List<Arc<uint>>();
-                        hull[b.Origin] = star;
-                    }
-
-                    if (star.Contains(b))
-                    {
-                        queue.Enqueue(b);
-                    }
-                    else
-                    {
-                        star.Add(b);
-                    }
-                }
-            }
-
-
-            throw new NotImplementedException();
-        }
 
         /// <summary>
         /// Computes the simplex (tetrahedral) volume approximation. The result will be nearly exact,

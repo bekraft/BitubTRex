@@ -3,10 +3,6 @@ using Bitub.Dto.Scene;
 using Bitub.Dto.Spatial;
 using NUnit.Framework;
 
-#if NETFRAMEWORK || NETSTANDARD
-using MathF = System.Math;
-#endif
-
 namespace Bitub.Dto.Tests.Scene
 {
     public class QuatTests : TestBase<QuatTests>
@@ -18,21 +14,21 @@ namespace Bitub.Dto.Tests.Scene
         public void IdentityMatchesIdentity() 
         {
             var m33 = Quat.Identity.ToM33();
-            Assert.IsTrue(m33.IsAlmostEqualTo(M33.Identity));
+            Assert.That(m33.IsAlmostEqualTo(M33.Identity), Is.True);
         }
 
         [Test]
         public void InverseTimesNonInverseIsIdentity()
         {
             var q = M33.MirrorX.ToQuat().ToNormalized();
-            Assert.IsTrue(Quat.Identity.IsAlmostEqualTo(q.Inverse() * q));
+            Assert.That(Quat.Identity.IsAlmostEqualTo(q.Inverse() * q), Is.True);
         }
 
         [Test]
         public void InverseIsNormalizedConjugate()
         {
             var q = M33.MirrorX.ToQuat();
-            Assert.IsTrue(q.Inverse().IsAlmostEqualTo(q.ToNormalized().Conjugate()));
+            Assert.That(q.Inverse().IsAlmostEqualTo(q.ToNormalized().Conjugate()), Is.True);
         }
 
         [Test]
@@ -40,7 +36,7 @@ namespace Bitub.Dto.Tests.Scene
         {
             var q = M33.Identity.RotateZ((float)MathF.PI / 2).ToQuat();
             var v = q.Transform(XYZ.OneX);
-            Assert.IsTrue(XYZ.OneY.IsAlmostEqualTo(v));
+            Assert.That(XYZ.OneY.IsAlmostEqualTo(v), Is.True);
         }
         
         [Test]
@@ -48,7 +44,7 @@ namespace Bitub.Dto.Tests.Scene
         {
             var q = M33.Identity.RotateX((float)MathF.PI / 2).ToQuat();
             var v = q.Transform(XYZ.OneY);
-            Assert.IsTrue(XYZ.OneZ.IsAlmostEqualTo(v));
+            Assert.That(XYZ.OneZ.IsAlmostEqualTo(v), Is.True);
         }
 
         [Test]
@@ -56,7 +52,7 @@ namespace Bitub.Dto.Tests.Scene
         {
             var q = M33.Identity.RotateY((float)MathF.PI / 2).ToQuat();
             var v = q.Transform(XYZ.OneZ);
-            Assert.IsTrue(XYZ.OneX.IsAlmostEqualTo(v));
+            Assert.That(XYZ.OneX.IsAlmostEqualTo(v), Is.True);
         }
 
         [Test]
@@ -66,8 +62,8 @@ namespace Bitub.Dto.Tests.Scene
             var q1 = M33.Identity.RotateX((float)MathF.PI / 2).ToQuat();
             var d = q0.DeltaPost(q1);
             
-            Assert.IsTrue(d.IsAlmostEqualTo(q0));
-            Assert.IsTrue(q0.Times(d).IsAlmostEqualTo(q1));
+            Assert.That(d.IsAlmostEqualTo(q0), Is.True);
+            Assert.That(q0.Times(d).IsAlmostEqualTo(q1), Is.True);
         }
         
         [Test]
@@ -77,8 +73,8 @@ namespace Bitub.Dto.Tests.Scene
             var q1 = M33.Identity.RotateX((float)MathF.PI / 2).ToQuat();
             var d = q0.DeltaPre(q1);
             
-            Assert.IsTrue(d.IsAlmostEqualTo(q0));
-            Assert.IsTrue(d.Times(q0).IsAlmostEqualTo(q1));
+            Assert.That(d.IsAlmostEqualTo(q0), Is.True);
+            Assert.That(d.Times(q0).IsAlmostEqualTo(q1), Is.True);
         }
     }
 }
