@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <ProtobufVersion>3.26.1</ProtobufVersion>
+    <ProtobufVersion>3.28.0</ProtobufVersion>
     <ProtobufTools>$(UserHome)/.nuget/packages/google.protobuf.tools/$(ProtobufVersion)/tools</ProtobufTools>
     <PackageReadmeFile>package-readme.md</PackageReadmeFile>
     
@@ -79,11 +79,11 @@
   </ItemGroup>
     
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf" Version="3.26.1" />
-    <PackageReference Include="Google.Protobuf.Tools" Version="3.26.1" />
+    <PackageReference Include="Google.Protobuf" Version="3.28.0" />
+    <PackageReference Include="Google.Protobuf.Tools" Version="3.28.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
     <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
-    <PackageReference Include="System.Text.Json" Version="8.0.3" />
+    <PackageReference Include="System.Text.Json" Version="8.0.4" />
   </ItemGroup>
     
   <Target Name="GenerateProto" BeforeTargets="BeforeBuild">
