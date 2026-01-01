@@ -4,7 +4,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
     <BuildMajor>1</BuildMajor>
-    <BuildMinor>1</BuildMinor>
+    <BuildMinor>2</BuildMinor>
    
     <BuildRelease>$([System.DateTime]::Now.ToString("yy"))$([System.String]::Format("{0:000}",$([System.DateTime]::Now.DayOfYear)))</BuildRelease>
     <SecondsByMinute>$([MSBuild]::Multiply($([System.DateTime]::Now.Minute), 60))</SecondsByMinute>
@@ -21,7 +21,7 @@
     <DefineConstants Condition="'$(IsLinux)' == 'true'">$(DefineConstants);Is_OSX_or_LINUX;Is_LINUX</DefineConstants>
     <DefineConstants Condition="'$(IsOSX)' == 'true'">$(DefineConstants);Is_OSX_or_LINUX;Is_OSX</DefineConstants>
 
-    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
     
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <NugetLocalRepository/>
@@ -84,7 +84,7 @@
   </PropertyGroup>
   
   <Target Name="GitDescribe" BeforeTargets="InitializeSourceControlInformation" Condition="'$(Configuration)' != 'Release'">
-    <Exec Command="git describe --long --always --exclude=* --abbrev=8" ConsoleToMSBuild="True" IgnoreExitCode="False">
+    <Exec Command="git describe --long --always --exclude=* --abbrev=8" ConsoleToMsBuild="True" IgnoreExitCode="False">
       <Output PropertyName="GitShortHash" TaskParameter="ConsoleOutput"/>
     </Exec>
     <Message Text="===> Start building using $(TargetFramework)" Importance="high" />
